@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio | Philippe Hountondji</title>
+  
+  <!-- Précharger les ressources critiques -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="css/style.css" as="style">
+  <link rel="preload" href="images/acceuil.jpeg" as="image">
+  
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Font Awesome - version optimisée -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts avec display:swap pour chargement rapide -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/000000/developer.png">
+  
+  <!-- Style inline critique pour éviter le flash de contenu -->
+  <style>
+    /* Afficher immédiatement le contenu principal */
+    body {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    header, #accueil, #apropos, #competences, #projets, #contact {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    /* Masquer les animations initially */
+    .skill-category, .projet-card, .stat, .contact-method {
+      opacity: 0;
+    }
+  </style>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KJY4BYVDHX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KJY4BYVDHX');
+</script>
+<meta name="og:title" content="Portfolio Philippe">
+<meta name="og:description" content="Passionné par le développement web et l'administration réseau">
+<meta name="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" >
+<meta name="og:url" content="https://portfolio-philippe.netlify.app/" >
+<meta name="og:site_name" content="Philippe Portfolio">
+<meta name="og:image:alt" content="portfolio-philippe">
+</head>
+
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <nav class="container">
+      <a href="#accueil" class="logo">PHILIPPE HOUNTONDJI</a>
+      <ul class="nav-links">
+        <li><a href="#accueil">Accueil</a></li>
+        <li><a href="#apropos">À propos</a></li>
+        <li><a href="#competences">Compétences</a></li>
+        <li><a href="#projets">Projets</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Accueil / Hero -->
+  <section id="accueil" class="accueil container">
+    <div class="accueil-image">
+      <img 
+        src="images/acceuil.jpeg" alt="Espace de travail informatique moderne"
+        loading="eager" fetchpriority="high" width="450" height="280">
+    </div>
+    <div class="hero-text">
+      <h1>Philippe Hountondji</h1>
+      <h2>Étudiant en Informatique & Réseaux</h2>
+      <p>
+        Passionné par le développement web et l'administration réseau, je transforme des idées en solutions digitales efficaces. 
+        Curieux et déterminé, j'explore chaque jour de nouvelles technologies pour élargir mes compétences.
+      </p>
+      <div class="hero-buttons">
+        <a href="#projets" class="btn btn-primary">
+          <i class="fas fa-code"></i> Voir mes projets
+        </a>
+        <a href="#contact" class="btn btn-secondary">
+          <i class="fas fa-paper-plane"></i> Me contacter
+        </a>
+      </div>
+      <div class="social-icons">
+        <a href="https://wa.me/22958156930" target="_blank" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- À propos -->
+  <section id="apropos" class="apropos container">
+    <h2><i class="fas fa-user"></i> Qui suis-je ?</h2>
+    <div class="apropos-content">
+      <div class="apropos-image">
+        <img 
+          src="images/apropos.jpeg" alt="Développement et programmation"
+          loading="lazy">
+      </div>
+      <div class="apropos-text">
+        <p>
+          <strong>Bonjour !</strong> Je m'appelle Philippe Hountondji, étudiant passionné d'informatique et réseaux originaire du Bénin.
+          Ma fascination pour la technologie a commencé dès mon plus jeune âge, et je n'ai cessé d'explorer ce domaine depuis.
+        </p>
+        <p>
+          Je me spécialise dans le <strong>développement web full-stack</strong> et l'<strong>administration réseau</strong>. 
+          Pour moi, chaque projet est une opportunité d'apprendre et de repousser mes limites techniques.
+        </p>
+        <p>
+          Mon approche allie rigueur technique et créativité pour concevoir des solutions à la fois performantes et esthétiques. 
+          Je crois fermement que la meilleure façon d'apprendre est de créer, c'est pourquoi je travaille constamment sur des projets personnels.
+        </p>
+        <div class="apropos-stats">
+          <div class="stat">
+            <span class="stat-number">5+</span>
+            <span class="stat-label">Projets réalisés</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">5</span>
+            <span class="stat-label">Langages maîtrisés</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Motivation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compétences -->
+  <section id="competences" class="competences container">
+    <h2><i class="fas fa-cogs"></i> Mes Compétences</h2>
+    <p class="section-subtitle">Un aperçu de mes compétences techniques à travers trois domaines clés</p>
+    
+    <div class="skills-content">
+      <!-- Développement -->
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-code"></i>
+          </div>
+          <h3>Développement Web</h3>
+        </div>
+        <ul>
+          <li><i class="fab fa-python"></i> <strong>Python</strong></li>
+          <li><i class="fab fa-html5"></i> <strong>HTML5</strong></li>
+          <li><i class="fab fa-css3-alt"></i> <strong>CSS3</strong></li>
+          <li><i class="fab fa-js"></i> <strong>JavaScript</strong></li>
+          <li><i class="fab fa-node-js"></i> <strong>Node.js</strong></li>
+          <li><i class="fas fa-database"></i> <strong>Bases de données</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 85%;"></div>
+          <span>Niveau : Avancé</span>
+        </div>
+      </div>
+
+      <!-- Réseaux -->
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="fas fa-network-wired"></i>
+          </div>
+          <h3>Réseaux & Infrastructure</h3>
+        </div>
+        <ul>
+          <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong> </li>
+          <li><i class="fas fa-server"></i> <strong>Gestion de serveurs</strong></li>
+          <li><i class="fas fa-shield-alt"></i> <strong>Sécurité réseau</strong></li>
+          <li><i class="fas fa-chart-line"></i> <strong>Supervision</strong></li>
+          <li><i class="fas fa-tools"></i> <strong>Dépannage</strong></li>
+          <li><i class="fas fa-cloud"></i> <strong>Cloud</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 80%;"></div>
+          <span>Niveau : Intermédiaire</span>
+        </div>
+      </div>
+
+      <!-- Maintenance -->
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="fas fa-laptop-medical"></i>
+          </div>
+          <h3>Maintenance & Support</h3>
+        </div>
+        <ul>
+          <li><i class="fas fa-search"></i> <strong>Diagnostic hardware/software</strong></li>
+          <li><i class="fas fa-cogs"></i> <strong>Installation systèmes</strong></li>
+          <li><i class="fas fa-tools"></i> <strong>Maintenance préventive</strong></li>
+          <li><i class="fas fa-sync-alt"></i> <strong>Mise à jour & patches</strong></li>
+          <li><i class="fas fa-headset"></i> <strong>Support utilisateurs</strong></li>
+          <li><i class="fas fa-bolt"></i> <strong>Optimisation performance</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 90%;"></div>
+          <span>Niveau : Expert</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image illustrative réseaux -->
+    <div class="competences-image">
+      <img 
+        src="images/competences.jpeg" alt="Infrastructure réseau et serveurs"
+        loading="lazy">
+    </div>
+  </section>
+
+  <!-- Projets -->
+  <section id="projets" class="projets container">
+    <h2><i class="fas fa-project-diagram"></i> Mes Projets</h2>
+    <p class="section-subtitle">Découvrez une sélection de mes réalisations techniques</p>
+    
+    <div class="projets-grid">
+      <!-- Projet 1 -->
+      <div class="projet-card">
+        <div class="projet-badge">Nouveau</div>
+        <div class="projet-image">
+          <img 
+            src="images/projets-1.jpeg"alt="Interface dashboard développeur"
+            loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Dashboard Administratif</h3>
+          <p>Plateforme de gestion complète avec visualisation de données en temps réel, authentification et tableau de bord responsive.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-react"></i> React</span>
+            <span><i class="fab fa-node-js"></i> Node.js</span>
+            <span><i class="fas fa-database"></i> MongoDB</span>
+          </div>
+          <!-- <div class="projet-links">
+            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Voir le projet</a>
+            <a href="#" class="projet-link"><i class="fab fa-github"></i> Code source</a>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- Projet 2 -->
+      <div class="projet-card">
+        <div class="projet-badge">Réseaux</div>
+        <div class="projet-image">
+          <img 
+            src="images/projets-2.jpeg" alt="Salle de serveurs et data center"
+            loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Simulation Réseau Entreprise</h3>
+          <p>Modélisation complète d'un réseau d'entreprise avec routeurs, switches, VLANs et politiques de sécurité avancées.</p>
+          <div class="projet-technologies">
+            <span><i class="fas fa-network-wired"></i> Cisco</span>
+            <span><i class="fas fa-shield-alt"></i> Sécurité</span>
+            <span><i class="fas fa-sitemap"></i> Topologie</span>
+          </div>
+          <!-- <div class="projet-links">
+            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Documentation</a>
+            <a href="#" class="projet-link"><i class="fas fa-download"></i> Télécharger</a>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- Projet 3 -->
+      <div class="projet-card">
+        <div class="projet-badge">API</div>
+        <div class="projet-image">
+          <img 
+            src="images/projets-3.jpeg"alt="Code source et développement"
+            loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Système de Gestion API</h3>
+          <p>API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-python"></i> Python</span>
+            <span><i class="fas fa-bolt"></i> FastAPI</span>
+            <span><i class="fas fa-server"></i> PostgreSQL</span>
+          </div>
+          <!-- <div class="projet-links">
+            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Tester l'API</a>
+            <a href="#" class="projet-link"><i class="fab fa-github"></i> Code source</a>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact container">
+    <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
+    <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
+    
+    <div class="contact-content">
+      <!-- Formulaire -->
+      <form class="contact-form" id="contactForm">
+        <div class="form-header">
+          <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
+          <p>Je vous répondrai dans les plus brefs délais</p>
+        </div>
+        
+        <div class="form-group">
+          <label for="name"><i class="fas fa-user"></i> Nom complet</label>
+          <input type="text" id="name" name="name" placeholder="Votre nom" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+            <input type="email" id="email" name="email" placeholder="votre@email.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="message"><i class="fas fa-comment"></i> Message</label>
+          <textarea id="message" name="message" rows="6" placeholder="Décrivez votre projet ou demande..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-submit">
+            <i class="fas fa-paper-plane"></i> Envoyer le message
+          </button>
+          <div class="form-notice">
+            <i class="fas fa-info-circle"></i> Tous les champs sont obligatoires
+          </div>
+        </div>
+      </form>
+
+      <!-- Informations de contact -->
+      <div class="contact-info">
+        <div class="contact-card">
+          <div class="contact-card-header">
+            <h3><i class="fas fa-address-card"></i> Mes Coordonnées</h3>
+            <p>Plusieurs façons de me contacter</p>
+          </div>
+          
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-icon">
+                <i class="fab fa-whatsapp"></i>
+              </div>
+              <div class="contact-details">
+                <h4>WhatsApp</h4>
+                <a href="https://wa.me/22958156930" target="_blank">+229 01 58 15 69 30</a>
+                <p>Réponse rapide</p>
+              </div>
+            </div>
+
+            <div class="contact-method">
+              <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="contact-details">
+                <h4>Email</h4>
+                <a href="mailto:hountondjiphilippe58@gmail.com">hountondjiphilippe58@gmail.com</a>
+                <p>Pour les demandes détaillées</p>
+              </div>
+            </div>
+
+            <div class="contact-method">
+              <div class="contact-icon">
+                <i class="fab fa-linkedin"></i>
+              </div>
+              <div class="contact-details">
+                <h4>LinkedIn</h4>
+                <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank">Profil LinkedIn</a>
+                <p>Connectons-nous professionnellement</p>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <a href="#accueil">PHILIPPE</a>
+          <p>Étudiant en Informatique & Réseaux</p>
+          <p>Passionné par la technologie et l'innovation</p>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Navigation Rapide</h4>
+          <ul>
+            <li><a href="#accueil"><i class="fas fa-chevron-right"></i> Accueil</a></li>
+            <li><a href="#apropos"><i class="fas fa-chevron-right"></i> À propos</a></li>
+            <li><a href="#competences"><i class="fas fa-chevron-right"></i> Compétences</a></li>
+            <li><a href="#projets"><i class="fas fa-chevron-right"></i> Projets</a></li>
+            <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contactez-moi</h4>
+          <p><i class="fas fa-map-marker-alt"></i> Bénin</p>
+          <p><i class="fas fa-phone"></i> +229 01 58 15 69 30</p>
+          <p><i class="fas fa-envelope"></i> hountondjiphilippe58@gmail.com</p>
+        </div>
+        
+        <div class="footer-social">
+          <h4>Suivez-moi</h4>
+          <div class="social-icons">
+            <a href="https://wa.me/22958156930" target="_blank" aria-label="WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email">
+              <i class="fas fa-envelope"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" aria-label="LinkedIn">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
+          <p class="footer-newsletter">Abonnez-vous à ma newsletter</p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Votre email" required>
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 Philippe Hountondji. Tous droits réservés.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bouton Back to Top -->
+  <button class="back-to-top" aria-label="Retour en haut">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts - async pour ne pas bloquer le rendu -->
+  <script src="js/script.js" async></script>
+</body>
+</html>
