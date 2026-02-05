@@ -3,7 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Portfolio de Philippe Hountondji - Étudiant en Informatique & Réseaux passionate par le développement web et l'administration réseau">
+  <meta name="keywords" content="développement web, administration réseau, portfolio, python, html, css, javascript, nodejs">
+  <meta name="author" content="Philippe Hountondji">
+  
+  <!-- Meta tags Open Graph -->
+  <meta property="og:title" content="Portfolio | Philippe Hountondji">
+  <meta property="og:description" content="Passionné par le développement web et l'administration réseau">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portfolio-philippe.netlify.app/">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+  
+  <!-- Protection contre les iframes -->
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  
+  <!-- Protection XSS -->
+  <meta name="X-XSS-Protection" content="1; mode=block">
+  
+  <!-- Empêcher le sniffage de type MIME -->
+  <meta name="X-Content-Type-Options" content="nosniff">
+  
   <title>Portfolio | Philippe Hountondji</title>
+  
+  <!-- Script pour Ctrl+Shift+P redirige vers admin -->
+  <script>
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+Shift+P = Rediriger vers admin
+      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        window.location.href = 'admin/index.html';
+        return false;
+      }
+    });
+  </script>
   
   <!-- Précharger les ressources critiques -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,19 +72,19 @@
       opacity: 0;
     }
   </style>
- <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NHL1BPNV2X"></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KJY4BYVDHX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-NHL1BPNV2X');
+  gtag('config', 'G-KJY4BYVDHX');
 </script>
 <meta name="og:title" content="Portfolio Philippe">
 <meta name="og:description" content="Passionné par le développement web et l'administration réseau">
 <meta name="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" >
-<meta name="og:url" content="https://hountondji-philippe.github.io/portfolio/ >
+<meta name="og:url" content="https://portfolio-philippe.netlify.app/" >
 <meta name="og:site_name" content="Philippe Portfolio">
 <meta name="og:image:alt" content="portfolio-philippe">
 </head>
@@ -98,13 +132,13 @@
         </a>
       </div>
       <div class="social-icons">
-        <a href="https://wa.me/22958156930" target="_blank" aria-label="WhatsApp">
+        <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
         <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email">
           <i class="fas fa-envelope"></i>
         </a>
-        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" aria-label="LinkedIn">
+        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
           <i class="fab fa-linkedin"></i>
         </a>
       </div>
@@ -327,11 +361,9 @@
           <input type="text" id="name" name="name" placeholder="Votre nom" required>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
-            <input type="email" id="email" name="email" placeholder="votre@email.com" required>
-          </div>
+        <div class="form-group">
+          <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+          <input type="email" id="email" name="email" placeholder="votre@email.com" required>
         </div>
 
         <div class="form-group">
@@ -364,7 +396,7 @@
               </div>
               <div class="contact-details">
                 <h4>WhatsApp</h4>
-                <a href="https://wa.me/22958156930" target="_blank">+229 01 58 15 69 30</a>
+                <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer">+229 01 58 15 69 30</a>
                 <p>Réponse rapide</p>
               </div>
             </div>
@@ -386,7 +418,7 @@
               </div>
               <div class="contact-details">
                 <h4>LinkedIn</h4>
-                <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank">Profil LinkedIn</a>
+                <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer">Profil LinkedIn</a>
                 <p>Connectons-nous professionnellement</p>
               </div>
             </div>
@@ -426,13 +458,13 @@
         <div class="footer-social">
           <h4>Suivez-moi</h4>
           <div class="social-icons">
-            <a href="https://wa.me/22958156930" target="_blank" aria-label="WhatsApp">
+            <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <i class="fab fa-whatsapp"></i>
             </a>
             <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email">
               <i class="fas fa-envelope"></i>
             </a>
-            <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
               <i class="fab fa-linkedin"></i>
             </a>
           </div>
@@ -455,7 +487,14 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- Scripts - async pour ne pas bloquer le rendu -->
-  <script src="js/script.js" async></script>
+  <!-- Élément secret pour accès admin (connu seulement par vous) -->
+  <div style="position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; cursor: pointer; z-index: 9999;" onclick="window.location.href='admin/index.html';" title="Accès admin"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <!-- Votre script -->
+  <script src="js/script.js"></script>
 </body>
 </html>
