@@ -359,7 +359,7 @@ Cordialement,
 Philippe Hountondji
 Développeur Full Stack & UI/UX Designer
 Email: ${ADMIN_EMAIL}
-Portfolio: https://votreportfolio.com
+Portfolio: https://hountondji-philippe.github.io/portfolio
 
 Cet email a été envoyé en réponse à votre message via mon portfolio.
 © ${new Date().getFullYear()} - Tous droits réservés`;
