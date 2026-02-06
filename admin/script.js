@@ -1,131 +1,33 @@
-// ===== ADMIN PANEL - VERSION SÉCURISÉE =====
+// ===== ADMIN PANEL - VERSION AVEC SYSTÈME D'EMAIL =====
 
-// === PROTECTION IMMÉDIATE - Empêcher l'affichage du code source ===
+// === CONFIGURATION ===
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : 'https://votre-serveur-backend.com';
+
+// === PROTECTION ===
 (function() {
-  // Bloquer Ctrl+U, Ctrl+Shift+I, F12, etc.
+  // Bloquer les raccourcis développeur
   document.addEventListener('keydown', function(e) {
-    // Ctrl+U (View Source)
-    if (e.ctrlKey && e.key === 'u') {
-      e.preventDefault();
-      window.location.href = 'about:blank';
-      return false;
-    }
-    // Ctrl+Shift+I (Developer Tools)
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+Shift+J (Console)
-    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+Shift+C (Inspector)
-    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-      e.preventDefault();
-      return false;
-    }
-    // F12 (Developer Tools)
-    if (e.key === 'F12') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+S (Save)
-    if (e.ctrlKey && e.key === 's') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+P (Print)
-    if (e.ctrlKey && e.key === 'p') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+Shift+P (Command Palette - rediriger vers admin)
-    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-      e.preventDefault();
-      window.location.href = 'admin/index.html';
-      return false;
-    }
-    // Ctrl+W (Close tab)
-    if (e.ctrlKey && e.key === 'w') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+N (New window)
-    if (e.ctrlKey && e.key === 'n') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+T (New tab)
-    if (e.ctrlKey && e.key === 't') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+R (Refresh - autorisé mais on surveille)
-    if (e.ctrlKey && e.key === 'r') {
-      // Autorisé mais on vérifie l'auth
-    }
+    if (e.ctrlKey && e.key === 'u') { e.preventDefault(); window.location.href = 'about:blank'; }
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
+    if (e.key === 'F12') e.preventDefault();
+    if (e.ctrlKey && e.key === 's') e.preventDefault();
+    if (e.ctrlKey && e.key === 'p') e.preventDefault();
   });
 
-  // Bloquer le clic droit
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
   });
 
-  // Bloquer la sélection de texte
   document.addEventListener('selectstart', function(e) {
     e.preventDefault();
     return false;
   });
-
-  // Bloquer le drag & drop
-  document.addEventListener('dragstart', function(e) {
-    e.preventDefault();
-    return false;
-  });
-
-  // Bloquer le copier/coller
-  document.addEventListener('copy', function(e) {
-    e.preventDefault();
-    return false;
-  });
-  
-  document.addEventListener('paste', function(e) {
-    e.preventDefault();
-    return false;
-  });
-
-  // Empêcher le drop de fichiers
-  document.addEventListener('drop', function(e) {
-    e.preventDefault();
-    return false;
-  });
-
-  // Détection si les outils de développement sont ouverts
-  let devToolsOpen = false;
-  const checkDevTools = function() {
-    const widthThreshold = window.outerWidth - window.innerWidth > 100;
-    const heightThreshold = window.outerHeight - window.innerHeight > 100;
-    
-    if (widthThreshold || heightThreshold) {
-      devToolsOpen = true;
-      // Rediriger vers une page vide
-      document.body.innerHTML = '';
-      document.body.style.background = '#000';
-      document.body.style.display = 'flex';
-      document.body.style.justifyContent = 'center';
-      document.body.style.alignItems = 'center';
-      document.body.innerHTML = '<h1 style="color:white;">Access Denied</h1>';
-      window.location.href = 'about:blank';
-    }
-  };
-
-  setInterval(checkDevTools, 1000);
-
 })();
 
-// === CONFIGURATION FIREBASE OBFUSQUÉE ===
+// === CONFIGURATION FIREBASE ===
 const firebaseConfig = {
   apiKey: "AIzaSyC1_1e0yB3aXOzFV6cdV8kBb62KamXvoZU",
   authDomain: "portfolio-8a07b.firebaseapp.com",
@@ -133,12 +35,10 @@ const firebaseConfig = {
   projectId: "portfolio-8a07b",
   storageBucket: "portfolio-8a07b.firebasestorage.app",
   messagingSenderId: "52650351835",
-  appId: "1:52650351835:web:3b81f55313e114de36c0fe",
-  measurementId: "G-65XHVDFPS6"
+  appId: "1:52650351835:web:3b81f55313e114de36c0fe"
 };
 
 // === IDENTIFIANTS ADMIN ===
-// NOTE: En production, utilisez une vérification serveur
 const ADMIN_EMAIL = 'hountondjiphilippe58@gmail.com';
 const ADMIN_PASSWORD = '65philippa29?!?!';
 
@@ -151,29 +51,14 @@ let currentMessageId = null;
 let messagesChartInstance = null;
 let statusChartInstance = null;
 
-// === PROTECTION AU CHARGEMENT - CRITIQUE ===
+// === PROTECTION AU CHARGEMENT ===
 (function() {
-  // Masquer immédiatement tout le contenu potentiellement sensible
   const dashboard = document.getElementById('dashboard');
   const loginPage = document.getElementById('loginPage');
   
   if (dashboard) {
-    dashboard.style.display = 'none';
     dashboard.classList.add('hidden');
-    dashboard.style.visibility = 'hidden';
-    dashboard.style.opacity = '0';
-    dashboard.style.pointerEvents = 'none';
   }
-  
-  // Afficher uniquement la page de login
-  if (loginPage) {
-    loginPage.style.display = 'flex';
-    loginPage.style.visibility = 'visible';
-    loginPage.style.opacity = '1';
-    loginPage.style.pointerEvents = 'auto';
-  }
-  
-  console.log('%c🔒 Protection activée', 'color: red; font-size: 20px;');
 })();
 
 // === ÉLÉMENTS DU DOM ===
@@ -206,22 +91,25 @@ const modalCloseX = document.querySelector('.modal-close');
 const refreshBtn = document.getElementById('refreshBtn');
 const togglePassword = document.querySelector('.toggle-password');
 
-// === VÉRIFICATION CONTINUE DE L'AUTHENTIFICATION ===
-setInterval(function() {
-  if (!isAuthenticated && dashboard) {
-    dashboard.style.display = 'none';
-    dashboard.style.visibility = 'hidden';
-    dashboard.style.opacity = '0';
-    dashboard.style.pointerEvents = 'none';
-  }
+// === FONCTION POUR RETOURNER AU PORTFOLIO ===
+function createBackToPortfolioButton() {
+  const sidebar = document.querySelector('.sidebar-footer');
+  if (!sidebar) return;
   
-  if (!isAuthenticated && loginPage) {
-    loginPage.style.display = 'flex';
-    loginPage.style.visibility = 'visible';
-    loginPage.style.opacity = '1';
-    loginPage.style.pointerEvents = 'auto';
-  }
-}, 50);
+  // Vérifier si le bouton existe déjà
+  if (document.getElementById('backToPortfolio')) return;
+  
+  const backButton = document.createElement('button');
+  backButton.id = 'backToPortfolio';
+  backButton.className = 'btn-back-portfolio';
+  backButton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
+  
+  backButton.addEventListener('click', function() {
+    window.location.href = '../index.html';
+  });
+  
+  sidebar.insertBefore(backButton, logoutBtn);
+}
 
 // === INITIALISATION FIREBASE ===
 function initializeFirebase() {
@@ -262,31 +150,506 @@ function showNotification(message, type = 'info') {
   }, 4000);
 }
 
+// === FONCTION POUR ENVOYER UNE RÉPONSE PAR EMAIL (OUVERTURE GMAIL) ===
+async function sendEmailReply(messageId, recipientEmail, recipientName) {
+  const replyModal = document.createElement('div');
+  replyModal.className = 'modal active';
+  replyModal.innerHTML = `
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-reply"></i> Répondre à ${recipientName}</h3>
+        <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="replyForm" class="reply-form">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Destinataire</label>
+            <div class="recipient-display">
+              <span class="recipient-name">${recipientName}</span>
+              <span class="recipient-email">${recipientEmail}</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-heading"></i> Objet</label>
+            <div class="subject-input-wrapper">
+              <input type="text" id="replySubject" value="Re: Votre message sur mon portfolio" required>
+              <i class="fas fa-edit subject-icon"></i>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="message-label">
+              <i class="fas fa-comment"></i> Votre réponse
+              <span class="label-optional">(Conseils de rédaction ci-dessous)</span>
+            </label>
+            
+            <div class="message-editor-container">
+              <div class="editor-toolbar">
+                <button type="button" class="format-btn" data-format="bold" title="Gras"><i class="fas fa-bold"></i></button>
+                <button type="button" class="format-btn" data-format="italic" title="Italique"><i class="fas fa-italic"></i></button>
+                <button type="button" class="format-btn" data-format="underline" title="Souligné"><i class="fas fa-underline"></i></button>
+                <span class="toolbar-separator"></span>
+                <button type="button" class="format-btn" data-format="list" title="Liste"><i class="fas fa-list"></i></button>
+                <button type="button" class="format-btn" data-format="link" title="Lien"><i class="fas fa-link"></i></button>
+              </div>
+              
+              <textarea id="replyMessage" rows="12" placeholder="Écrivez votre réponse ici... 
+              
+Bonjour [Nom],
+
+Merci pour votre message concernant [sujet].
+
+[Votre réponse détaillée ici]
+
+Cordialement,
+Philippe" required></textarea>
+              
+              <div class="editor-footer">
+                <div class="writing-tips">
+                  <div class="tip-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <span><strong>Astuce :</strong> Personnalisez le message avec le nom du destinataire</span>
+                  </div>
+                  <div class="tip-item">
+                    <i class="fas fa-clock"></i>
+                    <span><strong>Rapidité :</strong> Répondez dans les 24h pour une meilleure impression</span>
+                  </div>
+                </div>
+                
+                <div class="char-stats">
+                  <div class="char-count-display">
+                    <i class="fas fa-font"></i>
+                    <span id="charCount">0</span> caractères
+                  </div>
+                  <div class="word-count-display">
+                    <i class="fas fa-file-word"></i>
+                    <span id="wordCount">0</span> mots
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="email-preview-card">
+            <div class="preview-header">
+              <i class="fas fa-paper-plane"></i>
+              <span>Aperçu de l'envoi</span>
+            </div>
+            <div class="preview-content">
+              <p>
+                <strong>De :</strong> ${ADMIN_EMAIL}<br>
+                <strong>À :</strong> ${recipientEmail}<br>
+                <strong>Via :</strong> Votre client email par défaut (Gmail)
+              </p>
+              <p class="preview-note">
+                <i class="fas fa-info-circle"></i> Cliquez sur "Ouvrir dans Gmail" pour composer votre email
+              </p>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="this.closest('.modal').remove()">
+              <i class="fas fa-times"></i> Annuler
+            </button>
+            <button type="button" class="btn-primary" id="sendEmailBtn">
+              <i class="fas fa-envelope"></i> Ouvrir dans Gmail
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(replyModal);
+  
+  // Variables pour l'éditeur
+  const messageTextarea = document.getElementById('replyMessage');
+  const charCount = document.getElementById('charCount');
+  const wordCount = document.getElementById('wordCount');
+  const subjectInput = document.getElementById('replySubject');
+  
+  // Mettre le focus sur la zone de texte
+  setTimeout(() => messageTextarea.focus(), 100);
+  
+  // Compteur de caractères et mots
+  function updateCounters() {
+    const text = messageTextarea.value;
+    charCount.textContent = text.length;
+    wordCount.textContent = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+    
+    // Indicateur visuel pour la longueur
+    if (text.length < 50) {
+      charCount.style.color = '#EF4444';
+    } else if (text.length < 200) {
+      charCount.style.color = '#F59E0B';
+    } else {
+      charCount.style.color = '#10B981';
+    }
+  }
+  
+  messageTextarea.addEventListener('input', updateCounters);
+  updateCounters(); // Initialiser
+  
+  // Barre d'outils de formatage
+  document.querySelectorAll('.format-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const format = this.dataset.format;
+      const start = messageTextarea.selectionStart;
+      const end = messageTextarea.selectionEnd;
+      const selectedText = messageTextarea.value.substring(start, end);
+      const before = messageTextarea.value.substring(0, start);
+      const after = messageTextarea.value.substring(end);
+      
+      let formattedText = selectedText;
+      
+      switch(format) {
+        case 'bold':
+          formattedText = `**${selectedText}**`;
+          break;
+        case 'italic':
+          formattedText = `*${selectedText}*`;
+          break;
+        case 'underline':
+          formattedText = `__${selectedText}__`;
+          break;
+        case 'list':
+          formattedText = '\n• ' + selectedText.replace(/\n/g, '\n• ');
+          break;
+        case 'link':
+          formattedText = `[${selectedText}](https://example.com)`;
+          break;
+      }
+      
+      messageTextarea.value = before + formattedText + after;
+      messageTextarea.selectionStart = start + formattedText.length;
+      messageTextarea.selectionEnd = start + formattedText.length;
+      messageTextarea.focus();
+      updateCounters();
+    });
+  });
+  
+  // Icône d'édition dans l'objet
+  const subjectIcon = document.querySelector('.subject-icon');
+  subjectIcon.addEventListener('click', () => subjectInput.focus());
+  
+  // Gestion de l'envoi via Gmail
+  const sendEmailBtn = document.getElementById('sendEmailBtn');
+  sendEmailBtn.addEventListener('click', function() {
+    const subject = subjectInput.value.trim();
+    let replyMessage = messageTextarea.value.trim();
+    
+    if (!replyMessage) {
+      showNotification('Veuillez écrire un message avant d\'envoyer', 'error');
+      messageTextarea.classList.add('shake');
+      setTimeout(() => messageTextarea.classList.remove('shake'), 500);
+      return;
+    }
+    
+    // Remplacer les markdown simples par du HTML basique
+    replyMessage = replyMessage
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/__(.*?)__/g, '<u>$1</u>')
+      .replace(/\n/g, '<br>');
+    
+    // Créer le corps HTML avec signature professionnelle
+    const htmlBody = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%); padding: 20px; border-radius: 8px 8px 0 0; color: white;">
+          <h2 style="margin: 0; font-size: 20px;">Réponse à votre message</h2>
+        </div>
+        
+        <div style="padding: 25px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          <p style="font-size: 16px; color: #4B5563;">
+            Bonjour <strong>${recipientName}</strong>,
+          </p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-left: 4px solid #FF6B35; margin: 20px 0; border-radius: 4px;">
+            ${replyMessage}
+          </div>
+          
+          <p style="color: #6B7280; font-size: 14px;">
+            Si vous avez d'autres questions, n'hésitez pas à me recontacter.
+          </p>
+          
+          <hr style="border: none; height: 1px; background: linear-gradient(to right, transparent, #e5e7eb, transparent); margin: 25px 0;">
+          
+          <div style="display: flex; align-items: center; margin-top: 30px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF6B35, #FF8E53); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+              <span style="color: white; font-weight: bold; font-size: 20px;">P</span>
+            </div>
+            <div>
+              <p style="margin: 0 0 5px 0; font-weight: 600; color: #111827;">Philippe Hountondji</p>
+              <p style="margin: 0; color: #6B7280; font-size: 14px;">Développeur Full Stack & UI/UX Designer</p>
+              <p style="margin: 5px 0 0 0; font-size: 14px;">
+                <a href="mailto:${ADMIN_EMAIL}" style="color: #FF6B35; text-decoration: none;">${ADMIN_EMAIL}</a> | 
+                <a href="https://votreportfolio.com" style="color: #FF6B35; text-decoration: none;">Portfolio</a>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; padding: 15px; color: #9CA3AF; font-size: 12px; border-top: 1px solid #e5e7eb; margin-top: 20px;">
+          <p style="margin: 0;">
+            Cet email a été envoyé en réponse à votre message via mon portfolio.
+            <br>
+            © ${new Date().getFullYear()} - Tous droits réservés
+          </p>
+        </div>
+      </div>
+    `;
+    
+    // Encoder les paramètres pour l'URL
+    const encodedSubject = encodeURIComponent(subject);
+    const encodedBody = encodeURIComponent(htmlBody);
+    
+    // Créer l'URL mailto pour ouvrir le client email
+    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodedSubject}&body=${encodedBody}`;
+    
+    // Animer le bouton pendant l'ouverture
+    const originalHTML = this.innerHTML;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ouverture...';
+    this.disabled = true;
+    
+    // Ouvrir le client email
+    setTimeout(() => {
+      window.open(mailtoUrl, '_blank');
+      
+      // Mettre à jour Firebase pour marquer comme répondu
+      db.ref('messages/' + messageId).update({
+        replied: true,
+        repliedAt: new Date().toISOString(),
+        replyMessage: messageTextarea.value.substring(0, 200) + (messageTextarea.value.length > 200 ? '...' : '')
+      })
+      .then(() => {
+        showNotification('✓ Gmail ouvert avec votre réponse pré-remplie !', 'success');
+        replyModal.remove();
+        loadMessages();
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors de la mise à jour du statut', 'error');
+      })
+      .finally(() => {
+        this.innerHTML = originalHTML;
+        this.disabled = false;
+      });
+    }, 500);
+  });
+  
+  // Ajouter du style CSS pour le modal de réponse
+  const style = document.createElement('style');
+  style.textContent = `
+    .recipient-display {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .recipient-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .recipient-email {
+      font-size: 14px;
+      color: #FF6B35;
+      margin-top: 4px;
+    }
+    .subject-input-wrapper {
+      position: relative;
+    }
+    .subject-input-wrapper input {
+      padding-right: 40px;
+      width: 100%;
+    }
+    .subject-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9CA3AF;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .subject-icon:hover {
+      color: #FF6B35;
+    }
+    .message-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .label-optional {
+      font-size: 12px;
+      color: #9CA3AF;
+      font-weight: normal;
+    }
+    .message-editor-container {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.5);
+    }
+    .editor-toolbar {
+      display: flex;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .format-btn {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+    .format-btn:hover {
+      background: rgba(255, 107, 53, 0.1);
+      color: #FF6B35;
+      border-color: rgba(255, 107, 53, 0.3);
+    }
+    .toolbar-separator {
+      width: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 10px;
+    }
+    .message-editor-container textarea {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      resize: vertical;
+      min-height: 200px;
+      transition: border-color 0.2s;
+    }
+    .message-editor-container textarea:focus {
+      outline: none;
+      border-color: #FF6B35;
+    }
+    .message-editor-container textarea::placeholder {
+      color: #6B7280;
+      line-height: 1.6;
+    }
+    .editor-footer {
+      padding: 15px;
+      background: rgba(15, 23, 42, 0.8);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .writing-tips {
+      flex: 1;
+    }
+    .tip-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #9CA3AF;
+    }
+    .tip-item:last-child {
+      margin-bottom: 0;
+    }
+    .tip-item i {
+      margin-right: 8px;
+      color: #FF6B35;
+      font-size: 12px;
+    }
+    .char-stats {
+      display: flex;
+      gap: 20px;
+    }
+    .char-count-display, .word-count-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .char-count-display i, .word-count-display i {
+      color: #9CA3AF;
+    }
+    .email-preview-card {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), rgba(15, 23, 42, 0.8));
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 10px;
+      padding: 0;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .preview-header {
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), transparent);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FF6B35;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+    }
+    .preview-content {
+      padding: 20px;
+    }
+    .preview-content p {
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .preview-note {
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 15px !important;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // === AUTHENTIFICATION ===
 window.addEventListener('load', function() {
-  // DOUBLE PROTECTION : Masquer le dashboard
   if (dashboard) {
-    dashboard.style.display = 'none';
-    dashboard.style.visibility = 'hidden';
     dashboard.classList.add('hidden');
   }
   
-  // Initialiser Firebase
   if (!initializeFirebase()) {
     return;
   }
   
-  // Pré-remplir l'email
-  document.getElementById('adminEmail').value = ADMIN_EMAIL;
-  
-  // Vérifier si l'utilisateur est déjà connecté
   const savedAuth = localStorage.getItem('adminAuth');
   
   if (savedAuth) {
     try {
       const authData = JSON.parse(savedAuth);
-      
-      // Vérifier la validité (expire après 1 heure pour plus de sécurité)
       if (Date.now() - authData.timestamp < 3600000) {
         isAuthenticated = true;
         showDashboard();
@@ -299,13 +662,6 @@ window.addEventListener('load', function() {
       localStorage.removeItem('adminAuth');
     }
   }
-  
-  // Si pas d'auth, s'assurer que le dashboard est masqué
-  if (dashboard) {
-    dashboard.style.display = 'none';
-    dashboard.style.visibility = 'hidden';
-    dashboard.style.opacity = '0';
-  }
 });
 
 // Connexion
@@ -316,31 +672,18 @@ loginForm.addEventListener('submit', function(e) {
   const password = document.getElementById('adminPassword').value;
   const rememberMe = document.getElementById('rememberMe').checked;
   
-  console.log('Email saisi:', email);
-  console.log('Mot de passe saisi:', password);
-  console.log('ADMIN_EMAIL attendu:', ADMIN_EMAIL);
-  console.log('ADMIN_PASSWORD attendu:', ADMIN_PASSWORD);
-  console.log('Email correct?', email === ADMIN_EMAIL);
-  console.log('Mot de passe correct?', password === ADMIN_PASSWORD);
-  
-  // Validation
   if (!email || !password) {
     loginError.querySelector('span').textContent = 'Veuillez remplir tous les champs';
     loginError.style.display = 'flex';
     return;
   }
   
-  // Désactiver le bouton
   const submitBtn = loginForm.querySelector('button[type="submit"]');
   const originalText = submitBtn.innerHTML;
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
   
-  // Vérifier les identifiants
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    console.log('✅ Connexion réussie!');
-    
-    // Sauvegarder la session
     if (rememberMe) {
       localStorage.setItem('adminAuth', JSON.stringify({
         email: email,
@@ -350,86 +693,47 @@ loginForm.addEventListener('submit', function(e) {
     
     isAuthenticated = true;
     loginError.style.display = 'none';
-    
-    // Afficher le dashboard avec animation
     showDashboard();
-    
-    // Charger les messages
     loadMessages();
-    
     showNotification('Connexion réussie !', 'success');
-    
   } else {
-    console.log('❌ Identifiants incorrects');
     loginError.querySelector('span').textContent = 'Email ou mot de passe incorrect';
     loginError.style.display = 'flex';
-    
-    // Animation shake
     loginForm.classList.add('shake');
     setTimeout(() => loginForm.classList.remove('shake'), 500);
   }
   
-  // Réactiver le bouton
   submitBtn.disabled = false;
   submitBtn.innerHTML = originalText;
 });
 
 // Fonction pour afficher le dashboard
 function showDashboard() {
-  // Masquer la page de login
   if (loginPage) {
     loginPage.style.display = 'none';
-    loginPage.style.visibility = 'hidden';
-    loginPage.style.opacity = '0';
-    loginPage.style.pointerEvents = 'none';
   }
   
-  // Afficher le dashboard
   if (dashboard) {
-    dashboard.style.display = 'flex';
-    dashboard.style.visibility = 'visible';
-    dashboard.style.opacity = '1';
-    dashboard.style.pointerEvents = 'auto';
-    
-    // Forcer les styles pour PC
-    if (window.innerWidth >= 993) {
-      dashboard.style.width = '100%';
-      dashboard.style.minHeight = '100vh';
-      
-      const mainContent = document.querySelector('.main-content');
-      if (mainContent) {
-        mainContent.style.flex = '1';
-        mainContent.style.width = 'calc(100% - 280px)';
-        mainContent.style.marginLeft = '280px';
-      }
-    }
+    dashboard.classList.remove('hidden');
   }
+  
+  createBackToPortfolioButton();
 }
 
 // Déconnexion
 logoutBtn.addEventListener('click', function() {
-  // Supprimer la session
   localStorage.removeItem('adminAuth');
   isAuthenticated = false;
   allMessages = [];
   
-  // Masquer le dashboard
   if (dashboard) {
-    dashboard.style.display = 'none';
-    dashboard.style.visibility = 'hidden';
-    dashboard.style.opacity = '0';
-    dashboard.style.pointerEvents = 'none';
+    dashboard.classList.add('hidden');
   }
   
-  // Afficher la page de login
   if (loginPage) {
     loginPage.style.display = 'flex';
-    loginPage.style.visibility = 'visible';
-    loginPage.style.opacity = '1';
-    loginPage.style.pointerEvents = 'auto';
   }
   
-  // Réinitialiser le formulaire
   loginForm.reset();
   document.getElementById('adminEmail').value = ADMIN_EMAIL;
   
@@ -454,33 +758,9 @@ if (togglePassword) {
   });
 }
 
-// === PROTECTION CONTRE ACCÈS DIRECT ===
-// Vérifier toutes les 100ms pendant les 5 premières secondes
-let protectionCheck = 0;
-const protectionInterval = setInterval(function() {
-  if (!isAuthenticated && dashboard) {
-    dashboard.style.display = 'none';
-    dashboard.style.visibility = 'hidden';
-    dashboard.style.opacity = '0';
-    dashboard.classList.add('hidden');
-  }
-  if (!isAuthenticated && loginPage) {
-    loginPage.style.display = 'flex';
-    loginPage.style.visibility = 'visible';
-    loginPage.style.opacity = '1';
-    loginPage.classList.remove('hidden');
-  }
-  
-  protectionCheck++;
-  if (protectionCheck > 50) { // 50 x 100ms = 5 secondes
-    clearInterval(protectionInterval);
-  }
-}, 100);
-
 // === CHARGEMENT DES MESSAGES DEPUIS FIREBASE ===
 function loadMessages() {
   if (!isAuthenticated) {
-    console.error('Non authentifié - Accès refusé');
     return;
   }
   
@@ -555,6 +835,7 @@ function updateMessagesList() {
 
 function createMessageHTML(msg, showActions = false) {
   const unreadClass = msg.read ? '' : 'unread';
+  const repliedClass = msg.replied ? 'replied' : '';
   const preview = msg.message.length > 100 ? msg.message.substring(0, 100) + '...' : msg.message;
   const date = formatDate(msg.date);
   
@@ -562,6 +843,10 @@ function createMessageHTML(msg, showActions = false) {
   if (showActions) {
     actions = `
       <div class="message-actions">
+        <button class="btn-small reply-btn" data-id="${msg.id}" data-email="${escapeHtml(msg.email)}" data-name="${escapeHtml(msg.name)}">
+          <i class="fas fa-reply"></i>
+          ${msg.replied ? 'Répondre à nouveau' : 'Répondre'}
+        </button>
         <button class="btn-small mark-read" data-id="${msg.id}">
           <i class="fas ${msg.read ? 'fa-envelope' : 'fa-envelope-open'}"></i>
           ${msg.read ? 'Marquer non lu' : 'Marquer lu'}
@@ -574,12 +859,18 @@ function createMessageHTML(msg, showActions = false) {
     `;
   }
   
+  let repliedBadge = '';
+  if (msg.replied) {
+    repliedBadge = '<span class="replied-badge"><i class="fas fa-check-circle"></i> Répondu</span>';
+  }
+  
   return `
-    <div class="message-item ${unreadClass}" data-id="${msg.id}">
+    <div class="message-item ${unreadClass} ${repliedClass}" data-id="${msg.id}">
       <div class="message-header">
         <div class="message-sender">
           <i class="fas fa-user"></i>
           ${escapeHtml(msg.name)}
+          ${repliedBadge}
         </div>
         <div class="message-date">
           <i class="fas fa-clock"></i>
@@ -611,6 +902,16 @@ function attachMessageListeners() {
     });
   });
   
+  document.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const messageId = this.dataset.id;
+      const email = this.dataset.email;
+      const name = this.dataset.name;
+      sendEmailReply(messageId, email, name);
+    });
+  });
+  
   document.querySelectorAll('.mark-read').forEach(btn => {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -633,9 +934,24 @@ function openMessageModal(id) {
   
   currentMessageId = id;
   
+  let repliedInfo = '';
+  if (message.replied) {
+    repliedInfo = `
+      <div class="modal-field" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px;">
+        <label style="color: #10B981;"><i class="fas fa-check-circle"></i> Statut de réponse</label>
+        <div class="value">
+          <p style="margin: 0; color: #10B981;">✓ Vous avez répondu à ce message le ${formatDate(message.repliedAt)}</p>
+          ${message.replyMessage ? `<p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(16, 185, 129, 0.2);">Votre réponse: "${message.replyMessage.substring(0, 100)}${message.replyMessage.length > 100 ? '...' : ''}"</p>` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
   const modalBody = document.getElementById('modalBody');
   modalBody.innerHTML = `
     <div class="modal-detail">
+      ${repliedInfo}
+      
       <div class="modal-field">
         <label><i class="fas fa-user"></i> Nom</label>
         <div class="value">${escapeHtml(message.name)}</div>
@@ -654,6 +970,12 @@ function openMessageModal(id) {
       <div class="modal-field">
         <label><i class="fas fa-comment"></i> Message</label>
         <div class="value" style="white-space: pre-wrap;">${escapeHtml(message.message)}</div>
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn-primary" onclick="sendEmailReply('${id}', '${escapeHtml(message.email)}', '${escapeHtml(message.name)}'); document.getElementById('messageModal').classList.remove('active');">
+          <i class="fas fa-reply"></i> ${message.replied ? 'Répondre à nouveau' : 'Répondre par email'}
+        </button>
       </div>
     </div>
   `;
@@ -928,7 +1250,6 @@ const changePasswordForm = document.getElementById('changePasswordForm');
 if (changePasswordForm) {
   changePasswordForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    
     showNotification('Pour changer le mot de passe, modifiez les constantes ADMIN_EMAIL et ADMIN_PASSWORD dans le code', 'info');
   });
 }
@@ -949,13 +1270,10 @@ document.getElementById('deleteAllMessages').addEventListener('click', function(
 if (refreshBtn) {
   refreshBtn.addEventListener('click', function() {
     this.querySelector('i').classList.add('fa-spin');
-    
     loadMessages();
-    
     setTimeout(() => {
       refreshBtn.querySelector('i').classList.remove('fa-spin');
     }, 1000);
-    
     showNotification('Données rafraîchies', 'info');
   });
 }
@@ -1045,6 +1363,4 @@ function formatDate(dateString) {
   });
 }
 
-// === PROTECTION FINALE ===
-console.log('%c🔒 Admin Panel Sécurisé', 'color: #10B981; font-size: 24px; font-weight: bold;');
-
+console.log('%c🔒 Admin Panel Chargé (Version Email)', 'color: #10B981; font-size: 24px; font-weight: bold;');
