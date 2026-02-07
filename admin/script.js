@@ -150,7 +150,7 @@ function showNotification(message, type = 'info') {
   }, 4000);
 }
 
-// === FONCTION POUR ENVOYER UNE RÉPONSE PAR EMAIL ===
+// === FONCTION POUR ENVOYER UNE RÉPONSE PAR EMAIL (OUVERTURE GMAIL) ===
 async function sendEmailReply(messageId, recipientEmail, recipientName) {
   const replyModal = document.createElement('div');
   replyModal.className = 'modal active';
@@ -174,7 +174,7 @@ async function sendEmailReply(messageId, recipientEmail, recipientName) {
           <div class="form-group">
             <label><i class="fas fa-heading"></i> Objet</label>
             <div class="subject-input-wrapper">
-              <input type="text" id="replySubject" value="Réponse à votre message - Portfolio Philippe Hountondji" required>
+              <input type="text" id="replySubject" value="Re: Votre message sur mon portfolio" required>
               <i class="fas fa-edit subject-icon"></i>
             </div>
           </div>
@@ -182,42 +182,39 @@ async function sendEmailReply(messageId, recipientEmail, recipientName) {
           <div class="form-group">
             <label class="message-label">
               <i class="fas fa-comment"></i> Votre réponse
-              <span class="label-optional">(Le message sera envoyé en texte brut)</span>
+              <span class="label-optional">(Conseils de rédaction ci-dessous)</span>
             </label>
             
             <div class="message-editor-container">
               <div class="editor-toolbar">
                 <button type="button" class="format-btn" data-format="bold" title="Gras"><i class="fas fa-bold"></i></button>
                 <button type="button" class="format-btn" data-format="italic" title="Italique"><i class="fas fa-italic"></i></button>
+                <button type="button" class="format-btn" data-format="underline" title="Souligné"><i class="fas fa-underline"></i></button>
+                <span class="toolbar-separator"></span>
                 <button type="button" class="format-btn" data-format="list" title="Liste"><i class="fas fa-list"></i></button>
+                <button type="button" class="format-btn" data-format="link" title="Lien"><i class="fas fa-link"></i></button>
               </div>
               
-              <textarea id="replyMessage" rows="12" placeholder="Écrivez votre réponse ici...
-
-Exemple de structure :
+              <textarea id="replyMessage" rows="12" placeholder="Écrivez votre réponse ici... 
+              
 Bonjour [Nom],
 
-Merci pour votre message concernant mon portfolio.
+Merci pour votre message concernant [sujet].
 
 [Votre réponse détaillée ici]
 
-N'hésitez pas à me recontacter si vous avez d'autres questions.
-
 Cordialement,
-Philippe Hountondji
-Développeur Full Stack
-hountondjiphilippe58@gmail.com
-https://votreportfolio.com" required></textarea>
+Philippe" required></textarea>
               
               <div class="editor-footer">
                 <div class="writing-tips">
                   <div class="tip-item">
                     <i class="fas fa-lightbulb"></i>
-                    <span><strong>Astuce :</strong> Utilisez un ton professionnel et personnalisé</span>
+                    <span><strong>Astuce :</strong> Personnalisez le message avec le nom du destinataire</span>
                   </div>
                   <div class="tip-item">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><strong>Important :</strong> Pas de code HTML, le message sera en texte brut</span>
+                    <i class="fas fa-clock"></i>
+                    <span><strong>Rapidité :</strong> Répondez dans les 24h pour une meilleure impression</span>
                   </div>
                 </div>
                 
@@ -238,16 +235,16 @@ https://votreportfolio.com" required></textarea>
           <div class="email-preview-card">
             <div class="preview-header">
               <i class="fas fa-paper-plane"></i>
-              <span>Informations d'envoi</span>
+              <span>Aperçu de l'envoi</span>
             </div>
             <div class="preview-content">
               <p>
                 <strong>De :</strong> ${ADMIN_EMAIL}<br>
                 <strong>À :</strong> ${recipientEmail}<br>
-                <strong>Format :</strong> Texte brut (pas de HTML)
+                <strong>Via :</strong> Votre client email par défaut (Gmail)
               </p>
               <p class="preview-note">
-                <i class="fas fa-info-circle"></i> Cliquez sur "Ouvrir dans Gmail" pour envoyer votre réponse
+                <i class="fas fa-info-circle"></i> Cliquez sur "Ouvrir dans Gmail" pour composer votre email
               </p>
             </div>
           </div>
@@ -293,9 +290,9 @@ https://votreportfolio.com" required></textarea>
   }
   
   messageTextarea.addEventListener('input', updateCounters);
-  updateCounters();
+  updateCounters(); // Initialiser
   
-  // Barre d'outils de formatage simplifiée
+  // Barre d'outils de formatage
   document.querySelectorAll('.format-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const format = this.dataset.format;
@@ -314,8 +311,14 @@ https://votreportfolio.com" required></textarea>
         case 'italic':
           formattedText = `*${selectedText}*`;
           break;
+        case 'underline':
+          formattedText = `__${selectedText}__`;
+          break;
         case 'list':
           formattedText = '\n• ' + selectedText.replace(/\n/g, '\n• ');
+          break;
+        case 'link':
+          formattedText = `[${selectedText}](https://example.com)`;
           break;
       }
       
@@ -344,31 +347,65 @@ https://votreportfolio.com" required></textarea>
       return;
     }
     
-    // Remplacer les markdown simples par un format texte
+    // Remplacer les markdown simples par du HTML basique
     replyMessage = replyMessage
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1');
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/__(.*?)__/g, '<u>$1</u>')
+      .replace(/\n/g, '<br>');
     
-    // Créer le corps du message en texte brut
-    const textBody = `Bonjour ${recipientName},
-
-${replyMessage}
-
----
-Cordialement,
-Philippe Hountondji
-Développeur Full Stack & UI/UX Designer
-Email: ${ADMIN_EMAIL}
-Portfolio: https://hountondji-philippe.github.io/portfolio
-
-Cet email a été envoyé en réponse à votre message via mon portfolio.
-© ${new Date().getFullYear()} - Tous droits réservés`;
+    // Créer le corps HTML avec signature professionnelle
+    const htmlBody = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%); padding: 20px; border-radius: 8px 8px 0 0; color: white;">
+          <h2 style="margin: 0; font-size: 20px;">Réponse à votre message</h2>
+        </div>
+        
+        <div style="padding: 25px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          <p style="font-size: 16px; color: #4B5563;">
+            Bonjour <strong>${recipientName}</strong>,
+          </p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-left: 4px solid #FF6B35; margin: 20px 0; border-radius: 4px;">
+            ${replyMessage}
+          </div>
+          
+          <p style="color: #6B7280; font-size: 14px;">
+            Si vous avez d'autres questions, n'hésitez pas à me recontacter.
+          </p>
+          
+          <hr style="border: none; height: 1px; background: linear-gradient(to right, transparent, #e5e7eb, transparent); margin: 25px 0;">
+          
+          <div style="display: flex; align-items: center; margin-top: 30px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF6B35, #FF8E53); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+              <span style="color: white; font-weight: bold; font-size: 20px;">P</span>
+            </div>
+            <div>
+              <p style="margin: 0 0 5px 0; font-weight: 600; color: #111827;">Philippe Hountondji</p>
+              <p style="margin: 0; color: #6B7280; font-size: 14px;">Développeur Full Stack & UI/UX Designer</p>
+              <p style="margin: 5px 0 0 0; font-size: 14px;">
+                <a href="mailto:${ADMIN_EMAIL}" style="color: #FF6B35; text-decoration: none;">${ADMIN_EMAIL}</a> | 
+                <a href="https://votreportfolio.com" style="color: #FF6B35; text-decoration: none;">Portfolio</a>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; padding: 15px; color: #9CA3AF; font-size: 12px; border-top: 1px solid #e5e7eb; margin-top: 20px;">
+          <p style="margin: 0;">
+            Cet email a été envoyé en réponse à votre message via mon portfolio.
+            <br>
+            © ${new Date().getFullYear()} - Tous droits réservés
+          </p>
+        </div>
+      </div>
+    `;
     
     // Encoder les paramètres pour l'URL
     const encodedSubject = encodeURIComponent(subject);
-    const encodedBody = encodeURIComponent(textBody);
+    const encodedBody = encodeURIComponent(htmlBody);
     
-    // Créer l'URL mailto simple
+    // Créer l'URL mailto pour ouvrir le client email
     const mailtoUrl = `mailto:${recipientEmail}?subject=${encodedSubject}&body=${encodedBody}`;
     
     // Animer le bouton pendant l'ouverture
@@ -384,7 +421,7 @@ Cet email a été envoyé en réponse à votre message via mon portfolio.
       db.ref('messages/' + messageId).update({
         replied: true,
         repliedAt: new Date().toISOString(),
-        replyMessage: replyMessage.substring(0, 200) + (replyMessage.length > 200 ? '...' : '')
+        replyMessage: messageTextarea.value.substring(0, 200) + (messageTextarea.value.length > 200 ? '...' : '')
       })
       .then(() => {
         showNotification('✓ Gmail ouvert avec votre réponse pré-remplie !', 'success');
@@ -481,6 +518,11 @@ Cet email a été envoyé en réponse à votre message via mon portfolio.
       color: #FF6B35;
       border-color: rgba(255, 107, 53, 0.3);
     }
+    .toolbar-separator {
+      width: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 10px;
+    }
     .message-editor-container textarea {
       width: 100%;
       padding: 15px;
@@ -496,11 +538,11 @@ Cet email a été envoyé en réponse à votre message via mon portfolio.
     }
     .message-editor-container textarea:focus {
       outline: none;
+      border-color: #FF6B35;
     }
     .message-editor-container textarea::placeholder {
       color: #6B7280;
       line-height: 1.6;
-      font-size: 14px;
     }
     .editor-footer {
       padding: 15px;
@@ -508,14 +550,14 @@ Cet email a été envoyé en réponse à votre message via mon portfolio.
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
     }
     .writing-tips {
       flex: 1;
     }
     .tip-item {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       margin-bottom: 8px;
       font-size: 13px;
       color: #9CA3AF;
@@ -527,7 +569,6 @@ Cet email a été envoyé en réponse à votre message via mon portfolio.
       margin-right: 8px;
       color: #FF6B35;
       font-size: 12px;
-      margin-top: 2px;
     }
     .char-stats {
       display: flex;
