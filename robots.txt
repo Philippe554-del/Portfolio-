@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Bloquer l'accès à l'administration
+Disallow: /admin/
+
+# Bloquer les fichiers de configuration
+Disallow: /*.json
+
+# Sitemap
+Sitemap: https://hountondji-philippe.github.io/portfolio/sitemap.xml
