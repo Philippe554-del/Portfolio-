@@ -4,18 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="robots" content="index, follow">
-  <meta name="description" content="Portfolio de Philippe Hountondji - Étudiant en Informatique & Réseaux passionate par le développement web et l'administration réseau">
-  <meta name="keywords" content="Philippe Hountondji, Hountondji Philippe, développeur web, portfolio">
-  <meta name="keywords" content="développement web, administration réseau, portfolio, python, html, css, javascript, nodejs">
-  <meta name="author" content="Philippe Hountondji">
   
-  <!-- Meta tags Open Graph -->
-  <meta property="og:title" content="Portfolio | Philippe Hountondji">
-  <meta property="og:description" content="Passionné par le développement web et l'administration réseau">
+  <!-- SEO Meta Tags -->
+  <title>Philippe Hountondji | Développeur Web & Administration Réseaux - Portfolio</title>
+  <meta name="description" content="Philippe Hountondji - Étudiant passionné en Informatique & Réseaux au Bénin. Spécialisé en développement web full-stack (Python, JavaScript, Node.js) et administration réseau. Découvrez mon portfolio et mes projets.">
+  <meta name="keywords" content="Philippe Hountondji, Hountondji Philippe, développeur web Bénin, administration réseau, portfolio développeur, Python, JavaScript, Node.js, HTML, CSS, étudiant informatique">
+  <meta name="author" content="Philippe Hountondji">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hountondji-philippe.github.io/portfolio/">
+  
+  <!-- Open Graph Meta Tags pour les réseaux sociaux -->
+  <meta property="og:title" content="Philippe Hountondji | Développeur Web & Administration Réseaux">
+  <meta property="og:description" content="Étudiant passionné en Informatique & Réseaux. Spécialisé en développement web et administration réseau. Découvrez mon portfolio.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hountondji-philippe.github.io/portfolio/">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+  <meta property="og:image" content="https://hountondji-philippe.github.io/portfolio/images/acceuil.jpeg">
+  <meta property="og:site_name" content="Philippe Hountondji Portfolio">
+  <meta property="og:locale" content="fr_FR">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Philippe Hountondji | Développeur Web & Administration Réseaux">
+  <meta name="twitter:description" content="Étudiant passionné en Informatique & Réseaux. Découvrez mon portfolio et mes projets.">
+  <meta name="twitter:image" content="https://hountondji-philippe.github.io/portfolio/images/acceuil.jpeg">
+  
+  <!-- Données structurées Schema.org pour Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Philippe Hountondji",
+    "url": "https://hountondji-philippe.github.io/portfolio/",
+    "image": "https://hountondji-philippe.github.io/portfolio/images/acceuil.jpeg",
+    "jobTitle": "Étudiant en Informatique et Réseaux",
+    "description": "Développeur web et administrateur réseau passionné",
+    "email": "hountondjiphilippe58@gmail.com",
+    "telephone": "+22958156930",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "BJ"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/in/philippe-hountondji-200ba73a6",
+      "https://wa.me/22958156930"
+    ],
+    "knowsAbout": ["Développement Web", "Python", "JavaScript", "Node.js", "HTML", "CSS", "Administration Réseau", "Sécurité Réseau"],
+    "alumniOf": {
+      "@type": "EducationalOrganization",
+      "name": "Formation en Informatique et Réseaux"
+    }
+  }
+  </script>
   
   <!-- Protection contre les iframes -->
   <meta http-equiv="X-Frame-Options" content="DENY">
@@ -26,12 +65,9 @@
   <!-- Empêcher le sniffage de type MIME -->
   <meta name="X-Content-Type-Options" content="nosniff">
   
-  <title>Philippe Hountondji | Portfolio</title>
-  
   <!-- Script pour Ctrl+Shift+P redirige vers admin -->
   <script>
     document.addEventListener('keydown', function(e) {
-      // Ctrl+Shift+P = Rediriger vers admin
       if (e.ctrlKey && e.shiftKey && e.key === 'P') {
         e.preventDefault();
         window.location.href = 'admin/index.html';
@@ -49,17 +85,16 @@
   <!-- CSS principal -->
   <link rel="stylesheet" href="css/style.css">
   
-  <!-- Font Awesome - version optimisée -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Google Fonts avec display:swap pour chargement rapide -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   
   <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/000000/developer.png">
   
-  <!-- Style inline critique pour éviter le flash de contenu -->
+  <!-- Style inline critique -->
   <style>
-    /* Afficher immédiatement le contenu principal */
     body {
       opacity: 1 !important;
       visibility: visible !important;
@@ -68,26 +103,19 @@
       opacity: 1 !important;
       transform: none !important;
     }
-    /* Masquer les animations initially */
     .skill-category, .projet-card, .stat, .contact-method {
       opacity: 0;
     }
   </style>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KJY4BYVDHX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KJY4BYVDHX');
-</script>
-<meta name="og:title" content="Portfolio Philippe">
-<meta name="og:description" content="Passionné par le développement web et l'administration réseau">
-<meta name="og:image" content="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" >
-<meta name="og:url" content="https://portfolio-philippe.netlify.app/" >
-<meta name="og:site_name" content="Philippe Portfolio">
-<meta name="og:image:alt" content="portfolio-philippe">
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KJY4BYVDHX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KJY4BYVDHX');
+  </script>
 </head>
 
 <body>
@@ -114,8 +142,12 @@
   <section id="accueil" class="accueil container">
     <div class="accueil-image">
       <img 
-        src="images/acceuil.jpeg" alt="Espace de travail informatique moderne"
-        loading="eager" fetchpriority="high" width="450" height="280">
+        src="images/acceuil.jpeg" 
+        alt="Philippe Hountondji - Développeur web et administrateur réseau"
+        loading="eager" 
+        fetchpriority="high" 
+        width="450" 
+        height="280">
     </div>
     <div class="hero-text">
       <h1>Philippe Hountondji</h1>
@@ -133,13 +165,13 @@
         </a>
       </div>
       <div class="social-icons">
-        <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="Contacter Philippe Hountondji sur WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
-        <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email">
+        <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Envoyer un email à Philippe Hountondji">
           <i class="fas fa-envelope"></i>
         </a>
-        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="Profil LinkedIn de Philippe Hountondji">
           <i class="fab fa-linkedin"></i>
         </a>
       </div>
@@ -152,7 +184,8 @@
     <div class="apropos-content">
       <div class="apropos-image">
         <img 
-          src="images/apropos.jpeg" alt="Développement et programmation"
+          src="images/apropos.jpeg" 
+          alt="Philippe Hountondji - Développement et programmation"
           loading="lazy">
       </div>
       <div class="apropos-text">
@@ -223,7 +256,7 @@
           <h3>Réseaux & Infrastructure</h3>
         </div>
         <ul>
-          <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong> </li>
+          <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong></li>
           <li><i class="fas fa-server"></i> <strong>Gestion de serveurs</strong></li>
           <li><i class="fas fa-shield-alt"></i> <strong>Sécurité réseau</strong></li>
           <li><i class="fas fa-chart-line"></i> <strong>Supervision</strong></li>
@@ -262,7 +295,8 @@
     <!-- Image illustrative réseaux -->
     <div class="competences-image">
       <img 
-        src="images/competences.jpeg" alt="Infrastructure réseau et serveurs"
+        src="images/competences.jpeg" 
+        alt="Infrastructure réseau et serveurs - Compétences de Philippe Hountondji"
         loading="lazy">
     </div>
   </section>
@@ -278,7 +312,8 @@
         <div class="projet-badge">Nouveau</div>
         <div class="projet-image">
           <img 
-            src="images/projets-1.jpeg"alt="Interface dashboard développeur"
+            src="images/projets-1.jpeg"
+            alt="Dashboard Administratif - Projet de Philippe Hountondji"
             loading="lazy">
         </div>
         <div class="projet-content">
@@ -289,10 +324,6 @@
             <span><i class="fab fa-node-js"></i> Node.js</span>
             <span><i class="fas fa-database"></i> MongoDB</span>
           </div>
-          <!-- <div class="projet-links">
-            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Voir le projet</a>
-            <a href="#" class="projet-link"><i class="fab fa-github"></i> Code source</a>
-          </div> -->
         </div>
       </div>
 
@@ -301,7 +332,8 @@
         <div class="projet-badge">Réseaux</div>
         <div class="projet-image">
           <img 
-            src="images/projets-2.jpeg" alt="Salle de serveurs et data center"
+            src="images/projets-2.jpeg" 
+            alt="Simulation Réseau Entreprise - Projet de Philippe Hountondji"
             loading="lazy">
         </div>
         <div class="projet-content">
@@ -312,10 +344,6 @@
             <span><i class="fas fa-shield-alt"></i> Sécurité</span>
             <span><i class="fas fa-sitemap"></i> Topologie</span>
           </div>
-          <!-- <div class="projet-links">
-            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Documentation</a>
-            <a href="#" class="projet-link"><i class="fas fa-download"></i> Télécharger</a>
-          </div> -->
         </div>
       </div>
 
@@ -324,7 +352,8 @@
         <div class="projet-badge">API</div>
         <div class="projet-image">
           <img 
-            src="images/projets-3.jpeg"alt="Code source et développement"
+            src="images/projets-3.jpeg"
+            alt="Système de Gestion API - Projet de Philippe Hountondji"
             loading="lazy">
         </div>
         <div class="projet-content">
@@ -335,10 +364,6 @@
             <span><i class="fas fa-bolt"></i> FastAPI</span>
             <span><i class="fas fa-server"></i> PostgreSQL</span>
           </div>
-          <!-- <div class="projet-links">
-            <a href="#" class="projet-link"><i class="fas fa-external-link-alt"></i> Tester l'API</a>
-            <a href="#" class="projet-link"><i class="fab fa-github"></i> Code source</a>
-          </div> -->
         </div>
       </div>
     </div>
@@ -424,6 +449,7 @@
               </div>
             </div>
           </div>
+        </div>
       </div>
     </div>
   </section>
@@ -488,7 +514,7 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- Élément secret pour accès admin (connu seulement par vous) -->
+  <!-- Élément secret pour accès admin -->
   <div style="position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; cursor: pointer; z-index: 9999;" onclick="window.location.href='admin/index.html';" title="Accès admin"></div>
 
   <!-- Firebase SDK -->
