@@ -337,6 +337,7 @@ nav.container {
   position: relative;
   border-radius: var(--radius-xl);
   overflow: hidden;
+  aspect-ratio: 3/2;
   box-shadow: var(--shadow-xl);
   animation: fadeInUp 0.05s 0.02s ease-out both;
 }
