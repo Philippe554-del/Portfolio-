@@ -357,8 +357,8 @@ nav.container {
 
 .accueil-image img {
   width: 100%;
-  height:700px;
-  object-fit: cover;
+  height:auto;
+  object-fit: contain;
   transition: transform var(--transition-slow);
 }
 
