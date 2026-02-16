@@ -242,18 +242,18 @@ if (contactForm) {
       return;
     }
     
-    // Vérifier Firebase
-    if (firebaseConfig.apiKey === 'VOTRE_API_KEY') {
-      showNotification('Erreur : Firebase non configuré. Consultez le README.', 'error');
-      return;
-    }
+    // // Vérifier Firebase
+    // if (firebaseConfig.apiKey === 'VOTRE_API_KEY') {
+    //   showNotification('Erreur : Firebase non configuré. Consultez le README.', 'error');
+    //   return;
+    // }
     
-    if (!db) {
-      if (!initializeFirebase()) {
-        showNotification('Erreur : Impossible de se connecter à Firebase', 'error');
-        return;
-      }
-    }
+    // if (!db) {
+    //   if (!initializeFirebase()) {
+    //     showNotification('Erreur : Impossible de se connecter à Firebase', 'error');
+    //     return;
+    //   }
+    // }
     
     // Désactiver le bouton
     const submitBtn = contactForm.querySelector('.btn-submit');
