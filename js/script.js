@@ -52,19 +52,6 @@
     e.preventDefault();
   });
 })();
-
-// === CONFIGURATION FIREBASE ===
-// IMPORTANT : Utilisez la MÊME configuration que dans admin/script.js
-const firebaseConfig = {
-  apiKey: "AIzaSyC1_1e0yB3aXOzFV6cdV8kBb62KamXvoZU",
-  authDomain: "portfolio-8a07b.firebaseapp.com",
-  databaseURL: "https://portfolio-8a07b-default-rtdb.firebaseio.com",
-  projectId: "portfolio-8a07b",
-  storageBucket: "portfolio-8a07b.firebasestorage.app",
-  messagingSenderId: "52650351835",
-  appId: "1:52650351835:web:3b81f55313e114de36c0fe",
-  measurementId: "G-65XHVDFPS6"
-};
 // === VARIABLES GLOBALES ===
 let db;
 
