@@ -375,40 +375,55 @@
 
   <!-- Contact -->
   <section id="contact" class="contact container">
-    <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
-    <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
-    
-    <div class="contact-content">
-      <!-- Formulaire -->
-      <div class="form-header">
-          <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
-          <p>Je vous répondrai dans les plus brefs délais</p>
-        </div>
-      <form  data-inputdev="grts_xychzmpfx8nzfuplerdq7fc7tfdz" class="contact-form" id="contactForm">
-         <div class="form-group">
-          <label for="name"><i class="fas fa-user"></i> Nom complet</label>
-          <input type="text" id="name" name="name" placeholder="Votre nom" required>
-        </div>
+  <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
+  <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
 
-        <div class="form-group">
-          <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
-          <input type="email" id="email" name="email" placeholder="votre@email.com" required>
-        </div>
+  <div class="contact-content">
 
-        <div class="form-group">
-          <label for="message"><i class="fas fa-comment"></i> Message</label>
-          <textarea type="text" id="message" name="message" rows="6" placeholder="Décrivez votre projet ou demande..." required></textarea>
-        </div>
+    <div class="form-header">
+      <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
+      <p>Je vous répondrai dans les plus brefs délais</p>
+    </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary btn-submit">
-            <i class="fas fa-paper-plane"></i> Envoyer le message
-          </button>
-          <div class="form-notice">
-            <i class="fas fa-info-circle"></i> Tous les champs sont obligatoires
-          </div>
-        </div>
-      </form>
+    <form class="contact-form" id="contactForm">
+
+      <div class="form-group">
+        <label for="name"><i class="fas fa-user"></i> Nom complet</label>
+        <input type="text" id="name" name="name" placeholder="Votre nom">
+        <small class="error-message" id="error-name"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+        <input type="email" id="email" name="email" placeholder="votre@email.com">
+        <small class="error-message" id="error-email"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="phone"><i class="fas fa-phone"></i> Téléphone</label>
+        <input type="tel" id="phone" name="phone" placeholder="+229XXXXXXXX">
+        <small class="error-message" id="error-phone"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="message"><i class="fas fa-comment"></i> Message</label>
+        <textarea id="message" name="message" rows="6"
+          placeholder="Décrivez votre projet ou demande..."></textarea>
+        <small class="error-message" id="error-message"></small>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-submit">
+          <i class="fas fa-paper-plane"></i> Envoyer le message
+        </button>
+
+        <div id="form-response"></div>
+      </div>
+
+    </form>
+  </div>
+</section>
+
 
       <!-- Informations de contact -->
       <div class="contact-info">
@@ -522,7 +537,89 @@
 
   
   <!-- Votre script -->
-   <script src="https://unpkg.com/@inputdev/sdk@latest/inputdev-sdk.prod.js"></script>
+  <script src="https://unpkg.com/@inputdev/sdk@latest/inputdev-sdk.prod.js"></script>
+
+<script>
+const apiKey = "grts_xychzmpfx8nzfuplerdq7fc7tfdz";
+const sdk = new InputDevSDK();
+
+const form = document.getElementById("contactForm");
+const responseBox = document.getElementById("form-response");
+
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  clearErrors();
+  responseBox.innerHTML = "";
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const message = document.getElementById("message").value.trim();
+
+  let hasError = false;
+
+  // Validation nom
+  if (name.length < 3) {
+    showError("error-name", "Le nom doit contenir au moins 3 caractères.");
+    hasError = true;
+  }
+
+  // Validation email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showError("error-email", "Adresse email invalide.");
+    hasError = true;
+  }
+
+  // Validation téléphone (8 à 15 chiffres)
+  const phoneRegex = /^\+?[0-9]{8,15}$/;
+  if (!phoneRegex.test(phone)) {
+    showError("error-phone", "Numéro de téléphone invalide.");
+    hasError = true;
+  }
+
+  // Validation message
+  if (message.length < 10) {
+    showError("error-message", "Le message doit contenir au moins 10 caractères.");
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  try {
+    const result = await sdk.submit(apiKey, {
+      name,
+      email,
+      phone,
+      message
+    });
+
+    responseBox.innerHTML =
+      `<div class="success-message">
+        ✅ Message envoyé avec succès !<br>
+        ID: ${result.submissionId}
+      </div>`;
+
+    form.reset();
+
+  } catch (error) {
+    responseBox.innerHTML =
+      `<div class="error-global">
+        ❌ Une erreur est survenue. Veuillez réessayer.
+      </div>`;
+  }
+});
+
+function showError(id, message) {
+  document.getElementById(id).textContent = message;
+}
+
+function clearErrors() {
+  document.querySelectorAll(".error-message")
+    .forEach(el => el.textContent = "");
+}
+</script>
+
   <script src="js/script.js"></script>
 </body>
 </html>
