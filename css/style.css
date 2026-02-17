@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 /* === VARIABLES CSS === */
@@ -941,14 +940,19 @@ section {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-2xl);
+  align-items: start;
 }
 
-.contact-form {
+.contact-form-wrapper {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: var(--spacing-xl);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
+}
+
+.contact-form {
+  /* Le style de fond est porté par .contact-form-wrapper */
 }
 
 .form-header {
@@ -1115,6 +1119,44 @@ section {
 }
 
 .contact-details p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Disponibilité */
+.contact-availability {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.availability-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.availability-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent-green);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+  flex-shrink: 0;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+  50%       { box-shadow: 0 0 16px rgba(16, 185, 129, 1); }
+}
+
+.contact-availability > p {
   font-size: 0.875rem;
   color: var(--color-text-muted);
   margin: 0;

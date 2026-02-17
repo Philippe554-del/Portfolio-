@@ -69,17 +69,6 @@
   <!-- Empêcher le sniffage de type MIME -->
   <meta name="X-Content-Type-Options" content="nosniff">
   
-  <!-- Script pour Ctrl+Shift+P redirige vers admin -->
-  <script>
-    document.addEventListener('keydown', function(e) {
-      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        window.location.href = 'admin/index.html';
-        return false;
-      }
-    });
-  </script>
-  
   <!-- Précharger les ressources critiques -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -375,61 +364,63 @@
 
   <!-- Contact -->
   <section id="contact" class="contact container">
-  <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
-  <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
+    <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
+    <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
 
-  <div class="contact-content">
-    <form class="contact-form" id="contactForm">
-      <div class="form-header">
-      <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
-      <p>Je vous répondrai dans les plus brefs délais</p>
-    </div>
+    <div class="contact-content">
 
-      <div class="form-group">
-        <label for="name"><i class="fas fa-user"></i> Nom complet</label>
-        <input type="text" id="name" name="name" placeholder="Votre nom">
-        <small class="error-message" id="error-name"></small>
+      <!-- Colonne gauche : formulaire -->
+      <div class="contact-form-wrapper">
+        <div class="form-header">
+          <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
+          <p>Je vous répondrai dans les plus brefs délais</p>
+        </div>
+
+        <form class="contact-form" id="contactForm" autocomplete="on" novalidate>
+
+          <div class="form-group">
+            <label for="name"><i class="fas fa-user"></i> Nom complet</label>
+            <input type="text" id="name" name="name" placeholder="Votre nom" autocomplete="name" required minlength="2" maxlength="100">
+            <small class="error-message" id="error-name"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+            <input type="email" id="email" name="email" placeholder="votre@email.com" autocomplete="email" required maxlength="254">
+            <small class="error-message" id="error-email"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="phone"><i class="fas fa-phone"></i> Téléphone</label>
+            <input type="tel" id="phone" name="phone" placeholder="+229XXXXXXXX" autocomplete="tel" maxlength="20">
+            <small class="error-message" id="error-phone"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="message"><i class="fas fa-comment"></i> Message</label>
+            <textarea id="message" name="message" rows="6"
+              placeholder="Décrivez votre projet ou demande..." required minlength="10" maxlength="2000"></textarea>
+            <small class="error-message" id="error-message"></small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-submit">
+              <i class="fas fa-paper-plane"></i> Envoyer le message
+            </button>
+            <div id="form-response"></div>
+          </div>
+
+        </form>
       </div>
 
-      <div class="form-group">
-        <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
-        <input type="email" id="email" name="email" placeholder="votre@email.com">
-        <small class="error-message" id="error-email"></small>
-      </div>
-
-      <div class="form-group">
-        <label for="phone"><i class="fas fa-phone"></i> Téléphone</label>
-        <input type="tel" id="phone" name="phone" placeholder="+229XXXXXXXX">
-        <small class="error-message" id="error-phone"></small>
-      </div>
-
-      <div class="form-group">
-        <label for="message"><i class="fas fa-comment"></i> Message</label>
-        <textarea id="message" name="message" rows="6"
-          placeholder="Décrivez votre projet ou demande..."></textarea>
-        <small class="error-message" id="error-message"></small>
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-submit">
-          <i class="fas fa-paper-plane"></i> Envoyer le message
-        </button>
-
-        <div id="form-response"></div>
-      </div>
-
-    </form>
-  </div>
-</section>
-
-      <!-- Informations de contact -->
+      <!-- Colonne droite : coordonnées -->
       <div class="contact-info">
         <div class="contact-card">
           <div class="contact-card-header">
             <h3><i class="fas fa-address-card"></i> Mes Coordonnées</h3>
             <p>Plusieurs façons de me contacter</p>
           </div>
-          
+
           <div class="contact-methods">
             <div class="contact-method">
               <div class="contact-icon">
@@ -464,8 +455,18 @@
               </div>
             </div>
           </div>
+
+          <!-- Disponibilité -->
+          <div class="contact-availability">
+            <div class="availability-indicator">
+              <span class="availability-dot"></span>
+              <span>Disponible pour de nouveaux projets</span>
+            </div>
+            <p>Temps de réponse moyen : <strong>24h</strong></p>
+          </div>
         </div>
       </div>
+
     </div>
   </section>
 
@@ -494,7 +495,7 @@
           <h4>Contactez-moi</h4>
           <p><i class="fas fa-map-marker-alt"></i> Bénin</p>
           <p><i class="fas fa-phone"></i> +229 01 58 15 69 30</p>
-          <p><i class="fas fa-envelope"></i> hountondjiphilippe58@gmail.com</p>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:hountondjiphilippe58@gmail.com">hountondjiphilippe58@gmail.com</a></p>
         </div>
         
         <div class="footer-social">
@@ -511,7 +512,7 @@
             </a>
           </div>
           <p class="footer-newsletter">Abonnez-vous à ma newsletter</p>
-          <form data-inputdev="grts_xychzmpfx8nzfuplerdq7fc7tfdz" class="newsletter-form">
+          <form class="newsletter-form">
             <input type="email" name="email" placeholder="Votre email" required>
             <button type="submit"><i class="fas fa-paper-plane"></i></button>
           </form>
@@ -529,94 +530,10 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- Élément secret pour accès admin -->
-  <div style="position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; cursor: pointer; z-index: 9999;" onclick="window.location.href='admin/index.html';" title="Accès admin"></div>
-
-  
-  <!-- Votre script -->
+  <!-- InputDev SDK pour le formulaire de contact -->
   <script src="https://unpkg.com/@inputdev/sdk@latest/inputdev-sdk.prod.js"></script>
 
-<script>
-const apiKey = "grts_xychzmpfx8nzfuplerdq7fc7tfdz";
-const sdk = new InputDevSDK();
-
-const form = document.getElementById("contactForm");
-const responseBox = document.getElementById("form-response");
-
-form.addEventListener("submit", async function(e) {
-  e.preventDefault();
-  clearErrors();
-  responseBox.innerHTML = "";
-
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const message = document.getElementById("message").value.trim();
-
-  let hasError = false;
-
-  // Validation nom
-  if (name.length < 3) {
-    showError("error-name", "Le nom doit contenir au moins 3 caractères.");
-    hasError = true;
-  }
-
-  // Validation email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    showError("error-email", "Adresse email invalide.");
-    hasError = true;
-  }
-
-  // Validation téléphone (8 à 15 chiffres)
-  const phoneRegex = /^\+?[0-9]{8,15}$/;
-  if (!phoneRegex.test(phone)) {
-    showError("error-phone", "Numéro de téléphone invalide.");
-    hasError = true;
-  }
-
-  // Validation message
-  if (message.length < 10) {
-    showError("error-message", "Le message doit contenir au moins 10 caractères.");
-    hasError = true;
-  }
-
-  if (hasError) return;
-
-  try {
-    const result = await sdk.submit(apiKey, {
-      name,
-      email,
-      phone,
-      message
-    });
-
-    responseBox.innerHTML =
-      `<div class="success-message">
-        ✅ Message envoyé avec succès !<br>
-        ID: ${result.submissionId}
-      </div>`;
-
-    form.reset();
-
-  } catch (error) {
-    responseBox.innerHTML =
-      `<div class="error-global">
-        ❌ Une erreur est survenue. Veuillez réessayer.
-      </div>`;
-  }
-});
-
-function showError(id, message) {
-  document.getElementById(id).textContent = message;
-}
-
-function clearErrors() {
-  document.querySelectorAll(".error-message")
-    .forEach(el => el.textContent = "");
-}
-</script>
-
+  <!-- Script principal -->
   <script src="js/script.js"></script>
 </body>
 </html>

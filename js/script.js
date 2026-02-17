@@ -1,87 +1,77 @@
 // ===== PORTFOLIO - VERSION SÉCURISÉE =====
 
-// === PROTECTION IMMÉDIATE ===
+// === PROTECTION DE BASE ===
 (function() {
-  // Bloquer le clic droit sur tout le site
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-  // Bloquer l'accès au code source
   document.addEventListener('keydown', function(e) {
-    // Bloquer F12
-    if (e.key === 'F12') {
-      e.preventDefault();
-      return false;
-    }
-    // Bloquer Ctrl+U (view source)
-    if (e.ctrlKey && e.key === 'u') {
-      e.preventDefault();
-      return false;
-    }
-    // Bloquer Ctrl+Shift+I (dev tools)
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-      e.preventDefault();
-      return false;
-    }
-    // Bloquer Ctrl+Shift+J (console)
-    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-      e.preventDefault();
-      return false;
-    }
-    // Bloquer Ctrl+Shift+C (inspect element)
-    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-      e.preventDefault();
-      return false;
-    }
-    // Ctrl+Shift+P = Rediriger vers admin (seul accès autorisé)
-    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-      e.preventDefault();
-      window.location.href = 'admin/index.html';
-      return false;
-    }
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key === 'J') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') { e.preventDefault(); return false; }
+    // NOTE: Ctrl+Shift+P ne redirige plus vers admin (faille supprimée)
   });
 
-  // Empêcher la sélection de texte (optionnel mais renforcé)
-  document.addEventListener('selectstart', function(e) {
-    e.preventDefault();
-  });
-
-  // Empêcher le drag and drop d'éléments
-  document.addEventListener('dragstart', function(e) {
-    e.preventDefault();
-  });
+  document.addEventListener('dragstart', function(e) { e.preventDefault(); });
 })();
-// === VARIABLES GLOBALES ===
-let db;
 
 // === ÉLÉMENTS DU DOM ===
-const header = document.querySelector('header');
-const hamburger = document.querySelector('.hamburger');
-const navLinks = document.querySelector('.nav-links');
-const backToTop = document.querySelector('.back-to-top');
+const header       = document.querySelector('header');
+const hamburger    = document.querySelector('.hamburger');
+const navLinks     = document.querySelector('.nav-links');
+const backToTop    = document.querySelector('.back-to-top');
 const navLinksItems = document.querySelectorAll('.nav-links a');
-const contactForm = document.getElementById('contactForm');
+const contactForm  = document.getElementById('contactForm');
 
-// === INITIALISATION FIREBASE ===
-function initializeFirebase() {
-  try {
-    if (typeof firebase === 'undefined') {
-      console.error('Firebase SDK non chargé !');
-      return false;
-    }
+// === UTILITAIRES ===
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = String(input).trim();
+  return div.textContent;
+}
 
-    db = firebase.database();
-    console.log('✅ Firebase initialisé');
-    return true;
-  } catch (error) {
-    console.error('❌ Erreur Firebase:', error);
-    return false;
-  }
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+
+function clearErrors() {
+  ['error-name', 'error-email', 'error-phone', 'error-message'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
+
+// Notification sécurisée (textContent uniquement — zéro XSS)
+function showNotification(message, type) {
+  type = type || 'success';
+  const notification = document.createElement('div');
+  notification.className = 'notification notification-' + type;
+
+  const icon = document.createElement('i');
+  icon.className = 'fas ' + (
+    type === 'success' ? 'fa-check-circle' :
+    type === 'error'   ? 'fa-exclamation-circle' : 'fa-info-circle'
+  );
+
+  const span = document.createElement('span');
+  span.textContent = message;
+
+  notification.appendChild(icon);
+  notification.appendChild(span);
+  document.body.appendChild(notification);
+
+  setTimeout(function() { notification.classList.add('show'); }, 10);
+  setTimeout(function() {
+    notification.classList.remove('show');
+    setTimeout(function() { notification.remove(); }, 300);
+  }, 5000);
 }
 
 // === NAVIGATION ===
@@ -101,24 +91,10 @@ navLinksItems.forEach(function(link) {
 });
 
 // === SCROLL ===
-let lastScroll = 0;
-
 window.addEventListener('scroll', function() {
-  const currentScroll = window.pageYOffset;
-  
-  if (currentScroll > 100) {
-    header.classList.add('scrolled');
-  } else {
-    header.classList.remove('scrolled');
-  }
-  
-  if (currentScroll > 300) {
-    backToTop.classList.add('visible');
-  } else {
-    backToTop.classList.remove('visible');
-  }
-  
-  lastScroll = currentScroll;
+  const s = window.pageYOffset;
+  header.classList.toggle('scrolled', s > 100);
+  backToTop.classList.toggle('visible', s > 300);
 });
 
 if (backToTop) {
@@ -132,30 +108,19 @@ const sections = document.querySelectorAll('section[id]');
 
 function activateNavLink() {
   const scrollY = window.pageYOffset;
-  
   sections.forEach(function(section) {
-    const sectionHeight = section.offsetHeight;
-    const sectionTop = section.offsetTop - 100;
-    const sectionId = section.getAttribute('id');
-    const link = document.querySelector('.nav-links a[href="#' + sectionId + '"]');
-    
-    if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-      navLinksItems.forEach(function(item) {
-        item.classList.remove('active');
-      });
-      if (link) link.classList.add('active');
+    const top = section.offsetTop - 100;
+    const id  = section.getAttribute('id');
+    const lnk = document.querySelector('.nav-links a[href="#' + id + '"]');
+    if (scrollY > top && scrollY <= top + section.offsetHeight) {
+      navLinksItems.forEach(function(i) { i.classList.remove('active'); });
+      if (lnk) lnk.classList.add('active');
     }
   });
 }
-
 window.addEventListener('scroll', activateNavLink);
 
 // === ANIMATIONS ===
-const observerOptions = {
-  threshold: 0.01,
-  rootMargin: '0px 0px -50px'
-};
-
 const observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) {
@@ -166,186 +131,165 @@ const observer = new IntersectionObserver(function(entries) {
       observer.unobserve(entry.target);
     }
   });
-}, observerOptions);
+}, { threshold: 0.01, rootMargin: '0px 0px -50px' });
 
-const animatedElements = document.querySelectorAll('.skill-category, .projet-card, .stat, .contact-method');
-animatedElements.forEach(function(el) {
+document.querySelectorAll('.skill-category, .projet-card, .stat, .contact-method').forEach(function(el) {
   el.style.opacity = '0';
   el.style.transform = 'translateY(5px)';
   el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
   observer.observe(el);
 });
 
-// === UTILITAIRES ===
-function showNotification(message, type = 'success') {
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.innerHTML = `
-    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-    <span>${message}</span>
-  `;
-  
-  document.body.appendChild(notification);
-  setTimeout(() => notification.classList.add('show'), 10);
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 300);
-  }, 5000);
-}
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function sanitizeInput(input) {
-  const div = document.createElement('div');
-  div.textContent = input;
-  return div.innerHTML;
-}
-
-// === FORMULAIRE DE CONTACT ===
+// === FORMULAIRE DE CONTACT — InputDev SDK ===
 if (contactForm) {
-  // Initialiser Firebase immédiatement
-  window.addEventListener('DOMContentLoaded', function() {
-    console.log('🔄 Initialisation Firebase...');
-    if (firebaseConfig.apiKey !== 'VOTRE_API_KEY') {
-      initializeFirebase();
+
+  // Honeypot anti-bot (ajouté dynamiquement, invisible)
+  const honeypot = document.createElement('input');
+  honeypot.type         = 'text';
+  honeypot.name         = 'website';
+  honeypot.style.display = 'none';
+  honeypot.tabIndex     = -1;
+  honeypot.autocomplete = 'off';
+  contactForm.appendChild(honeypot);
+
+  // Initialisation du SDK (la clé n'est jamais utilisée côté serveur,
+  // InputDev est un service conçu pour les sites statiques — la clé est liée
+  // uniquement à ton compte et ne peut pas être utilisée abusivement sans
+  // accès à ton dashboard)
+  var inputDevSDK = null;
+  var INPUT_DEV_KEY = 'grts_xychzmpfx8nzfuplerdq7fc7tfdz';
+
+  function getSDK() {
+    if (inputDevSDK) return inputDevSDK;
+    if (typeof InputDevSDK !== 'undefined') {
+      inputDevSDK = new InputDevSDK();
+      return inputDevSDK;
     }
-  });
-  
+    return null;
+  }
+
   contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    
-    // Récupérer les valeurs
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const message = document.getElementById('message').value.trim();
-    
-    // Validation
-    if (!name || name.length < 2) {
-      showNotification('Le nom doit contenir au moins 2 caractères', 'error');
+    clearErrors();
+
+    // Honeypot check (silencieux)
+    if (honeypot.value) return false;
+
+    // Anti-spam : limite de soumissions par session
+    let count = parseInt(sessionStorage.getItem('submitCount') || '0', 10);
+    if (count >= 3) {
+      showNotification('Limite atteinte. Réessayez plus tard.', 'error');
       return;
     }
-    
-    if (!email || !isValidEmail(email)) {
-      showNotification('Veuillez entrer une adresse email valide', 'error');
-      return;
+
+    // Récupération et sanitisation des valeurs
+    const name    = sanitizeInput(document.getElementById('name').value);
+    const email   = sanitizeInput(document.getElementById('email').value);
+    const phone   = sanitizeInput(document.getElementById('phone').value);
+    const message = sanitizeInput(document.getElementById('message').value);
+
+    let hasError = false;
+
+    if (name.length < 2) {
+      showError('error-name', 'Le nom doit contenir au moins 2 caractères.'); hasError = true;
+    } else if (name.length > 100) {
+      showError('error-name', 'Le nom ne peut pas dépasser 100 caractères.'); hasError = true;
     }
-    
-    if (!message || message.length < 10) {
-      showNotification('Le message doit contenir au moins 10 caractères', 'error');
-      return;
+
+    if (!isValidEmail(email)) {
+      showError('error-email', 'Adresse email invalide.'); hasError = true;
     }
-    
-    if (message.length > 2000) {
-      showNotification('Le message ne peut pas dépasser 2000 caractères', 'error');
-      return;
+
+    if (phone && !/^\+?[0-9]{8,20}$/.test(phone)) {
+      showError('error-phone', 'Numéro invalide (8 à 20 chiffres).'); hasError = true;
     }
-    
-    // // Vérifier Firebase
-    // if (firebaseConfig.apiKey === 'VOTRE_API_KEY') {
-    //   showNotification('Erreur : Firebase non configuré. Consultez le README.', 'error');
-    //   return;
-    // }
-    
-    // if (!db) {
-    //   if (!initializeFirebase()) {
-    //     showNotification('Erreur : Impossible de se connecter à Firebase', 'error');
-    //     return;
-    //   }
-    // }
-    
+
+    if (message.length < 10) {
+      showError('error-message', 'Le message doit contenir au moins 10 caractères.'); hasError = true;
+    } else if (message.length > 2000) {
+      showError('error-message', 'Le message ne peut pas dépasser 2000 caractères.'); hasError = true;
+    }
+
+    if (hasError) return;
+
     // Désactiver le bouton
-    const submitBtn = contactForm.querySelector('.btn-submit');
+    const submitBtn   = contactForm.querySelector('.btn-submit');
     const originalHTML = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
-    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours…';
+
     try {
-      // Créer le message
-      const messageData = {
-        name: sanitizeInput(name),
-        email: sanitizeInput(email),
-        message: sanitizeInput(message),
-        date: new Date().toISOString(),
-        read: false
-      };
-      
-      // Envoyer à Firebase
-      await db.ref('messages').push(messageData);
-      
+      const sdk = getSDK();
+
+      if (sdk) {
+        // Envoi via InputDev SDK
+        await sdk.submit(INPUT_DEV_KEY, { name, email, phone, message });
+      } else {
+        // Fallback : mailto si le SDK n'est pas chargé
+        const subj = encodeURIComponent('Message de ' + name + ' via portfolio');
+        const body = encodeURIComponent(
+          'Nom : ' + name + '\nEmail : ' + email +
+          (phone ? '\nTéléphone : ' + phone : '') +
+          '\n\nMessage :\n' + message
+        );
+        window.location.href = 'mailto:hountondjiphilippe58@gmail.com?subject=' + subj + '&body=' + body;
+      }
+
       // Succès
-      showNotification('✓ Message envoyé avec succès ! Je vous répondrai bientôt.', 'success');
+      sessionStorage.setItem('submitCount', String(count + 1));
+      showNotification('✓ Message envoyé ! Je vous répondrai bientôt.', 'success');
       contactForm.reset();
-      
-      // Animation succès
+
       submitBtn.innerHTML = '<i class="fas fa-check"></i> Message envoyé !';
       submitBtn.style.background = '#10B981';
-      
-      setTimeout(() => {
+
+      setTimeout(function() {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHTML;
         submitBtn.style.background = '';
       }, 3000);
-      
-    } catch (error) {
-      console.error('Erreur:', error);
-      showNotification('Erreur lors de l\'envoi. Réessayez.', 'error');
-      
+
+    } catch (err) {
+      showNotification('Erreur lors de l\'envoi. Veuillez réessayer.', 'error');
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalHTML;
     }
   });
-  
-  // Validation en temps réel
-  const nameInput = document.getElementById('name');
-  const emailInput = document.getElementById('email');
+
+  // Validation visuelle en temps réel
+  const nameInput    = document.getElementById('name');
+  const emailInput   = document.getElementById('email');
   const messageInput = document.getElementById('message');
-  
+
   if (nameInput) {
     nameInput.addEventListener('blur', function() {
-      if (this.value.trim() && this.value.trim().length < 2) {
-        this.style.borderColor = '#EF4444';
-      } else {
-        this.style.borderColor = '';
-      }
+      this.style.borderColor = (this.value.trim().length > 0 && this.value.trim().length < 2) ? '#EF4444' : '';
     });
   }
-  
+
   if (emailInput) {
     emailInput.addEventListener('blur', function() {
-      if (this.value.trim() && !isValidEmail(this.value.trim())) {
-        this.style.borderColor = '#EF4444';
-      } else {
-        this.style.borderColor = '';
-      }
+      this.style.borderColor = (this.value.trim() && !isValidEmail(this.value.trim())) ? '#EF4444' : '';
     });
   }
-  
+
   if (messageInput) {
     messageInput.addEventListener('input', function() {
-      const length = this.value.length;
-      const maxLength = 2000;
-      
+      const len    = this.value.length;
+      const maxLen = 2000;
+
       let counter = this.parentElement.querySelector('.char-counter');
       if (!counter) {
         counter = document.createElement('div');
         counter.className = 'char-counter';
         this.parentElement.appendChild(counter);
       }
-      
-      counter.textContent = `${length} / ${maxLength} caractères`;
-      
-      if (length > maxLength) {
-        counter.style.color = '#EF4444';
-        this.style.borderColor = '#EF4444';
-      } else if (length > maxLength * 0.9) {
-        counter.style.color = '#F59E0B';
-        this.style.borderColor = '';
-      } else {
-        counter.style.color = '#6B7280';
-        this.style.borderColor = '';
-      }
+
+      counter.textContent = len + ' / ' + maxLen + ' caractères';
+
+      if (len > maxLen)            { counter.style.color = '#EF4444'; this.style.borderColor = '#EF4444'; }
+      else if (len > maxLen * 0.9) { counter.style.color = '#F59E0B'; this.style.borderColor = ''; }
+      else                          { counter.style.color = '#6B7280'; this.style.borderColor = ''; }
     });
   }
 }
@@ -355,23 +299,22 @@ const newsletterForm = document.querySelector('.newsletter-form');
 if (newsletterForm) {
   newsletterForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const emailInput = newsletterForm.querySelector('input[type="email"]');
     const email = emailInput.value.trim();
-    
+
     if (!email || !isValidEmail(email)) {
-      showNotification('Veuillez entrer une adresse email valide', 'error');
+      showNotification('Veuillez entrer une adresse email valide.', 'error');
       return;
     }
-    
+
     const btn = newsletterForm.querySelector('button');
-    const originalHTML = btn.innerHTML;
+    const orig = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    
-    setTimeout(() => {
+
+    setTimeout(function() {
       showNotification('✓ Inscription réussie ! Merci.', 'success');
       emailInput.value = '';
-      btn.innerHTML = originalHTML;
+      btn.innerHTML = orig;
     }, 1000);
   });
 }
@@ -380,155 +323,65 @@ if (newsletterForm) {
 const statsObserver = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) {
-      const statNumber = entry.target.querySelector('.stat-number');
-      const text = statNumber.textContent;
-      const number = parseInt(text.replace(/\D/g, ''));
-      
-      if (number && !entry.target.dataset.animated) {
+      const el   = entry.target.querySelector('.stat-number');
+      const text = el.textContent;
+      const num  = parseInt(text.replace(/\D/g, ''), 10);
+
+      if (num && !entry.target.dataset.animated) {
         entry.target.dataset.animated = 'true';
-        
-        let current = 0;
-        const increment = number / 30;
-        const isPercentage = text.indexOf('%') !== -1;
-        
-        const timer = setInterval(function() {
-          current += increment;
-          if (current >= number) {
-            current = number;
-            clearInterval(timer);
-          }
-          statNumber.textContent = isPercentage ? Math.floor(current) + '%' : Math.floor(current) + '+';
+        let cur = 0;
+        const inc  = num / 30;
+        const isPct = text.indexOf('%') !== -1;
+
+        const t = setInterval(function() {
+          cur += inc;
+          if (cur >= num) { cur = num; clearInterval(t); }
+          el.textContent = isPct ? Math.floor(cur) + '%' : Math.floor(cur) + '+';
         }, 40);
       }
     }
   });
 }, { threshold: 0.5 });
 
-document.querySelectorAll('.stat').forEach(function(stat) {
-  statsObserver.observe(stat);
-});
-
-// === PROTECTION SPAM ===
-let submissionCount = parseInt(sessionStorage.getItem('submissionCount') || '0');
-const MAX_SUBMISSIONS = 3;
-
-if (contactForm) {
-  contactForm.addEventListener('submit', function(e) {
-    if (submissionCount >= MAX_SUBMISSIONS) {
-      e.preventDefault();
-      showNotification('Limite de soumissions atteinte. Réessayez plus tard.', 'error');
-      return false;
-    }
-    
-    submissionCount++;
-    sessionStorage.setItem('submissionCount', submissionCount.toString());
-  }, true);
-}
-
-// === HONEYPOT ===
-if (contactForm) {
-  const honeypot = document.createElement('input');
-  honeypot.type = 'text';
-  honeypot.name = 'website';
-  honeypot.style.display = 'none';
-  honeypot.tabIndex = -1;
-  honeypot.autocomplete = 'off';
-  contactForm.appendChild(honeypot);
-  
-  contactForm.addEventListener('submit', function(e) {
-    if (honeypot.value) {
-      e.preventDefault();
-      console.log('Bot détecté');
-      return false;
-    }
-  }, true);
-}
+document.querySelectorAll('.stat').forEach(function(s) { statsObserver.observe(s); });
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('✅ Portfolio chargé');
   activateNavLink();
-  
-  // Styles pour notifications
+
   if (!document.getElementById('notification-styles')) {
     const style = document.createElement('style');
     style.id = 'notification-styles';
     style.textContent = `
       .notification {
-        position: fixed;
-        top: -100px;
-        right: 20px;
-        background: rgba(10, 14, 39, 0.95);
-        color: white;
-        padding: 1rem 1.5rem;
+        position: fixed; top: -100px; right: 20px;
+        background: rgba(10, 14, 39, 0.97);
+        color: white; padding: 1rem 1.5rem;
         border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        z-index: 10000;
-        min-width: 300px;
-        max-width: 500px;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        display: flex; align-items: center; gap: 0.75rem;
+        z-index: 10000; min-width: 300px; max-width: 500px;
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        border: 1px solid rgba(255,255,255,0.1);
         backdrop-filter: blur(20px);
       }
-      
-      .notification.show {
-        transform: translateY(120px);
-      }
-      
-      .notification-success {
-        border-left: 4px solid #10B981;
-      }
-      
-      .notification-error {
-        border-left: 4px solid #EF4444;
-      }
-      
-      .notification-info {
-        border-left: 4px solid #00D9FF;
-      }
-      
-      .notification i {
-        font-size: 1.25rem;
-      }
-      
-      .notification-success i {
-        color: #10B981;
-      }
-      
-      .notification-error i {
-        color: #EF4444;
-      }
-      
-      .notification-info i {
-        color: #00D9FF;
-      }
-      
-      .notification span {
-        flex: 1;
-        font-weight: 500;
-      }
-      
+      .notification.show    { transform: translateY(120px); }
+      .notification-success { border-left: 4px solid #10B981; }
+      .notification-error   { border-left: 4px solid #EF4444; }
+      .notification-info    { border-left: 4px solid #00D9FF; }
+      .notification i       { font-size: 1.25rem; }
+      .notification-success i { color: #10B981; }
+      .notification-error i   { color: #EF4444; }
+      .notification-info i    { color: #00D9FF; }
+      .notification span      { flex: 1; font-weight: 500; }
       .char-counter {
-        font-size: 0.875rem;
-        color: #6B7280;
-        margin-top: 0.5rem;
-        text-align: right;
+        font-size: 0.875rem; color: #6B7280;
+        margin-top: 0.5rem; text-align: right;
       }
-      
       @media (max-width: 768px) {
-        .notification {
-          right: 10px;
-          left: 10px;
-          min-width: auto;
-        }
+        .notification { right: 10px; left: 10px; min-width: auto; }
       }
     `;
     document.head.appendChild(style);
   }
 });
-
-console.log('✅ Portfolio initialisé (version Firebase)');
-console.log('⚠️ N\'oubliez pas de configurer Firebase !');
