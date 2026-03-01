@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <meta name="google-site-verification" content="google50f42750b1197bd4" />
+  <title>Philippe Hountondji | Développeur Web & Administrateur Réseau et système - Portfolio</title>
+  <meta name="description" content="Philippe Hountondji - Étudiant passionné en Informatique & Réseaux au Bénin. Spécialisé en développement web full-stack (Python, JavaScript, Node.js) et administration réseau. Découvrez mon portfolio et mes projets.">
+  <meta name="keywords" content="Philippe Hountondji, Hountondji Philippe, développeur web Bénin, administration réseau, portfolio développeur, Python, JavaScript, Node.js, HTML, CSS, étudiant informatique">
+  <meta name="author" content="Philippe Hountondji">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hountondji-philippe.github.io/portfolio/">
+  
+  <meta property="og:title" content="Philippe Hountondji | Développeur Web & Administrateur Réseau et Système">
+  <meta property="og:description" content="Étudiant passionné en Informatique & Réseaux. Spécialisé en développement web et administration réseau. Découvrez mon portfolio.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hountondji-philippe.github.io/portfolio/">
+  <meta property="og:image" content="https://hountondji-philippe.github.io/portfolio/images/image-9.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="og:image:alt" content="Développeur web & Administrateur réseau et système Portfolio">
+  <meta property="og:site_name" content="Philippe Hountondji Développeur web & Administrateur réseau et système Portfolio">
+  <meta property="og:locale" content="fr_FR">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Philippe Hountondji | Développeur Web & Administrateur Réseau et système">
+  <meta name="twitter:description" content="Étudiant passionné en Informatique & Réseaux. Découvrez mon portfolio et mes projets.">
+  <meta name="twitter:image" content="https://hountondji-philippe.github.io/portfolio/images/image-9.jpg">
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Philippe Hountondji",
+    "url": "https://hountondji-philippe.github.io/portfolio/",
+    "image": "https://hountondji-philippe.github.io/portfolio/images/acceuil.jpeg",
+    "jobTitle": "Étudiant en Informatique et Réseaux",
+    "description": "Développeur web et administrateur réseau passionné",
+    "email": "hountondjiphilippe58@gmail.com",
+    "telephone": "+22958156930",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "BJ"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/in/philippe-hountondji-200ba73a6",
+      "https://wa.me/22958156930"
+    ],
+    "knowsAbout": ["Développement Web", "Python", "JavaScript", "Node.js", "HTML", "CSS", "Administration Réseau", "Sécurité Réseau"],
+    "alumniOf": {
+      "@type": "EducationalOrganization",
+      "name": "Formation en Informatique et Réseaux"
+    }
+  }
+  </script>
+  
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="X-XSS-Protection" content="1; mode=block">
+  <meta name="X-Content-Type-Options" content="nosniff">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="css/style.css" as="style">
+  <link rel="preload" href="images/acceuil.jpeg" as="image">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/000000/developer.png">
+  
+  <style>
+    body { opacity: 1 !important; visibility: visible !important; }
+    header, #accueil, #apropos, #competences, #projets, #cv, #contact {
+      opacity: 1 !important; transform: none !important;
+    }
+    .skill-category, .projet-card, .stat, .contact-method { opacity: 0; }
+
+    /* ── CV SECTION ── */
+    #cv {
+      background: rgba(18, 22, 48, 0.5);
+      padding: 100px 0;
+      scroll-margin-top: 80px;
+    }
+    #cv h2 {
+      text-align: center;
+      display: block;
+      margin-bottom: 1rem;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: #FFFFFF;
+      position: relative;
+    }
+    #cv h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      border-radius: 2px;
+    }
+    .cv-section-subtitle {
+      text-align: center;
+      color: #B4B8D4;
+      font-size: 1.125rem;
+      margin-bottom: 3rem;
+    }
+    .cv-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .cv-preview {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #121630;
+      aspect-ratio: 210 / 297;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .cv-preview:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,107,53,0.2); }
+    .cv-preview-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #0A0E27 0%, #121630 100%);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .cv-preview-inner::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 35%;
+      background: #1A1F3A;
+    }
+    .cv-preview-badge {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      z-index: 2;
+    }
+    .cv-preview-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-left: 38%;
+    }
+    .cv-preview-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: clamp(0.8rem, 2vw, 1.1rem);
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.2rem;
+    }
+    .cv-preview-title {
+      color: #00D9FF;
+      font-size: 0.55rem;
+      margin-bottom: 0.5rem;
+    }
+    .cv-preview-line {
+      height: 2px;
+      background: linear-gradient(90deg, #FF6B35, transparent);
+      border-radius: 2px;
+      margin-bottom: 0.5rem;
+    }
+    .cv-preview-dots {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .cv-preview-dot {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+    }
+    .cv-preview-dot:nth-child(1) { width: 90%; }
+    .cv-preview-dot:nth-child(2) { width: 70%; }
+    .cv-preview-dot:nth-child(3) { width: 80%; }
+    .cv-preview-dot:nth-child(4) { width: 60%; }
+    .cv-hover-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,14,39,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+    .cv-preview:hover .cv-hover-overlay { opacity: 1; }
+    .cv-hover-overlay span {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cv-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .cv-actions-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 0.5rem;
+    }
+    .cv-actions-subtitle {
+      color: #B4B8D4;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .cv-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .cv-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .cv-btn-download {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .cv-btn-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 40px rgba(255,107,53,0.3);
+    }
+    .cv-btn-view {
+      background: transparent;
+      color: #FFFFFF;
+      border: 2px solid rgba(0, 217, 255, 0.4);
+    }
+    .cv-btn-view:hover {
+      background: rgba(0,217,255,0.08);
+      border-color: #00D9FF;
+      transform: translateY(-3px);
+    }
+    .cv-btn-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .cv-btn-download .cv-btn-icon { background: rgba(255,255,255,0.2); }
+    .cv-btn-view .cv-btn-icon { background: rgba(0,217,255,0.15); color: #00D9FF; }
+    .cv-btn-text { display: flex; flex-direction: column; }
+    .cv-btn-text span:first-child { font-size: 0.75rem; opacity: 0.8; font-weight: 400; }
+    .cv-btn-text strong { font-size: 1rem; }
+    .cv-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .cv-stat {
+      text-align: center;
+    }
+    .cv-stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+    }
+    .cv-stat-label {
+      font-size: 0.75rem;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* PDF Modal */
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+    .pdf-modal.open { display: flex; }
+    .pdf-modal-inner {
+      background: #121630;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: 90vw;
+      max-width: 860px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+    }
+    .pdf-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .pdf-modal-header h3 { color: white; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .pdf-modal-header h3 i { color: #FF6B35; }
+    .pdf-modal-close {
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: white;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .pdf-modal-close:hover { background: rgba(255,107,53,0.3); }
+    .pdf-modal-body { flex: 1; overflow: auto; padding: 0; }
+    .pdf-modal-body iframe {
+      width: 100%;
+      height: 70vh;
+      border: none;
+      background: #fff;
+    }
+    .pdf-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .pdf-modal-footer a {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .pdf-modal-footer .btn-dl {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+    }
+    .pdf-modal-footer .btn-dl:hover { transform: translateY(-2px); }
+
+    @media (max-width: 768px) {
+      .cv-wrapper { grid-template-columns: 1fr; gap: 2rem; }
+      .cv-preview { max-width: 280px; margin: 0 auto; }
+      .cv-stats { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .cv-buttons { gap: 0.75rem; }
+      .cv-btn { padding: 0.875rem 1.25rem; }
+    }
+  </style>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KJY4BYVDHX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KJY4BYVDHX');
+  </script>
+</head>
+
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <nav class="container">
+      <a href="#accueil" class="logo">PHILIPPE HOUNTONDJI</a>
+      <ul class="nav-links">
+        <li><a href="#accueil">Accueil</a></li>
+        <li><a href="#apropos">À propos</a></li>
+        <li><a href="#competences">Compétences</a></li>
+        <li><a href="#projets">Projets</a></li>
+        <li><a href="#cv">Mon CV</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Accueil / Hero -->
+  <section id="accueil" class="accueil container">
+    <div class="accueil-image">
+      <img 
+        src="images/philippe.jpeg" 
+        alt="Philippe Hountondji - Développeur web et administrateur réseau"
+        loading="eager" fetchpriority="high" width="450" height="280">
+    </div>
+    <div class="hero-text">
+      <h1>Philippe Hountondji</h1>
+      <h2>Étudiant en Informatique & Réseaux</h2>
+      <p>
+        Passionné par le développement web et l'administration réseau, je transforme des idées en solutions digitales efficaces. 
+        Curieux et déterminé, j'explore chaque jour de nouvelles technologies pour élargir mes compétences.
+      </p>
+      <div class="hero-buttons">
+        <a href="#projets" class="btn btn-primary">
+          <i class="fas fa-code"></i> Voir mes projets
+        </a>
+        <a href="#cv" class="btn btn-secondary">
+          <i class="fas fa-file-pdf"></i> Télécharger mon CV
+        </a>
+        <a href="#contact" class="btn btn-secondary">
+          <i class="fas fa-paper-plane"></i> Me contacter
+        </a>
+      </div>
+      <div class="social-icons">
+        <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="/cdn-cgi/l/email-protection#620a0d170c160d0c06080b120a0b0e0b121207575a22050f030b0e4c010d0f" aria-label="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- À propos -->
+  <section id="apropos" class="apropos container">
+    <h2><i class="fas fa-user"></i> Qui suis-je ?</h2>
+    <div class="apropos-content">
+      <div class="apropos-image">
+        <img src="images/apropos.jpeg" alt="Philippe Hountondji - Développement et programmation" loading="lazy">
+      </div>
+      <div class="apropos-text">
+        <p><strong>Bonjour !</strong> Je m'appelle Philippe Hountondji, étudiant passionné d'informatique et réseaux originaire du Bénin.
+          Ma fascination pour la technologie a commencé dès mon plus jeune âge, et je n'ai cessé d'explorer ce domaine depuis.</p>
+        <p>Je me spécialise dans le <strong>développement web full-stack</strong> et l'<strong>administration réseau</strong>. 
+          Pour moi, chaque projet est une opportunité d'apprendre et de repousser mes limites techniques.</p>
+        <p>Mon approche allie rigueur technique et créativité pour concevoir des solutions à la fois performantes et esthétiques. 
+          Je crois fermement que la meilleure façon d'apprendre est de créer, c'est pourquoi je travaille constamment sur des projets personnels.</p>
+        <div class="apropos-stats">
+          <div class="stat">
+            <span class="stat-number">7+</span>
+            <span class="stat-label">Projets réalisés</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">5</span>
+            <span class="stat-label">Langages maîtrisés</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Motivation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compétences -->
+  <section id="competences" class="competences container">
+    <h2><i class="fas fa-cogs"></i> Mes Compétences</h2>
+    <p class="section-subtitle">Un aperçu de mes compétences techniques à travers trois domaines clés</p>
+    
+    <div class="skills-content">
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-code"></i>
+          </div>
+          <h3>Développement Web</h3>
+        </div>
+        <ul>
+          <li><i class="fab fa-python"></i> <strong>Python</strong></li>
+          <li><i class="fab fa-html5"></i> <strong>HTML5</strong></li>
+          <li><i class="fab fa-css3-alt"></i> <strong>CSS3</strong></li>
+          <li><i class="fab fa-js"></i> <strong>JavaScript</strong></li>
+          <li><i class="fab fa-node-js"></i> <strong>Node.js</strong></li>
+          <li><i class="fas fa-database"></i> <strong>Bases de données</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 85%;"></div>
+          <span>Niveau : Avancé</span>
+        </div>
+      </div>
+
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="fas fa-network-wired"></i>
+          </div>
+          <h3>Réseaux & Infrastructure</h3>
+        </div>
+        <ul>
+          <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong></li>
+          <li><i class="fas fa-server"></i> <strong>Gestion de serveurs</strong></li>
+          <li><i class="fas fa-shield-alt"></i> <strong>Sécurité réseau</strong></li>
+          <li><i class="fas fa-chart-line"></i> <strong>Supervision</strong></li>
+          <li><i class="fas fa-tools"></i> <strong>Dépannage</strong></li>
+          <li><i class="fas fa-cloud"></i> <strong>Cloud</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 80%;"></div>
+          <span>Niveau : Intermédiaire</span>
+        </div>
+      </div>
+
+      <div class="skill-category">
+        <div class="skill-header">
+          <div class="skill-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="fas fa-laptop-medical"></i>
+          </div>
+          <h3>Maintenance & Support</h3>
+        </div>
+        <ul>
+          <li><i class="fas fa-search"></i> <strong>Diagnostic hardware/software</strong></li>
+          <li><i class="fas fa-cogs"></i> <strong>Installation systèmes</strong></li>
+          <li><i class="fas fa-tools"></i> <strong>Maintenance préventive</strong></li>
+          <li><i class="fas fa-sync-alt"></i> <strong>Mise à jour & patches</strong></li>
+          <li><i class="fas fa-headset"></i> <strong>Support utilisateurs</strong></li>
+          <li><i class="fas fa-bolt"></i> <strong>Optimisation performance</strong></li>
+        </ul>
+        <div class="skill-progress">
+          <div class="progress-bar" style="width: 90%;"></div>
+          <span>Niveau : Expert</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="competences-image">
+      <img src="images/competences.jpeg" alt="Infrastructure réseau et serveurs - Compétences de Philippe Hountondji" loading="lazy">
+    </div>
+  </section>
+
+  <!-- Projets -->
+  <section id="projets" class="projets container">
+    <h2><i class="fas fa-project-diagram"></i> Mes Projets</h2>
+    <p class="section-subtitle">Découvrez une sélection de mes réalisations techniques</p>
+    
+    <div class="projets-grid">
+      <!-- Projet 1 - VBG Production -->
+      <div class="projet-card">
+        <div class="projet-badge">Nouveau</div>
+        <div class="projet-image">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAJ2CAIAAADAIuwLAAAuSElEQVR4nO3deWBU5b34/0+SCSQEUGvdqlRc6sIiblRcsC69qLUWaW3x1oK74tbaor3eKli1X+1PLW51rbUVbvHqdUOtilpF2d0QBQRxAXEpaqsggZD198fQFJOwCCGTyfN6/UUm55x5zpnhzHnnzJwpKOm4TQAAAJCewlwPAAAAgNwQhAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAInKbLhFLzt+qw238Lan9M4Pcz0EAAAgLc4QAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgBAa7f11l2OPvpHHTqU5XogtDUb8Ivp1+Doc2Lh/Jj80Iofz74hHrg+zrsj5s2MgoIoKYu/3hqvjY/9B8R+/aO2JpZ9HqMvj88+ytmAW5PRox968805dXV1RUVFf/7zrW+++Ub2logoLe3wpz/dMmvWawcf3O+II75XXV2dyWQefXTMuHFPrjxjJpN56qnHnnnmyYgYOfK+wYN/kF1y/b+//e0jDjvsu8uWLa2oqLjttus/+eTjffbZ78gjB0TELrt0nz17ZkQ89thDZ5xxbnb6Ju/urrseeuON2Rdf/MsGCweAFBx66OGnnnr2kCGDPvvs02ZZYJcu23br1nPs2Eci315Vt99+x+OOOymTydTU1Nx004hPPvl47eddea3bhsYHcquZeMCAgQ88cHdE/PKXw8eOfaSmpqbBBNlnQv5upcbHnGs5Y/2WaZbJUpa7IJwxIQ4auCII23eITbaM9+dGdVVcNyQiYutvxJDfRVVl9DooRpwSNdXxH4PjuGFx4zk5G3BrUl1dNXz4+RHx9a93PeusX/zXf/105VvOPfeCkSP/cOihh11yyQXl5UvKyjr+939f8s9/fvLqq9PqJ2vfvuSCC35dUVExefL4xsvv1WvPAw446MILf15ZWbnHHr3POmvoJZdcMHXqpKlTJ0XEyJH3ZRcSEWeccW5E7L77Xk3eXVVVVVFRUffuu82c+WpLbRsAaC323rvPo48+uMcevZ955olmWeCCBfMXLJjfLItqYWee+Ysrrhj+j3980qfPAYMHnzpixOVrP2/+rvWqND6QW83EAwb8KNszG2+8yaOPjlnVZHm6lZo85lzLeeu3TLNMlrLcBeHb0+Mnw6OwKGprYufe8frkL/z2gzejpiYO/Uk8cnPUVEdEjL83tusZhYVRW5uT8bZO7747b/PNt1z5lgUL5n/lK5v27//DkSNvLy9fEhHl5UtGjfrjwIGDXn11Wv1ky5dXjBr1x5NOGtJkEH7vez8YPfpPlZWVETFt2gv77LNfUVGmJvtANGU1d3f33aMGDhxUH5AAkIj27duXlJQ89dTjxx134jPPPNGpU+chQ87t1KlTVVXV9ddfWVtbu/KPixZ91vgNO2VlHU855cyNN/5KJpO5884/ZN8KlF8nButttNHGxcXtIuKFF6YsWvTZqlZt6tRJ77zz5iGHHHb55cP++c9/FBcXjxhxy09/esqdd947ePAPGmzD6urqBgv5znf6H3JIv7q6+J//uWP69JdyvdJrlj2Q23jjTc466xclJaUVFctuvHHEZ599Wr8pOnXqXFJSOmzY5c8/P6m0tMOll151000jTj75zJUnrl9a9rnReGk5XME1avKYs1OnTo03yOOPP7zLLt3Lyjrec8+oqVMnDRw4KLtl/vznW08//adlZR3/9rexjzxyf4MnyeGHH5Wd7LLLfpXrdW29cvcZwtramDcjtusZEdHjgHj12S/8dqe9474RsdX28f6bK26pWBq3na8GG+jZc/d5895e+ZZevfZ87bVXtt66yzvvvFV/49tvv7nNNl9vMO/8+e9sueXXmlxsly5dV579lluuW00NRsRq7u61116JiB49eq3N6gBAm7H77ntNm/biBx+8t9lmW2QymRNOOG3y5OeGDz9/woRxAwcOavBjk0sYPPjURx996JJLLrjuuiuHDPlZC4+/eY0e/aff/OZ3Z57581137f766zOaXLXi4uKJE8c9+uiYKVPG9+69b0T06NFr2rQX6+rqshM02GiNF3LMMT8eNuy8a6/97YEHHpKrNf1Ssgdyxx9/2oQJ44YNO2/ChHHHH39qrLQp7r57VEXFsssu+9XYsY9UVCwbPvz8gQMHN5i4gcZLa82aPOZsvAqZTPHixYuHDz//yisvPfHEMyKifsscccT3/vKXPw0bdl7//sdEoydJ/WS5WsG8kLszhBHx2vjotm+89Up07RH/+9uIiExx/OyWyLSLbbvFGy9EUdGKKQ/5cfQ8MDpvGpf9MIfjbT0ymeJLL70qIpYuLb/55mvqbykqKtp66y7nnnvalVf+fuXpCwqaWEhRUWHjt6FnFRau118KGtzd3XePOvbYwTNmTF+fZQJAfunde9+uXXfYd98DvvKVTbt3361nzz1uvvnaiHj22aemTp147bW3rfxjg3kLCgojYvfd99pqqxV/ui0pKSksLKzN27+MP/PMk88/P/mb39zvxBOHTJ06sclVq62tnT795YiYNGn8SSedMXbsI3vv3Wf8+GfqF9JgG15zza0NFvLyy8+fc875Y8c+csMNV7X0Gn4ZDQ7kfvObETfdNCIiJk167rjjToqI+k3RWPfuuzWY+MtO0Ko0eczZeBUKCgqy77teuPDDsrIvXFZn1Kjb99//oL322qdDhw7R6Emy4degLchpEM6aHAcfG9OejvfmRG1NRPz7M4Rf2zF+flt88GZsvWPMnxVPj47JD8flj+VytK1J/VvPG99y9NE/PPjgfu+99+722+84Z86s7G+33/4bCxbMa7CQHXfc+d1334mIurq67I64qKgom4gffPBe1647zJ07OyIKCgrOPnvoDTdcvZrxrP7uZs58tba2tmfP3ddnlQEgjxQWFn7ta9ucd96ZEbH77nvttdc+hYWFBQUFEVFbW7t0aXmDH+NfERgRZWUdM5lMRBQVFV122YVVVZUFBQW77tojf2uwc+eNttpq6zlzZj3zzBMvvTR1xIhbIqLxqtXU1GRPBn7wwXudOnUqLe2w3XY73H77jfXLabDRGm+f3//+d9269TzyyAEHHHDwjTf+Lkeru2YNDuQKGv3lvn5TNNZ44i87QavS5DFn41Worq7OfjQpIhpsmaFDL5oyZcJjj4057LDvRqMnSUusQ/7L6ddOLPs8KpfHvkc1fL9oRJQvik/ei4kPxpGnR1EmIuLAY6Ku6dNZrGz69Jd33HHnMWPuHTTo5OyFicvKOv7kJyc9+OD/rTxZWVnHQYNOzt745ptzevXaMyJ2332v7HWuxo595D//8/ji4uKI2H//b2Uyxau/0zXeXfaThM25ngDQiu2yS/f6z3S8/vqMXr32nDt3TvZtkIceevhxx53Y4MeIWLq0vEuXbSOib9+DI+oiYvbsmfvss19E7Lln7wEDBuZqXdZfXV3d0KEXfvWrm0VEp06dP/nk4zWu2gsvTB4wYODcuXNWPvpvsNEaLKRDh7JLL71qzpzXr7/+yj337N1C69YcZsyY3qdP34jo06dv4+vwFRQUrhxIq594bSZoVZo85my8CnV1Tfw1JLtldtjhG5MmPVdc3C67kMb/sxpsQBrL6RnCiJgxPo48Lcb8628/2beMZv/n33VFLJgdW3aNX42ORZ/E84/FKt7fyMo++OC9bbfd7tVXX950069ecsmVVVVVmUzmscfGZD/Ll32LQvYyxw8+eE/2/9gf/3jTkCHnZnfHt9xybURMnPjsVlt97corf7948aJFiz77wx9+v7q7jJg+/aUm767erFmvVVVVZf+jAkCb17v3vvUvhcuXL1+06LPHH3/4Bz849vDDj1q6tPyGG67u1KnTmWf+ov7HiLjjjpuGDr1w0aLP5s6dU1VVFRF//vOtp5/+s379jqypqbnllusa3MWHH77//e8PvP/+PLh84uefL77llmuHDr2wsrKytrb2pptGLF1avppVi4hJk8aPGHFL/TdXZd15560rb7TS0tKVF7J0aflLL0294oprCwsL7r13dEutXDMYNer2M874eb9+36moqMi+VXJlr78+44ILLrniiuGrmrjBM2H1S2ttmjzmXMtVyG6ZsWMfufzya+bNe7u8fElxcXGDJ0k02oA0VlDScZsNtOhlx2+1gZbcJpXe+WGuhwAAAKQlp28ZBQAAIHcEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIEIQAAQKIKSjpuk+sxAAAAkAPOEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACQqU1hYlusxAAAAkAPOEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACRKEAIAACQqk+sBAEAbV1JSmushAJBLFRXLcj2EVRKEALBB6EAAsupfEVphGQpCAGhmUhCAJmVfIFpVFvoMIQA0JzUI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TgJSYF/XMgQhAABAogQhAABAogQhAABAogQhAABAogQhAOQZV2MHUmBf1zIEIQDkH8dJQNtmL9difDE9AOQlR0sArD9nCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABKVl19MX7bRLrkeAgAAQN5zhhAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRmVwPAABYRwv7L8/1EGhoizHtcz0EgC9BEAJA/pGCrVb2oZGFQL7wllEAAIBECUIAyDNOD7Z+HiMgXwhCAACARAlCAACARAlCAACAROXlVUbLF83O9RCAtJRttEuuhwAA0PycIQQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIASAPLPFmPa5HgJr4DEC8oUgBAAASFRefg8hACQuewJqYf/luR4IDTk3COQXQQgA+Up7ALCevGUUAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUa4yCgB5aeGC8bkeAkBbs0WXvrkeQktzhhAA8o8aBNgQEty7CkIAyDMJHq8AtJjU9rGCEAAAIFGCEAAAIFGCEAAAIFGCEAAAIFGCEAAAIFGCEAAAIFGCEADyTILfmwzQYlLbxwpCAMg/qR2vALSMBPeuBR0675zrMQBAXiopKV3neTPtOjbjSABoJaorl6zzvBUVy5pxJGvJGUIAAIBECUIAAIBECUIAAIBECUIAAIBEZXI9AABgXSxcMD7XQwDYUBK82meuOEMIAPlHDQJtm71cixGEAJBnHCcBKbCvaxmCEAAAIFGCEAAAIFGCEAAAIFGCEAAAIFGCEADyjKuxAymwr2sZghAA8o/jJKBts5drMb6YHgDykqMlANafM4QAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJyuR6AOuifNHsXA8BWHdlG+2S6yEAABDhDCEAAECyBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEAAECiMrkeAACwjhb2X57rIdDQFmPa53oIAF+CIASA/CMFW63sQyMLgXzhLaMAAACJEoQAkGecHmz9PEZAvhCEAAAAiRKEAAAAiRKEAAAAiRKEAAAAiRKEAAAAiRKEAAAAicrLL6Yv22iXXA8BAAAg7zlDCAAAkChBCAAAkChBCAB5Zosx7XM9BNbAYwTkC0EIAACQqLy8qAwAJC57Amph/+W5HggNOTcI5BdBCAD5SnsAsJ68ZRQAACBRghAAACBRghAAACBRghAAACBRghAAACBRrjIKAHlp4YLxuR4CQFuzRZe+uR5CS3OGEADyjxoE2BAS3LsKQgDIMwkerwC0mNT2sYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAPJMgt+bDNBiUtvHCkIAyD+pHa8AtIwE966ZXA8AAFgXCR61ANDsnCEEAABIlCAEAABIlCAEAABIlCAEAABIlIvKAEBeWrhgfK6HALChuG5Wi3GGEADyjxoE2jZ7uRYjCAEgzzhOAlJgX9cyBCEAAECiBCEAAECiBCEAAECiBCEAAECiBCEA5BlXYwdSYF/XMgQhAOQfx0lA22Yv12J8MT0A5CVHSwCsP2cIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEpXJ9QCaR/mgzrkeArlRNmrxhlu451Ve26DPDQCAtqGgQ+edcz2G9eKQndgAh/6eV22GLGSDKikpXed5M+06NuNIAGglqiuXrPO8FRXLmnEkaym/g9BRO/Wa8bi//nmlJfKax5EWIAgBaEAQthw1SAPNctyffV5JiDbDA8oGJQgBaCDvgjBfLyqjBmls/Z8V4qHtyT6a9hgAAE3K1yAEAABgPeVlEPpjP6uyPs8NpwfbKicJAQBWJS+DEAAAgPUnCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABKVyfUAWp9rxse8mRF1UVQckx6MKY9s2LvbavvYcY8Yf9+GvRdy7cRvtDt1p+LPq6K8uu6nUyveK69dyxmH9mj/uxnLm2syoI1Z2N9//FZnizHtcz0EgC9BEDZSXRXXDYmIaFcaQ34Xy5fFyVfEq89GbU0UZaLngXH2N5vz7j58Oz58uzkXSOtzyFaZH3XNHPp4+bKa6Ld15rb9Sr7z5NK1nPe8Hu3WpvTWcjKgzZCCrVb2oZGFQL7wltFVq1wWD14fBx8b82fGrMlx+wXx6nPxzozouHGcemX87JY4+4botEl03jTOvDZ+fluceW103jQi4qqn/72Q7L//+y+x8WYREZl2cfF9UVAYVz0dPxkeBw38wvQr30gbcm63dhdPW76sJiLiifer3/68trgwtigteOCQDk8cVvbAIR22KC2IiA+P7fTrPdqP7Vc29btl3/t6JiIu6tW+LFPw8Lc77Lpx4VOHlb14VMdzdm0XEZu2L7jrWx0e71f28Lc7bFZSUD9ZTtcSAID8IwhX6/03Y7Mu8enCqK6M7XrEoo9j0Ucx4NyY9re4bki8+EQceXp8/9x48Ym45rR48YkY8LOmlzPtb9HzwIiInfaKWZOjrjYy7eKlJ2Lc3V+YrMkbyX+7blw0/dOa+h/PnlJRVRu/3avknnlV/caW3zOv6oq9SiKiuLDgHxV1hz1Rfuy4ZVftXRIRv5m+vLy67qinlg7Zud3F0yr+44nyc7u3j4jf7l3ywPyqw58ov+edqot6ta+fLFcrCLQwpwdbP48RkC8E4WoVFkVNdUTE849FvxNi1uSIiJ17x7SnIyKe/2uM+X18Y894+amIiJefip32ariEgsKIiGl/i92+FRHRo++KietqYvbzDSdu8kbyX1FBEzf23TJz//yqiLh/ftWBW2YiojBi5FtVEfHOktqN2n1hngtfXr7TRkVDu7fvVBwRcdCWmQffrYqI0W9XDXvZMQcAAOtIEK5W1+7xwZsREfseFVMeiZ59IyIKC6OgICKitjaWLYlodLBf8K+tWtopMpmIiIXzo2yjKCmLLjvH29MjImpqoq7RZUWavJH8N3dx7W6bFGX/XRDxh/1Lo4nnTVTV1i2qrMv+u+6Lv/rLgaURcfPsyrq6iIiighXPwZq6WFzVYFoAAFhbgnDVOnSK/mfHk6Niky2iuH1MHxebbBEbbR7zZ8ZuB0ZE7Nc/vndWzH0p9jgkImKPQ2LuyxERFUtiq+0jInof/u/j+lefjX7Hx/yZUefwPTl/eKPy4t3bty+KiPhh1+J2hRERz/29+uivF0fE0V8vHv/36oho8o8BhRGFBbHnpkX3zasqKYp2RQUR8eI/ar67TXFEnLBj8aV7tK+fDAAAvhRXGW0kUxw/uyWiLooy8eTImPtSbNs9Fv8jdtwjijKxXY/49ffjuIviwB/GsiUx8tfRriSOuygO+H4sXxZ/uSwi4v+ujpOviM//GfNnRXXlisVO+1v8anRcd0buVoycuXde1Q6dCid+p+Mny2s/qqj7+dSKiPjVSxU371d68k7tllbXDZm0bFXzTvyo5v8O7nDbnMpnjih79dOaRZV17Yvighcrbtq39LSd2y2uqjtl4rL6yX7wtI8RAgDwJRR06LxzrsfwpZUP6pzrIdB6lY1avG4zZp9X6zw7rZkHlw2kpKR0nefNtOu4zvO6YEle8M0TkKbqyiXrPG9FxSpPEmw43jIKAACQKEEIAACQKEEIAACQKEEIAACQKEEIAHnG1UpaP48RkC8EIQAAQKJ8DyEA5J/sCSjfP9EKOTcI5BdBCAD5SnsAsJ68ZRQAACBRghAAACBRghAAACBReRmEZaMW53oItFLr89zIzls+qHPzDYdWIfuY2m8AADSWl0EIAADA+ivo0HnnXI9hHTmTQwPNcgrI2aQ2xgPKBlVSUrrO82badVzPe1+4YPx6LgGABrbo0nc9l1BduWSd562oWLae974O8jgIQxOykmY84q9/XqmIvOZxpAXkMAjVIMAGsp5NKAhbmiYkNsARv+dVm6EG2aByFYRqEGCDWp8mzLsgzPsvpnchkMRtoMN9z6s2QAoCAKxR3gdhliM/NgTPKwAA2jZXGQUAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIASAPLP+35sMwKqkto8VhACQf1I7XgFoGQnuXdvI104AQGoSPGoBoNk5QwgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoF5UBgLy0cMH4XA8BYENx3awW4wwhAOQfNQi0bfZyLUYQAkCecZwEpMC+rmUIQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgDIM67GDqTAvq5lCEIAyD+Ok4C2zV6uxfhiegDIS46WAFh/zhACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACQA5UVy7J9RAAaGb5uG8XhAAAAIkShACQG/n4h2QAViVP9+qCEAAAIFGCEAByJk//nAxAA/m7PxeEAJBL+XsMAUBWXu/JBSEA5FheH0kAJC7f9+GZXA8AAFhxPJFp1zHXAwFgbeV7CmYJQgBoLWQhQF5oGymYJQgBoHVpS8cZALRyPkMIAACQKEEIAACQKEEIAACQKEEIAACQKEEIAACQKEEIAACQKEEIAOuoomJZrocAQBuRq9cUQQgAAJAoQQgAAJAoQQgA6867RgFYfzl8NRGEAAAAiRKEALBenCQEYH3k9nVEEALA+tKEAKybnL+CCEIAAIBECUIAaAY5/xMvAHmnNbx2ZHI9AABoI7Kv6yUlpbkeCACtXWtIwSxnCAGgObWe13gAWqdW9UrhDCEANDOnCgFoUqtKwSxBCAAbRP2rvjIESFwr7MB6ghAANqzWfBwAQOJ8hhAAACBRmfJBnXM9BgAAAHLAGUIAAIBECUIAAIBEFZR03CbXYwAAACAHnCEEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAESMLIkfe1qrsYMGBgRHTpsu1hh313g41odVa+6xbYOADQOmVyPQAAUjRgwI8eeODuBQvmL1gwPycDyOFdA0DrIQgB2qCrr77p8suH/fOf/yguLh4x4paf/vSUiBg8+JSddtq1rq7uhhuurqxcPmTIzzp27PTRRwv32GPvE0/80cqzjxx531NPPVY/8Ucf/X3kyPumTp30zjtvTpr03Fln/aKkpLSiYtmNN46IiOxy/v73D1aeffDgH6z8706dOg8Zcm6nTp2qqqquv/7Kww8/qqSkdNiwyy+77FfZCTbeeJOVF/vZZ5+OHHnf448/vMsu3cvKOt5zz6ipUyetZvlNjrl+guzIX3vtldNP/2lZWce//W3sI4/c32A5EXH99X+87LL//vjjj4YN+3/vv//eHXfc3L37bv36HXnvvaNXnvHqq2+8+ur/9/e/f1Ba2uGqq35/zjkn19XVdemybeOFN96GTY4QAHLIW0YB2qApU8b37r1vRPTo0WvatBfr6uqKi4vfemvuRRcNffLJR0844bTBg0+dOPG5iy4aOmXKhJKS0gazN5g4e8vEieMefXTM8cefNmHCuGHDzpswYdzxx59av5znn59cXNxuVeM54YTTJk9+bvjw8ydMGDdw4KC77x5VUbHssst+VT9Bg8VGRCZTvHjx4uHDz7/yyktPPPGMNa5y4zHX354d+RFHfO8vf/nTsGHn9e9/TJNLeOWVF7t161lQUFBQUNi16/YR0a1bz5dffqHBjBMmjPvmN/eLiD337D1lysS6urqIaLzwJrdhkyMEgBwShABt0KRJK4Jw7737TJr0XETU1cXUqRMjYvLk8TvttGv37rtNmTI+Il56aWptbW1E/Od/Hn/ppVfts89+jSeOiNra2unTX46I7t13yy5w0qTnunfv1Xg5DRQUFEZEz557TJkyISKeffap//mfOxpP1mCxEVFQUPDMM09ExMKFH5aVla1qTbPLb3LMWfUjHzXq9q237nL00T/q0KFDk4uaNu3Fbt16fv3rXd95562qqsrS0tJu3XpOn/5SgxknTBjXu3efiOjde98JE8Zl52288MbjWdUIASCHBCFAG/TBB+916tSptLTDdtvtMGfOrIioq6utD7bq6qpMZsVHBgoKCgoKCiLirrvuHD78/Ow7MxtMHBE1NTXZU2HZies1Xk6sFGllZR2zExQWFmZ/W1tbu3RpeeMBN1hsRFRXV5eXL8n+O3vXK03ccPlNjjmrfuRDh14UEY89Nqa29gtLqzdz5vQddthp5527zZ494403Znfv3qu4uPizzz5tMOMnn3xcV1f3la9suvnmW8yb91Z23sYLbzyeVY0QAHJIEAK0TS+8MHnAgIFz587J5lBhYdGee34zIvbdt++MGdPnzJmVPYW4zz77N2qxhhOv/KsZM6b36dM3Ivr06Ttz5qtNLmfp0vIuXbaNiL59D46oi4i5c+dkJzv00MOPO+7EiCgoKFw5AhssNiLq6hqeb6x/a2vj5Tcec+P3we6wwzcmTXquuLhdcXFxk1ussrLys88+3Wef/WfPnjV79syjjvp+diSNZ5w48dkTTjj95ZdfqB9V42kab8PVbFUAyBUXlQFomyZNGj9ixC0XX/zL7I9VVZV9+uzfv/8x5eVLbrrpmpKS0nPOOe+II743Z87rFRUVDeZtMPHKvxo16vYzzvh5v37fqaiouOmmEcXF7f61nFlVVSvOet1xx01Dh164aNFnc+fOyd545523nnnmLw4//KilS8tvuOHqiHj99RkXXHDJFVcMb3KxTa7R+ecPy37ssPHyG4+5fuJ6Y8c+cvnl18yb93Z5+ZLi4uL6GSPiww/f//73B95//92vvPLit799xOefL37jjdd33bXHXXfd2eSMkyY9d9JJQ0aP/nP9qBpP03gbrmarAkCuFJR03CbXYwCgpZ199tCHH75//vx3dtxxp+OPP23YsPNW/m2Dy2/mhZYc81e/utlZZw295JILvtR48nGrAtDmOUMIkKJHH33olFPOqqxcnskU/+EPv8/1cPJJ7959Bg4clP3KDQDId84QAgAAJMpFZQAAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABL1/wOW5dFxlE0tpwAAAABJRU5ErkJggg==" alt="VBG Production - Site Web" loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>VBG Production</h3>
+          <p>Site web professionnel complet pour VBG Production. Interface moderne et responsive, SEO optimisé, déployé sur Railway.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-html5"></i> HTML/CSS</span>
+            <span><i class="fab fa-js"></i> JavaScript</span>
+            <span><i class="fas fa-server"></i> Railway</span>
+          </div>
+          <div class="projet-links">
+            <a href="https://vbg-production.up.railway.app" target="_blank" rel="noopener noreferrer" class="projet-link">
+              <i class="fas fa-external-link-alt"></i> Voir le site
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projet 2 - Portfolio -->
+      <div class="projet-card">
+        <div class="projet-badge">Portfolio</div>
+        <div class="projet-image">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAJ2CAIAAADAIuwLAAA8AElEQVR4nO3dd4DcZZ348c+ULen03kIJJfTee0eQonKggEoRFdtP8U6aCop36p0F9UA6KB4gRUCkC9KSQICQhBCCQCiht5DAZndn5vfHhnWzLZtkd6c8r9dfuzPf73ee+T6zk3nvMzvJDB25fgAAAJCebLkHAAAAQHkIQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgETly3jbb732xKMTJ0eU8vn8v3/vJxMfm/zqS4+svPo27Ru0f9v1i67bdD1az5dERNz6t3t+/ZtLOx2k07fHfO7wk0/6XHNzS3193e/Ov+KPV93YaeP2r99+fdIjj07a/6BjO15+yMH7fOXkYyNixx22fOjhxyLigt//YfiIYV2P2e3uHe9UXV3dpZdf84c/3tDtfe96WgAAABaqnEHY0tKy/0HHRMTYsWPO/+25u+z+qf49Wi+X9MXee+183DGfOvDgz7///uxRo0Zed835s2a98fd7H+p24+bm5lwut8vO297/wIT2C2+6+c6bbr4zIl596ZG22917r52/+pXjuh6z29073qlhQ4dce/X/fjj3o+tvvG1xzg4AAEAXFfGW0alTn1lrzdUG7miLd/xvfeP408/86fvvz46I99+ffcZZP/v2t07oZfsfnXveGad9bbGP2fvucz/86PQzf/aVLx+7qPcC6C9bbbPb98+5ePjwUf11wBVWXHXb7fZs+/q0s87vr8PCQm21ze5fPuXsL5542ueO+3+jRi3T78ffZbdP9Psxq9GZP7zwiyd+7wsnfO+EL52x6mqje9lytdXW3nzLnXu61vnsXdfH874HHLnl1ru1b3DcF09daeU1yjfAGrHYzxt9fAB7nJdRRQTh7rvt8OTkaQN3tMU7/vpj1pn05L/2emLSUxusv24v29/3j3ERsesu2y3eMRe6+5Sp09dZe82+jR3of+tvsMW4h+5cb/1N++uAb7z+yoTx9/TX0WrA2edefvTnvvFvR3/t6GO+efa5l5d7ODVrnXU33nSz7S+64EeXXHju+IfvOuxTJy7hAbtOnBd2bQqFwiUX/uTSi35y818u+8Qnj+tly5dffu6Jxx7o6VrnsxfdPp6fefqJMWPmP1fX1zeOWmrZ1159sazDrHpL8rwhCCtfOd8yWldXd9tfr8xkYvbsOV855Yz2SzpusORH6+n43//hf4+f8ETHfXu/3UwmUyqVeh/Dj84978zTv77vAeP7OOZOx+x993w+39La0scjA/2rrq6+vr5h4iP37b3fpx6feP/QYSM+eegXhgwdVii0/vmaC0qlUsdv586ZfdpZ55979slt+7Z9PWTIsIMOPmb4iFG5XO72W//v5Zefa7+qrPesgrz88nMznnnykQl/33Lr3YYNH9l++WlnnT/xkXtXW32diNL111747rtvnnbW+dOeevTVWTOnTJ5w2BEn1Nc3NDfPu+G6i+Z88H6njVtamztusPHG22659a6lUunO2695dsaUMt7ZMtpplwPuuv3alpbmiJjxzJMbjd0ql8sNGTq865mcNvXRtUZv8MD9t6655pjV11x3/EN3PvTg7dFlRjpN3J57H1Zf33DcF0+95k+/6/YxP2HcXWusOWbIkKH33H3DtKkTO/00FQuFTnttv8M+1T5rr7/28tJLLx8RvT90u32iaD+f06c9Ue3nYSB0+3h+ceaMw444MZvNFYuFddYdO+OZyeUeZtXr+/NGpx/w9gfw3/561SGHfqGxcehjj9730IO3d/rB3277vdo2u/ySn5X7vqaoIv6GsKdLXn3pkX48WreX9HK7T09/dvPNNho3/vG2CzffbKNpTz8bEcViKZfLFQqFfD7X2lroeJz7H5hQLBZ323X7ngbZ0zH7svvWW20ydeozEXHH3/6w7wGf6+kmgIGw7phNZjzz5Ftvvbr00svlcvn9DzxqypQJkyeN22KrXfbc67C6+oaO3978l25Wt/Y74MhxD9/58kv/HLXUsp895pu/O+/Mwb8XFW72e++0trauvvo6H8x+54P3322/PJ/Pv/LK87f/7f8223zH/Q866k9/+HU+n588afyzMyZ/6siTn5w0btLjD262xU77H3DUn685v9PGLS3NHTdYZ72Nf/nz74wYufRuux+c7EvqFVZc9dVXZ7Z/+5cbLo2I/Q88qsuZrHtkwt/vufuG/3fqf1/4v2ffdcefT/zymW1B2Okkd5q4e+66Yfsd97v8kp8devgXuz7mc7nch3M/uOTCc5deZvkvnnjatKkTO/005XK5Tnvttucnq33W1l5no7YVql4eum1bdn2iaD+f/376b6r9PAyEbh/PEfHSS8+uvsY6M194Zsz6mz056eEyja529PF5o+sPePsD+OBPHnfn7de+8frLp3zz3IcevL3TD/7Nf7m8bbPy3cWkVcRbRivTL3518Y/OPnXkyBERMWrUyHN++J3/+eVFETHxscl77rFjROy91y4TH+v8O6fe/xSwp2MudPellvrXxssus9Rqq6689ug1Xn/9rSW9k0DfbLjhlpttvuNJXz5rxIil1xq9wdrrbPTUlEcjYtLjD955+zWdvu20byaTiYh119tk3/0/88UTv3fEp0+qr2/IZj39dmPSEw/tsvvBnX6dXyqVpk2dGBFTp0xYfY11I6JYLP7z2SkRMXr0hlMnj4+IqZPHj157w64bd9pgxvRJh3/6pFGjlr3u2t8P+p2rFNlMN4+97s5kcdYrz7//3tuFQuGVV55/77236uoa2jbuOiPdTly3j/lMJvvYxPsj4t133mxsHBIRnX58uu5VvbOWy+W+eOL3vnjiaTvstO+N118cvT502/TyRFG952FAdft4jojp055Yb8ymEdGWhYM7qBrUx+eNrj/g7e647erlll95l90Oamjo5gd/EO4CvSjnCuFiqKuru+v2q9q+HjfusTO+//NF3b39raETHnn8rB/8Ty8b333Pg6uuutJtf7183ryW+vq6/73gynvvezgivn3qOb/59Tnf+X8nRcQpX+/8O/4HHnykpaWlvr5+kY7Z0+4fD7iUz+f/55cXtX0G6eln/fzqP/22VCr9+2n/uUh3H1g82Wx22eVWalvfWHe9TdbfYPNsJpvJREQUi8Wmpo86fRsfR2BENDYOzeXyEZHN5q649OetrS2ZTGbNtcYUi8Uy3ZuKtsVWuzz+2P3rb7BFxwtLpVKpNP90FVpbI6JYLM5/v32m8xE6bZzN5Tpee/2fL1xr9Po77Ljfpptvf8OfL+q8cxreeuu1lVZe8+WX/hkRmUzmsE+deP21v+96JguFQtujtLW1pdNfTHSdkW4nrtvHfKHQ2tT04cfHiYjo/NPUZa/qnbW2vyHseEkvD902vTxRVO95GFDdP54jZjzz5A477bvyKmu+OmtmsVhY2GFYiD4/b3T+AW935NGnTJ3y6LiH79pmu72iyw/+gN8BelXOIOz6X+d1uqT92/Yvlltp8552WejRut2999u94srrrrjyuk4bz3j2hf0O7Py+045HOPDgz/dybbfH7Gn3bgd82+333nb7vb2MH+hfa6y5XvsHEsx8YfqBn/jsyy8/t8GGW06ZPGGrbXZbZpkVOn175+3Xzmv6cIUVV33j9Vc223zHiFJEvDhzxoZjt5o8adx6Yzbdbod9Xnh+elnvUyUaudQydXV106ZO3Hb7vUaMWrr98mw2t96YzaY//fjYjbd9/rkFPiHs+eembbTxNk8+8fBGG2/z/PPTum6czeXaN3hx5jNfPPG0yy/5r1mvvPCt7yza7xNryYTxd++1zxF/vOJ/WltbN950u3wuH92dyV50OsnLrbBKp4nLZDKZTKbbx3zXv8bv9OPTaa/XXn3x6GO+VXuz1tMJ7/akZTKZIUOGHfW5b9TeeVhy3T6eI6Kp6cOWluYtt9p12lOPlXeEtaGPzxvdftxG2xPCKquOvuZPvx06bGQ+n48uP/h33n5t22YL/cAOBkKVrRACDL4NNtzyuY87pKWlec6c2RPG3bXr7gdvu/3e8+Z9eN01vx86dPihRxzf/m1E/PWWPxx51FfnzPnglZf/2draGhF/++sfDznsi9tsu2exWPjLDZd0uom3335t190/8Y97bxnku1ZRVltt7TkfvL/WWhtkc7nVV1+n/fLW1paxG2+9864HNDV9eON1F3fc5fa//d+hh5+wzbZ7NDc333jdRV03zuZyHTdoe99vJpO99+9/Gey7VzGmPDl+2WVXPPmrZ8+d+8HcubNvuemK6O5M9qLTSf7303/TaeJmvjD9s8d+6+YbL+vlMd/utr9e1fHHp6GhseNeTU0fPfP0E7U3az2d8G6fKGa+MP2Iz3ypJs/Dkuv28dxm+tNP7Ln3Yd6O2C+W5Hmj7Qlhwri7Tzz5zNdefanpow/z+XynH/z2zf5weW9v32OAZIaOXL/cYwCAHi3SZ7H64NZB4CT3u2w2+x9n/Pbcs79c7oEAKfKpBgAA5fSpI7/8zPRJ5R4FkCgrhAAAAImyQggAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJAoQQgAAJCo/NxjRpZ7DAAAAJSBFUIAAIBECUIAAIBECUIAAIBEZYaO3LDcYwAAAKAMrBACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkKp/JlHsIAAAAlIMVQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgETlyz0AAGBJNTQ0lHsIACmaN29euYewpAQhAFQrHQhQXu3Pw9VbhoIQAKqPFASoKG1Py9WYhYIQAKqJFASoWNWYhT5UBgCqhhoEqHzV9Vydj8iUewwAwMI1NNSXewgA9ElDQ8O8ec3lHkWfWCEEgCqgBgGqS7U8bwtCAKh01fKqAoCOquLZWxACQEWritcTAHSr8p/DBSEAVK7KfyUBQO8q/JlcEAIAACRKEAJAharwXyoD0EeV/HwuCAEAABIlCAGgElXyr5MBWFQV+6wuCAEAABIlCAEAABIlCAGg4lTsO4sAWGyV+dwuCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABJVm0H45lHDbtun8W/7NN61X+NWy2YjYtaRQztts+FS2RPG1LV93XZtx0uWRKfb6nrTi+rbYxdnVG23u/Wy2c+unY/+u3cAAEDNyJd7AAOipVja/86miBi7VPZ/d2jY9W8fdd1m2nvFae8Ve7+kQnx747r/ntqyePs++nbx0beLUcH3DgAAKJfaXCFsN/W94lrDM21ff3/z+tv3bZzwiSGHrJ5ru6Tr2l37JbOOHPrjLevv3Lfxjn0b247Q6ZKl6jMX79Rwy96Nd+zbuPWyCz+NKw7JXL9n4x37Nl6/Z+OKQzKdbr3j7baNc9xB88d5+mb1w/KZm/Zq7PYInTZeoTFzze6Nd+7beMGODd0efBHPHwAAUMtqPAh3Xyn35LvFiKjPZt6eV9rvjqaj/zHvp9s0LHTH+mzmsbeL+9zRdMmM1p9s1dD1kh9vWX/+9JZP3NV0/IPzztt+4Qf8yVb1177Quu8dTde+0HrulvU9bVb38TiPuq+pbZw/ntQ8t7V0yN1NXY/QdeNzt6q/bmbrPnc03fJSa0M20+fzBAAApKg23zJal83ctk9jJhPvN8dXx82LiEzElf9sjYhnZxdH9eEv6UoRN7/UGhE3vNh67lb1XS9pKcY6I+YX17B85DJRKC1w6x0HExG7rJj78sPzIuL6ma1nb9E5CLMdvmgb5/NzSp3G2fUIXTfeZcVc2/3928uF9vEAAAB0qzaDsP1vCDte8n7z/ELqSygVS/8KvHmFbi6pz8ah9zQ1FSKbiR2Wz3Wsr0633vZGza6rde0ROKo+U/fxal4v4+x6hK4b13980GwmMhYIAQCAXtX4W0bbLeqnqeQzsd+quYg4bI38P14vdL1k3JuFg1fPR8S+q+S+s/HC1xz/8Xrh0DXyEXHoGvn7Xy9ExPstseFS2Yg4cnS+vf26HWc2Ipvp5ghdNx73ZvGg1fIRcfDqeT0IAAD0rjZXCBfVs7NL39m47udT/vVJnvOKpU+ukf/mRnXvNcdXxs3rekljNs7bvuGEMfnWYpwybt5Cb+L0ic2/26Hh+PXyc1uj7Z2fpz4y78pdGt5sKj36VrG52Nuy5YNvFK/ZvfFr4+Z1OkJX35s47/c7Npy8fn7cmws5JgAAQGbYqI3KPYZKNOvIoatc/WHvl1SFXCZe/PTQVa+pvpEDpKyhocePHwOges2b11zuIXSW7+5v02jT9cxU37m6dOeG22cVqnHkAABQcyruZXlm2Kix5R4DALCAhoY+fCI2ANVm3ryWhW80uFL5UBkAAAA6EYQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJEoQAAACJymcymXKPoZ998O7kcg8BqEQjlt6k3EMAAJJWgfFlhRAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBRghAAACBR+XIPAACA2jd85AqLusuc2W8MxEiAjjLDl9q43GMAABZQX+83tlS3xci/vpCIVLvm5tZyD6Ez/94AANAPBigCe7oJcQj9QhACALD4BqEDe79dZQhLQhACALDIytWBXSlDWBKCEACAvqqcDuxKGcJiEIQAACxcJadgJ21DlYXQF4IQAIDeVFEKdiQLoS8EIQAA3avSFOxIFkLvBCEAAJ3VQAp2JAuhJ9lyDwAAgMpSYzXYrlbvFywJK4QAAMxX88lkqRA6sUIIAEBEAjXYLp17CgtlhRAAIHUJBpKlQmiTj8iUewwAAJRNgjXYbvjIFTQhg6vi4stbRgEA0pVyDbZxBkict4wCAKRICLXz9lFSZoUQACA5arAr54Q0CUIAgLQon544MyRIEAIAJETz9M75ITWCEAAgFWqnL5wlkiIIAQCSoHP6zrkiHYIQAKD2KZxF5YyRiBr8byc+ePfJcg8BasGIpTct9xAA6B/aZvH4b+tJgRVCAIBapgaXhLNHzROEAAA1S88sOeeQ2iYIAQAAEiUIAQBqk6Wt/uJMUsMEIQBADdIw/cv5pFYJQgCAWqNeBoKzSk0ShAAAAIkShAAANcVC1sBxbqk9ghAAoHYoloHmDFNjBCEAAECiBCEAQI2weDU4nGdqiSAEAKgFKmUwOdvUDEEIAACQKEEIAFD1LFgNPuec2iAIAQAAEiUIAQCqm6WqcnHmqQGCEAAAIFGZ4UttUu4xAAALqK/PlXsIVA2LVGU3Z/Yb5R4CVaO5uVDuIXRmhRAAACBRghAAoFpZHqwEZoGqJggBAAASJQgBAAASlY/IlHsMAAAsMu9UrBzDR67go2Xom4qLLyuEAAAAiRKEAAAAiRKEAADVx/tFK40ZoUoJQgAAgEQJQgAAgEQJQgCAKuPdiZXJvFCNBCEAAECiBCEAAECiBCEAAECiBCEAQDXxh2qVzOxQdQQhAABAogQhAABAogQhAABAogQhAABAogQhAABAovKZTLmHAABA3/gQy8o3fOQKc2a/Ue5RUKEqML7y5R5A/5v9zqRyDwGgr0Yus1m5hwAApMtbRgEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABKVj8iUewwAKfMkDADpqLh/960QAgAAJEoQAgBUjTmz3yj3EFgIc0R1EYQAAACJypd7AP1v5DKbl3sIAAAAVcAKIQAAQKIEIQAAQKIEIQAAQKIEIQBANfEhlpXM7FB1BCEAAECiBCEAAECiBCEAAECiBCEAQJXxh2qVybxQjQQhAABAogQhAABAogQhAED18e7ESmNGqFKCEAAAIFGCEAAAIFGCEACgKnmPYuUwF1QvQQgAAJAoQQgAAJAoQQgAUK28U7ESmAWqmiAEAABIVL7cAxgMs4+uL/cQqAgjr2oeuIMf+aUfD9zBGWRXX3B6uYcA0FdzZr8xfOQK5R5FuiwPUu0yI5berNxjGEBSkK76PQulYK2ShZRRXV2m3EOgmgjCMhKELJKWllK5h9BZLQehGqQn/diE7TUoHmqJaaXsBCGLShOWhRpkUQnCwaMG6V2/NGFbNmiGWmV+KSNByKIShGUhCFlUFRiEtfmhMmqQhVryB4laqHltk+stwUBVUCaDzzmnNtRmEAIAALBQNRiElgfpoyV5qFgeTIRFQqCKWLAaTM42NaMGgxAAIE0qZXA4z9QSQQgAAJCofITPMSNlS/j49+OTDnMNVAf/T/1AszzIkqm4VxRWCAEAaopiGTjOLbVHEAIAACRKEAIA1BoLWQPBWaUmCUIAgBqkXvqX80mtEoQAALVJw/QXZ5Iali/3ACrMoV+L12fGwzfN//aU8+KGX8crM/61wcprx7pbxP3XLekNrTk2Vlorxv+1+2v3PS7uuHxJb4KKscEm222/20ERscboDV58/umImHD/356a9HDHbf7jJ1f85/eOXeih+rjZEtpyh7232Wm/eU0fNTc33XLN72e/99Y+Bx/z1puzHh93d9sGx5x85h03Xfn6rBcGeiQAAAwoQbigKQ/E7kfOD8KGobH0SgvUYES8+ly8+lw/3NDMqTFzao/X7iMIa8rTk8c/PXl8RPzHT6647DdnRcT3f/Hn6VMeKRYK2Vxu/Y23+eG3PtW2ZU+XD6a1199sky13vvhXp7e2NK+74RaHHv3VK373w2eemrjdLge2BWF9Q+OopZdXgwBVwf9CseQsD1LbBOGCnpsUnzsrsrkoFmL9bWLawzFy2fjcmdEwNOZ9GH84J2a/HT+7J07dMyLiZ/fEpHvj5elx79Xzd//ZPfHQjbHWxhERV/wg3p71r20eu6v74wwdEZ8+NUYuG/m6uP5XMXNqHHRSNAyNU86LyffHDodElOIvv4lp48t1ShgIr7z47Ixpj0186M4ttt9r2IhRPV0+dNiIg488ecjQEYXWluv/8Ou5c96PiD0POnqN0RsMGTr873+7+unJ45dfafWDP/OlxiHDHht397j7bomI//jJFdOeHP/aK89PefyhQ448uXHI8PfeeWO9Dbf46RlfaBw67MDDTxg+YqlcPn/HXy5/5cVnO24//h+3RsSOexxy9y1XtbY0R8Sz0x7fcJPtsrnci88//cmjvprN5orFwtpjNn326cfLc+IAWHSacEmoQWqevyFcULEYL0yJ0ZtERGy8czx5Xxz+zXj0jvjFSfHoHXHYNxbYOF8fE+/4Vw22XTJzWvzipHjghjjiWwts09NxDvtG3HdNnPfVuOysOPq0iIi//j7mfRi/+VoccHz88qS49MzY5oABv+MMrtnvvlVobV1tzTEfvPfOB++909Pl+37y81OfePiy35w1+bEHdj/gyIjI5es+nDP7st+cdc2lPz/g8C9ExLa7HHDXLX+89Lwzd9rzk20HyeXrpjz+4Ph/3LrvIcdOefzBS887Y9qT4+obGiNi34OPHX//rVf87w+v/8OvDj7y5E7bt327wkqrv/rK8+1Duvma84uFQqlYfHnmM6uttV5ErLfRVk9PfmQwThMA/UTVLB7njRQIwi4m3x8b7RARsdbG8ewTsd6W8dhdERGP3RVjtlpgy1Ihnp6w4M6lmHRvRMTjd8+vyvZtejrOhtvHJ0+Jb5wfx/4g6hsj22FGpj4Ux/4wll4xrvhBf95BKsOTj/5j570P67rU1vHytcdsMm3SuIiY9Oh9d938h4jIRDwx4e8R8fabsxoah0XEnTddudyKq+6016ENjUPbjlAqFp+bPiki1lp37FOTxkXEM1MnFovFiFhng833OfiYz59y9mGf/XpdfWMmm+24fZtMtvunhWemPLruhltGxGprrvfic9P69WQAMOC0zaJyxkiEt4x28dTDsce/xeP3xMvTo1iIyPS4ZaEQpeICl5SKUSrM/7q1ecFtejhONhe/+3q0NEcmG+tsFsUOB7zyh7HuFrHHUbH1fvGHsxf/HlGRNt9ujycm3Dtm7Na9XJ7JZiOTiYhSsTiv6cOIKBRamz6a+/G2pYj4zOe//dST4ybc/7dtdtqv7dJisVAqlSIil5//A57JZDKZTERkc7k/nH9Oa2tLJpNZY+0NS8Vix+3bvP3GrJVWXeuVmTPa9jz0qFNuvOq8iHj26Se23+0TT606+rVXni8WCwFAtfHe0b5Tg6TDCmEXH30QzfNih4PjyfsiImZMjC32jIjYYs+Y8dhC9s3mYuxOERFb7BXPTFzgqp6O89yk2GyPiIixO8S+n59/YSYbQ0fENy+I5yfH5d+ff0xqyMill6urq3968vhRSy07Yqllerr8lZkzNth4m4jYcvu99vrEZyOiY7m1WWX1daY+/lA+X5fL13W66qXnp7ftvsGm27WF5UvPPb3BpttFxLobbrnz3od1O7ZHHrx9zwOPajvaxlvslP+4Kps+mtvSMm+L7fZ8evKEbncEoPLpnL5wlkiKFcLuTLk/Djop/vLbiIgbfh2fPSN2PjzmfRR/PGchO7Y0x+Z7xt7HxIcfxB9/tMBVPR3nul/EUafFzodHsRBX/Xj+hf98PI49O6Y8EN+5JDLZuO3ifrxzVIJV11h3zux311x7o2wut9qaYyLi7Tdf3Xnvwztd/usfn/LJf/vKNjvvP6/pwxv+eF63h3rkwduP/8a5r896oemjubl8XaG1pf2q2/9y2WFHf23bXQ546YXpLfOaIuK2Gy87+Mgvbb3jvsVi4earz+/2gFMff3DZ5Vf+0rd/OnfO7Llz3r/1zxe2X/XM1Im773/kXbf8oT/PBQCDyzph79QgqcmMWHrzco+hn80+uvM6yeBp/wDShcpm47/ujFP3GuABsRAjr2pZ+EbdOfJLP4qIqy84o1+H088OPfqUh++9+fVZM1dZY939PnncpeedWe4RVaWqmGtqT135/ikjEZqwW2qQgdaymK89B5AVwjL5/I9i6kPlHgQ1bvz9tx54xAktLc25XP6vHRb6AMA6YVdqkDQJwn7Vx+XBiLjktIEcB0REvPrSc1YFAehJW//IwpCCpM2HygAApEsLOQMkThACACQt5SJK+b5DG28ZBQBIXYJvH5WC0MYKIQAAESk1Ujr3FBbKCiEAAPPV/FKhFIROrBACALCAWq2mWr1fsCSsEAIA0FmNLRVKQeiJIAQAoHs1kIVSEHonCAEA6E2VZqEUhL6owb8hHHlVS7mHQHVYkofK1RecERFHfulH/TccKlHbFLdNN0DKqq4GozrHDIPPCiEAAN2r9qZqH7/VQuhJDa4QhkVC+mDJHyQWCWue5UEgZcNHrlDtNdhRjd0d6EeZEUtvXu4xDJTZR9eVewhUqH78lUF7EMqGWmJaKbs6/4JRJolUkwVDyqWl8tatajkIQxPSnX5fQLZIWKvUIGUkCBl8iaRgR7KQwVeJQThymS3KPYYB9/5R/lSSiIhRf2oduIN/5qRzBu7gDLJrfn9muYdA6vL5UrmHQEISTMGOZCGDqbU1U+4hdJZEEAJAdRGEDI7EU7AjWcjgqMAgrM0PlQEAoHdqsCNng2R5LyUAQFrET7faToulQlJjhRAAICFqsHfOD6mxQggAkASp00eWCkmKFUIAgNqnBheVM0YirBACANQyYbPYLBWSAiuEAAA1Sw0uOeeQ2iYIAQBqk5LpL84kNcxbRgEAao2A6XfePkqtskIIAFBT1ODAcW6pPYIQAKB2KJaB5gxTYwQhAECN0CqDw3mmlghCAIBaoFIGk7NNzRCEAABVT58MPuec2iAIAQCqmzIpF2eeGiAIAQCqmCYpL+efaicIAQCqlRqpBGaBqiYIAQCqkg6pHOaC6iUIAQCqjwKpNGaEKiUIAQCqjPaoTOaFaiQIAQCqieqoZGaHqiMIAQCqht6ofOaI6iIIAQAAEiUIAQCqg6WnamGmqCKCEACgCmiM6mK+qBaCEACg0qmLamTWqAqCEAAAIFGCEACgolloql7mjsonCAEAKpeiqHZmkAonCAEAABKVj8iUewwAQCelcg+AimBxqTYMH7nCnNlvlHsUVIiKiy8rhAAAlUgN1hKzScUShAAAAIkShAAAFceCUu0xp1QmQQgAUFmUQ60ys1QgQQgAAJAoQQgAUEEsItU280ulEYQAAACJEoQAAJXC8lEKzDIVRRACAAAkShACAFQEC0fpMNdUDkEIAACQKEEIAACQKEEIAFB+3kOYGjNOhRCEAAAAiRKEAABlZrEoTeadSiAIAQAAEiUIAQAAEiUIAQDKyfsGU2b2KTtBCAAAkChBCABQNhaI8BigvAQhAABAogQhAABAogQhAABAogQhAEB5+OMx2ngkUEaCEAAAIFGCEAAAIFGCEACgDLxLkI48HigXQQgAAJAoQQgAAJAoQQgAAJCofESm3GMAAABIQcXFlxVCAIDB5hNE6MqjgrIQhAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAg8r/LkBPPDYYfIIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUYIQAAAgUflMptxDAAAASEAFxpcVQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgAAgEQJQgCAQTVn9hvlHgIVymODwScIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEpWPyJR7DAAAACmouPiyQggAAJAoQQgAMNj87wJ05VFBWQhCAACARAlCAACARAlCAACARAlCAACARAlCAIAy8AkidOTxQLkIQgAAgEQJQgAAgEQJQgCA8vAuQdp4JFBGghAAACBRghAAACBRghAAACBRghAAoGz88RgeA5SXIAQAAEiUIAQAKCcLRCkz+5SdIAQAAEiUIAQAAEiUIAQAKDPvG0yTeacSCEIAAIBECUIAgPKzWJQaM06FEIQAAACJEoQAAACJEoQAABXBewjTYa6pHIIQAAAgUYIQAKBSWDhKgVmmoghCAACARAlCAIAKYvmotplfKo0gBAAASJQgBACoLBaRapWZpQLlIzLlHgMAAAuYM/uN4SNXKPco6E9qkIiowPiyQggAAJAoQQgAUIksKNUSs0nFEoQAABVKRdQG80glE4QAAACJEoQAAJXL4lK1M4NUOEEIAFDRFEX1MndUPkEIAACQKEEIAFDpLDRVI7NGVRCEAABVQF1UF/NFtRCEAADVQWNUCzNFFRGEAAAAiRKEAABVw9JT5TNHVBdBCABQTfRGJTM7VB1BCABQZVRHZTIvVCNBCABQfbRHpTEjVClBCABQlRRI5TAXVC9BCABQrXRIJTALVDVBCABQxdRIeTn/VDtBCABQ3TRJuTjz1ABBCABQ9ZTJ4HPOqQ2CEACgFuiTweRsUzMEIQBAjVApg8N5ppYIQgCA2qFVBpozTI0RhAAANUWxDBznltqTL/cAAADoZ23dMnzkCuUeSO2QgtQqK4QAALVJw/QXZ5IaJggBAGqWkllyziG1zVtGAQBqmbePLjYpSAqsEAIA1D5ts6icMRJhhRAAIAmWCvtICpIUK4QAAAlRO71zfkhNPpPJlHsMAAAMHkuF3ZKCDIIKjC8rhAAAKdI/HTkbJMvfEAIAJMpSYUhBkicIAQCSlmwWSkEIQQgAQCSWhVIQ2glCAADmay+lmixDHQhdCUIAADqrsQVDKQg9EYQAAHSv2hcMdSAslCAEAGAhqm7BUApCHwlCAAD6pGNlVWAcikBYDIIQAIBFVjnvJtWBsCQEIQAAi69Tjw1CHypA6EeCEACAftNtrS12JWo/GGiCEACAgaXroGJlyz0AAAAAykMQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJEoQAgAAJCpf7gEMhvrGJO5mFWluah24g5vuSmO6kzKg0w0A9Lsafy3lxWJlapuXfn/haLork+lOygBNNwAwQGr5LaNeL1a4/p0g013hTHdSTBAAVIuaDUIvR6pCf02T6a4KpjsppgkAqkI+IlPuMfS/+sZcuYdAX9U35pubCkt2BNNdNUx3UpZ8ugGg5lRcfNXsCiEAAAC9q8EgtIBQdZZkykx31THdSTFlAFDhajAIAQAA6AtBCAAAkChBCAAAkChBCAAAkChBCAAAkChBCAAAkChBCAAAkKh8uQdQcd689Z78009lIkq53PDf/bpu+rROG3x41DFD/3RlRLx50+3LH7JfOcZI/5txYMt6t9Yt6l6bjiqdMbZQl4nWUnzj8dysjzI9bbn+iNIOy5Uue777X8F8fb3ir2f47cyAa/7fvTPPvx+ZTDTm8v83PTP9nXKPCACgzARhF60tS/+/UyKidfQ6s089bZmvHN/p+rlHfa4tCOGXWxQ+Nz4366PMJ1Yp/mBs8aRHe/w/uKd/kJn+QY+5+LX1CoJwMBRKdT99JCJKq41oPXGT0mojso+/EcVS5DLFzVeoP/72co8PAGCweQ3ao/zz/yyuvPI7F1xWWHW1iCgNHfb2FVfP/fwJpSFD3/vpL9u2mXv8l979xW/fuejKeTvvFhHFZZZ97yf//e4vf/feT/67uMyyEfHmTbfP3+bCy9u2oZKtP6J08y6t/9iz9UvrFCPint1bV24sRUR9Nh7eu3XDkQtcGxHLNZQashERt7+WveT57DL1cem2hRt2ar1mx9blGiIiZhzY8qstCieuXWz7um2vGQe2fH9s4aadW/+yc+saQ0vf3aAwLB/X7NhahjucqswrH5SWbsw8/3528lv53z2RfeLNzHPvFfZao+X7O7Z8f4fi2GVjaF3riZu2fmfrln/ftjR6VESUVhne8r3tWs7ZqbDvmm0Haf7NXu0HbPu69aubF7dYISJajxtb3GGVctwzAIBFIwh71Lzl1vlnZzTec+e8nXaNiHnbbt/wwH3DLrso89GHS333mxERdfWZ999b+ltfHfWD0+ac8s2ImHPyKY333Ln0N7/SeM+dc04+JSIiXzd/m7O+17YNlez4tYs/fip3yAP5r65biIibZ2X3W7kUETsvV7rn9cwXRi9wbUScOy130y6tv9iisO0ypXFvZ364ceGmWZnDHszf8HL2uxsUIqIhFze+kr3wuQV+0Bpy8cR7mUMeyF85M3v2xsWfPp2b2xqfechy/eApjl0uO+2dzDtN0Vosrb1UvNuUeXde4eB16v5rQv73TxZ3WKX1M2Nyd8/M//zR/IVPth43NiIKe62Rv+6Zuv+cUNx/dE+HzV31dOGQdUujR8UyjdmHZw3iHQIAWEyCsIt83bv/85t3f/Hbjw7/zIj//s+Ge+6ct+POEdG80y6N99y5wJaZzJDb/hoRuZdfKg4bFhHNm2/ZcO/dEdFw793Nm28ZEZHNzt/m1Vlt21DJzp6aW3d46WvrFkbURUTcPCuz/0rFiNh3peJNs7Kdro2I/3sxu8vddRPezvxok8KpGxR2Wb50y6xsRFzzUvZHT+UiolCK+97s/E7RUilufTUbETe9kt16meLg3T1ymZbvbtPyve1aT9o0d9W0iMg+PKtw0OjslLciIjv5rdYTNikt3Zi/aHJp4+VaPzWm5bvbtJ6wSTTkIpvJX/tMaaVhhQNGlxq7S/dMRETm3absw7Nav7ZF7sqnBvV+AQAsLosSXXz8N4T/UiwWl1u+sNLK+WdnLHB5S0tmzpz5X5dKETH/VeFCtqGC/GXn1k8+8K+fgou2ab1lVvbi57OfH12MiGfnZJaujxH52GRU6XtPZv60wwLXLtsQaw8rPfJO5k8vZu94PXvfHi2ljx8BhVLMbomIaC1Gscu0F+NfFzYXe/zDQvrfx39DWDhgdHGnVSKiuPOq2QdnFTdbPiLyF08ujVm6sM+axe1Xjmym7hcTo6UYmUxpvaWiWGr98mbZia9n736xsMfq84/WPnVD85H/+JdrjbkolKLbaAQAqDxWCBeu8d67P/jy1+snjJv/fSYbmWxERKnz2k79ExPn7bpHRMzbdY/6Jx7rdhsqyjL1scqQ0lrDSm/My0TE5kuVbpqVbchGw8c/Gbe9mv3amMLj72VKXa4tleLCbQqrDClFxDJ1pVc+yjz+bvaAlYsR8dk1i6dvVOjpRvOZ2GvFYkQcsmrxgbcyEZHNRFYYDqLs1LdLo0eVlmks1eeyj70eywwpLdPY8u/bZv75Xv6iyaVNls88+15xyxUjorjJcoWD1o6I4lqjso+8FnXZ9vbLfNRaWmV4RBS2XyVKERGlFYcVN1w2/6vHWj+7YdffDgEAVCC/xl64hvvu+eCr3xx+yQVt39ZNnvTej/5rqdNP7brl8At+O/vU73108KGZpo9G/uzcwR0mi+PsqbnLtyuUSvH9KbmIuPT57F93aZ36fub9lqjPRnMxbp6VuXePwmEP5rte+05zfOeJ3MXbFJoKUSjFNx7PNRXiF5sXvjC6+EFL5pTHevzE0aZCfGKV0lfXbZ3dkvnmE7mIGPd25ortWj83zs/jIMm8Nre02ojSCkNL789rHbN05DKl0aNy1z7Tcvr2kclkb/5n9ok3CseNLey+eqZQyl0+JSJyf3+x5bTtMi99kPmwNfLZaC3mrnq69cubZT5ozjz3frQWI6Jw7Eb5657JvPxB5pU5xV1Wy/7j5XLfUQCAhcgstdx25R5DP6tv7PGF+OIpLL/CB989falTv9G/h6Wj5qYe19N61+/TPQgW7/88rCVJTTeLPd2Jy2bnlXsIAPS/YrGh3EPozIrEQszbcee5x51guQ8AAKg9VgipCJaMkmK6k2KFcPFYIQSoSRW4QuhDZQAAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABIlCAEAABJVg0HY3FQo9xBYNEsyZaa76pjupJgyAKhw+YhMuccAHoRJMd1JMd0A0FHF/ctYgyuEEdHcVCz3EOirJZ8s011FTHdSTBYAVL7aDMLwQqRK9Nc0me6qYLqTYpoAoCrUbBCGlyMVr38nyHRXONOdFBMEANUiX+4BDKy2FyX1jbXcvdVogF4smu7KZLqTIgUBoLrUeBC28QIlKaY7KaYbAGBJ+OU6AABAogQhAABAogQhAABAogQhAABAogQhAABAogQhAABAogQhAABAogQhAABAogQhAABAogQhAABAovKZTLmHAAAAkIAKjC8rhAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShAAAAIkShABQcUqlxnIPAYB+VpnP7YIQAAAgUfmITLnHAAAAUPMqsbysEAJAJSqVhpR7CAD0m4p9VheEAAAAiRKEAFChKvbXyQAskkp+PheEAAAAiRKEAFC5KvmXygD0RYU/kwtCAKhoFf5KAoBeVP5zuCAEgEpX+a8nAOiqKp69BSEAVIGqeFUBQLtqed4WhABQHarltQUAVfSMLQgBoGpU0SsMgGRV13N1vtwDAAAWQdvrjEzmo3IPBIDOqisF2whCAKg+shCgolRjCrYRhABQrdpffyhDgLKo3g5sJwgBoOrVwCsSAMrCh8oAAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkShACAAAkKhPTS+UeAwAAAGVghRAAACBRghAAACBRmcbhq5V7DAAAAJSBFUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAAIBECUIAWCLLL7/qrrsd2tg4tNwDAYBFJggBBtYZP7iiH4+26+6HLfYYVlt93S222j0iVlhx9W2336+Pe3XUcce2a/t4qEXV8bDtd7nvZ7LbLXsf6mGf+komk1mkQbYP7Ohjv9vS2lwsFrodxgCdIgDoF/lyDwCARbDr7of9494bFm/fl1969uWXno2IN15/6Y3XX1qMI3TdcbEP1fcbWpK73NMxO8nn6wqF1lKptEgHbB/YiOFLPfzgrYtxuwBQdoIQYMDts9/Ra661wZChw+++4+qnpo4fPmKpwz/11fr6xubmpuv//Ns5H7x3xg+u+NEPjm3buP3rM35wxfiHb1tzrQ0aG4fdc9c1T00dv9c+R9bXN37++DP/fM15XY/QaePhw5c69IiThwwZ/s7br7WPpOPB22+x/apHJ9y1+hpjSqXSddee9+47b3QdeU87th+z0xE6XdL00dxPHHLC8BFL5XL52269vK1OI6J9qO+++8aY9bc49+wvtB+2/S5fdvE5Cx1Px6/3P/DYTvelfYOu53/02hs//88pXe9CS0tz1/P81NTxr856fujQEW0De2rqhPqGIcefdPYN1/3uE4cc33HjTqeo6+0u8SMLAJaUt4wCDKx8vm7u3NkXXXDWn678+UGHfCEiDjjouCcnPXDRBWc+OemBAw48rqcdc7l8245XXfnTth3vvvPq5uamyy4+p+sRum68/0HHTn7ywQvPP+Oppybk83V9GecrL//zwvPPeHTCnQce9PluR74YR+h4yf4HHvvwQ7deetEP/3z1rw49/OT2HduHOnXKuPr6xo7HbL/LizSeriPpqOvZW2/MZjOeeaLrjl23zOfrJk968OEHb20f2IRxtzc3N138+7P22ufI3qe1j/MOAINJEAIMuMcm/j0i3nprVmPjsIhYe+2xU558KCKmPPnQ2uuM7bRx+1+yZTKZth3feef1th3bdT1C143XXnvs1MnjImL6tImlUrHbge2971HHn3T2RmO3i4hSqdS25jZl8sOrrzmm25H3rusROl2y3pjN9zvgmONPOvuIz3y9rr4xm822352FDrUv42k/dd3el3Zdz15D49Cmpg+77th1y2Kx+OyMSd2Orfdp7csGADD4vGUUYGAVCq1NH81t+3r+X6l1+fCS9pJpHDIsl8v3uGOHHRZ6K+3HyWQyEd1/XMpdd/yp/etSqdQeY62trQsZQHe6HqHTJflc/vJLzmltbclkMmuutWGxOP+qvgy1p/F0e+q6jmQBC569FVZY7c3XX+52x1wu12nXYrHQ46lY6GfSLOKH1gDAILBCCDCwuvbDc/+cMnaT7SNi7CbbP/fc1IiY1/ThCiuuHhGbbb5LLztGRCaTyWQyXY/QdeMXZ07fcKNtImKjsdv15fMzs9nsmPW3jIiNN9mh7Q/qFvVDVroeodMlM2c+3bYaOWb9LXfb47CIaHuDaO9DbbvLPY2n21PX6XY7vQ2109lbf8Otn3760W537Hqeux1Yt4ftOtSFbgAAg88KIcBgu+3WKw//1Je32Xbflpam66/9XUTcctMl//bZb8+d8/7LL81obW3pZd+ZL0z73HH/ceP1F3Q6Qle3/vWyIz79te12OODFF6f3fsw2ra0tYzfefuddP9nUNPeGP3d/zI7efuvV3fY4/L6/X9/LETpdks/XH3rEl7bdft9isXDjdedHxNHHnHrZxee0D/WlF6c3Nzd1e5evvOwn3Q6j21PX6XbbbqV9l07nf+99/+2tN2d1u2M2l+/lPHcaWNdp7XSKum4AAGWXaRy+WrnHAMBgyGazp5156Y9+2P3HmXT9+NBF1csHkPbuiE+f8uADN7/26sxVV1v3gIOOu+iCM5dkGItq/Q23mj5tYtvXS34SAKC6WCEESMWn/+2b06c/Vu5RdOPhh279xCEntLY253L5m2+8cJBvvb0GASBBVggBAAAS5UNlAAAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEiUIAQAAEvX/ATeRW9kX8KYBAAAAAElFTkSuQmCC" alt="Portfolio Philippe Hountondji" loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Mon Portfolio</h3>
+          <p>Portfolio personnel moderne avec design dark mode, animations fluides, sections compétences, projets et formulaire de contact.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-html5"></i> HTML5</span>
+            <span><i class="fab fa-css3-alt"></i> CSS3</span>
+            <span><i class="fab fa-js"></i> JavaScript</span>
+          </div>
+          <div class="projet-links">
+            <a href="https://hountondji-philippe.github.io/portfolio" target="_blank" rel="noopener noreferrer" class="projet-link">
+              <i class="fas fa-external-link-alt"></i> Voir le portfolio
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projet 3 - Dashboard -->
+      <div class="projet-card">
+        <div class="projet-badge">Web App</div>
+        <div class="projet-image">
+          <img src="images/projets-1.jpeg" alt="Dashboard Administratif - Projet de Philippe Hountondji" loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Dashboard Administratif</h3>
+          <p>Plateforme de gestion complète avec visualisation de données en temps réel, authentification et tableau de bord responsive.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-react"></i> React</span>
+            <span><i class="fab fa-node-js"></i> Node.js</span>
+            <span><i class="fas fa-database"></i> MongoDB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projet 4 - Réseau -->
+      <div class="projet-card">
+        <div class="projet-badge">Réseaux</div>
+        <div class="projet-image">
+          <img src="images/projets-2.jpeg" alt="Simulation Réseau Entreprise - Projet de Philippe Hountondji" loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Simulation Réseau Entreprise</h3>
+          <p>Modélisation complète d'un réseau d'entreprise avec routeurs, switches, VLANs et politiques de sécurité avancées.</p>
+          <div class="projet-technologies">
+            <span><i class="fas fa-network-wired"></i> Cisco</span>
+            <span><i class="fas fa-shield-alt"></i> Sécurité</span>
+            <span><i class="fas fa-sitemap"></i> Topologie</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projet 5 - API -->
+      <div class="projet-card">
+        <div class="projet-badge">API</div>
+        <div class="projet-image">
+          <img src="images/projets-3.jpeg" alt="Système de Gestion API - Projet de Philippe Hountondji" loading="lazy">
+        </div>
+        <div class="projet-content">
+          <h3>Système de Gestion API</h3>
+          <p>API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.</p>
+          <div class="projet-technologies">
+            <span><i class="fab fa-python"></i> Python</span>
+            <span><i class="fas fa-bolt"></i> FastAPI</span>
+            <span><i class="fas fa-server"></i> PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ SECTION CV ══════════════════════ -->
+  <section id="cv">
+    <div class="container">
+      <h2><i class="fas fa-file-pdf" style="color:#FF6B35;margin-right:0.5rem;"></i> Mon Curriculum Vitae</h2>
+      <p class="cv-section-subtitle">Consultez ou téléchargez mon CV professionnel</p>
+
+      <div class="cv-wrapper">
+        <!-- Preview card -->
+        <div class="cv-preview" onclick="openCvModal()">
+          <div class="cv-preview-inner">
+            <div class="cv-preview-badge">PDF</div>
+            <!-- Sidebar mock -->
+            <div style="position:absolute;left:0;top:0;bottom:0;width:35%;background:#1A1F3A;padding:1rem 0.6rem;">
+              <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF6B35,#F7931E);margin:0 auto 0.5rem;"></div>
+              <div style="height:4px;background:#FF6B35;border-radius:2px;margin-bottom:0.5rem;"></div>
+              <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:0.3rem;width:80%;"></div>
+              <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:0.3rem;width:65%;"></div>
+              <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:0.8rem;width:75%;"></div>
+              <div style="height:3px;background:rgba(255,107,53,0.4);border-radius:2px;margin-bottom:0.4rem;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:0.25rem;width:90%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:0.25rem;width:70%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:0.25rem;width:80%;"></div>
+            </div>
+            <!-- Main content mock -->
+            <div style="padding-left:38%;padding-top:1rem;">
+              <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:0.85rem;background:linear-gradient(135deg,#FF6B35,#F7931E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PHILIPPE HOUNTONDJI</div>
+              <div style="color:#00D9FF;font-size:0.5rem;margin-bottom:0.4rem;">Développeur Web & Admin Réseau</div>
+              <div style="height:1.5px;background:linear-gradient(90deg,#FF6B35,transparent);margin-bottom:0.5rem;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.25rem;width:95%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.25rem;width:80%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.4rem;width:90%;"></div>
+              <div style="color:#FF6B35;font-size:0.5rem;font-weight:700;margin-bottom:0.2rem;">PROJETS</div>
+              <div style="height:3px;background:rgba(255,107,53,0.3);margin-bottom:0.3rem;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.2rem;width:90%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.2rem;width:75%;"></div>
+              <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:0.2rem;width:85%;"></div>
+            </div>
+          </div>
+          <div class="cv-hover-overlay">
+            <span><i class="fas fa-eye"></i> Aperçu du CV</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="cv-actions">
+          <div>
+            <div class="cv-actions-title">Téléchargez mon CV</div>
+            <div class="cv-actions-subtitle">Mon CV complet en format PDF — disponible en consultation en ligne ou en téléchargement direct.</div>
+          </div>
+
+          <div class="cv-buttons">
+            <a href="cv/Philippe_Hountondji_CV.pdf" download="Philippe_Hountondji_CV.pdf" class="cv-btn cv-btn-download">
+              <div class="cv-btn-icon"><i class="fas fa-download"></i></div>
+              <div class="cv-btn-text">
+                <span>Enregistrer sur mon appareil</span>
+                <strong>Télécharger le CV (PDF)</strong>
+              </div>
+            </a>
+
+            <button onclick="openCvModal()" class="cv-btn cv-btn-view" style="background:transparent;">
+              <div class="cv-btn-icon"><i class="fas fa-eye"></i></div>
+              <div class="cv-btn-text">
+                <span>Ouvrir dans le navigateur</span>
+                <strong>Consulter en ligne</strong>
+              </div>
+            </button>
+          </div>
+
+          <div class="cv-stats">
+            <div class="cv-stat">
+              <span class="cv-stat-num">7+</span>
+              <span class="cv-stat-label">Projets</span>
+            </div>
+            <div class="cv-stat">
+              <span class="cv-stat-num">5+</span>
+              <span class="cv-stat-label">Langages</span>
+            </div>
+            <div class="cv-stat">
+              <span class="cv-stat-num">2026</span>
+              <span class="cv-stat-label">Mis à jour</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF Modal -->
+  <div class="pdf-modal" id="cvModal" role="dialog" aria-modal="true" aria-label="Aperçu du CV">
+    <div class="pdf-modal-inner">
+      <div class="pdf-modal-header">
+        <h3><i class="fas fa-file-pdf"></i> Philippe Hountondji — Curriculum Vitae</h3>
+        <button class="pdf-modal-close" onclick="closeCvModal()" aria-label="Fermer">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="pdf-modal-body">
+        <iframe id="cvIframe" src="" title="CV Philippe Hountondji"></iframe>
+      </div>
+      <div class="pdf-modal-footer">
+        <a href="cv/Philippe_Hountondji_CV.pdf" download="Philippe_Hountondji_CV.pdf" class="btn-dl">
+          <i class="fas fa-download"></i> Télécharger
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <section id="contact" class="contact container">
+    <h2><i class="fas fa-envelope"></i> Travaillons Ensemble</h2>
+    <p class="section-subtitle">Discutons de votre projet ou opportunité de collaboration</p>
+
+    <div class="contact-content">
+      <div class="contact-form-wrapper">
+        <div class="form-header">
+          <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
+          <p>Je vous répondrai dans les plus brefs délais</p>
+        </div>
+        <form class="contact-form" id="contactForm" autocomplete="on" novalidate>
+          <div class="form-group">
+            <label for="name"><i class="fas fa-user"></i> Nom complet</label>
+            <input type="text" id="name" name="name" placeholder="Votre nom" autocomplete="name" required minlength="2" maxlength="100">
+            <small class="error-message" id="error-name"></small>
+          </div>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+            <input type="email" id="email" name="email" placeholder="votre@email.com" autocomplete="email" required maxlength="254">
+            <small class="error-message" id="error-email"></small>
+          </div>
+          <div class="form-group">
+            <label for="phone"><i class="fas fa-phone"></i> Téléphone</label>
+            <input type="tel" id="phone" name="phone" placeholder="+229XXXXXXXX" autocomplete="tel" maxlength="20">
+            <small class="error-message" id="error-phone"></small>
+          </div>
+          <div class="form-group">
+            <label for="message"><i class="fas fa-comment"></i> Message</label>
+            <textarea id="message" name="message" rows="6" placeholder="Décrivez votre projet ou demande..." required minlength="10" maxlength="2000"></textarea>
+            <small class="error-message" id="error-message"></small>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-submit">
+              <i class="fas fa-paper-plane"></i> Envoyer le message
+            </button>
+            <div id="form-response"></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="contact-info">
+        <div class="contact-card">
+          <div class="contact-card-header">
+            <h3><i class="fas fa-address-card"></i> Mes Coordonnées</h3>
+            <p>Plusieurs façons de me contacter</p>
+          </div>
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+              <div class="contact-details">
+                <h4>WhatsApp</h4>
+                <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer">+229 01 58 15 69 30</a>
+                <p>Réponse rapide</p>
+              </div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+              <div class="contact-details">
+                <h4>Email</h4>
+                <a href="/cdn-cgi/l/email-protection#0c646379627863626866657c646560657c7c6939344c6b616d6560226f6361"><span class="__cf_email__" data-cfemail="88e0e7fde6fce7e6ece2e1f8e0e1e4e1f8f8edbdb0c8efe5e9e1e4a6ebe7e5">[email&#160;protected]</span></a>
+                <p>Pour les demandes détaillées</p>
+              </div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-icon"><i class="fab fa-linkedin"></i></div>
+              <div class="contact-details">
+                <h4>LinkedIn</h4>
+                <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer">Profil LinkedIn</a>
+                <p>Connectons-nous professionnellement</p>
+              </div>
+            </div>
+          </div>
+          <div class="contact-availability">
+            <div class="availability-indicator">
+              <span class="availability-dot"></span>
+              <span>Disponible pour de nouveaux projets</span>
+            </div>
+            <p>Temps de réponse moyen : <strong>24h</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <a href="#accueil">PHILIPPE</a>
+          <p>Étudiant en Informatique & Réseaux</p>
+          <p>Passionné par la technologie et l'innovation</p>
+        </div>
+        <div class="footer-links">
+          <h4>Navigation Rapide</h4>
+          <ul>
+            <li><a href="#accueil"><i class="fas fa-chevron-right"></i> Accueil</a></li>
+            <li><a href="#apropos"><i class="fas fa-chevron-right"></i> À propos</a></li>
+            <li><a href="#competences"><i class="fas fa-chevron-right"></i> Compétences</a></li>
+            <li><a href="#projets"><i class="fas fa-chevron-right"></i> Projets</a></li>
+            <li><a href="#cv"><i class="fas fa-chevron-right"></i> Mon CV</a></li>
+            <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contactez-moi</h4>
+          <p><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</p>
+          <p><i class="fas fa-phone"></i> +229 01 58 15 69 30</p>
+          <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection#1f77706a716b70717b75766f777673766f6f7a2a275f78727e7673317c7072"><span class="__cf_email__" data-cfemail="365e594358425958525c5f465e5f5a5f464653030e76515b575f5a1855595b">[email&#160;protected]</span></a></p>
+        </div>
+        <div class="footer-social">
+          <h4>Suivez-moi</h4>
+          <div class="social-icons">
+            <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="/cdn-cgi/l/email-protection#3850574d564c57565c5251485051545148485d0d00785f55595154165b5755" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          </div>
+          <p class="footer-newsletter">Abonnez-vous à ma newsletter</p>
+          <form class="newsletter-form">
+            <input type="email" name="email" placeholder="Votre email" required>
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Philippe Hountondji. Tous droits réservés.</p>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" aria-label="Retour en haut"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- Modal script -->
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    function openCvModal() {
+      const modal = document.getElementById('cvModal');
+      const iframe = document.getElementById('cvIframe');
+      if (!iframe.src || iframe.src === window.location.href) {
+        iframe.src = 'cv/Philippe_Hountondji_CV.pdf';
+      }
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    functio
