@@ -332,8 +332,9 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
       return res.status(500).json({ error: 'Configuration email manquante.' });
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
     });
     const safeMessage = validator.escape(message).replace(/\n/g, '<br>');
