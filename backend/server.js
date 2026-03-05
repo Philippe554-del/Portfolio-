@@ -10,7 +10,7 @@ const helmet     = require('helmet');
 const validator  = require('validator');
 const path       = require('path');
 const crypto     = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -330,19 +330,14 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
     if (message.length < 5)      return res.status(400).json({ error: 'Message trop court.' });
     if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)
       return res.status(500).json({ error: 'Configuration email manquante.' });
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const safeMessage = validator.escape(message).replace(/\n/g, '<br>');
-    await transporter.sendMail({
-      from: `"Philippe Hountondji" <${process.env.GMAIL_USER}>`,
-      to, subject,
+    await resend.emails.send({
+      from: 'Portfolio <onboarding@resend.dev>',
+      to,
+      subject,
       text: message,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>${safeMessage}</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji — ${process.env.GMAIL_USER}</p></div>`
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>${safeMessage}</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji — hountondjiphilippe58@gmail.com</p></div>`
     });
     if (msgId > 0) await pool.execute('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = ?', [msgId]);
     res.json({ success: true });
