@@ -9,7 +9,7 @@
     var API_URL = (function () {
       var h = window.location.hostname;
       if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
-      return 'https://portfolio-philippe.up.railway.app';
+      return window.location.origin;
     })();
 
     var header        = document.querySelector('header');
