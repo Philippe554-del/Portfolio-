@@ -234,8 +234,7 @@ app.get('/api/admin/messages', auth, adminLimiter, async (req, res) => {
     if (filter === 'unread') where = 'WHERE is_read = 0';
     const [[{ total }]] = await pool.execute(`SELECT COUNT(*) AS total FROM messages ${where}`);
     const [rows] = await pool.execute(
-      `SELECT id, name, email, phone, message, is_read, replied_at, created_at FROM messages ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [parseInt(limit), parseInt(offset)]);
+      `SELECT id, name, email, phone, message, is_read, replied_at, created_at FROM messages ${where} ORDER BY created_at DESC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`);
     res.json({ success: true, messages: rows, total, page, limit });
   } catch (err) { console.error('[messages]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
