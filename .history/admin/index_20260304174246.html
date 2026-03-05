@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Administration — Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Connexion -->
+  <div id="loginPage" class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="admin-icon"><i class="fas fa-shield-halved"></i></div>
+        <h1>Administration</h1>
+        <p>Accès réservé aux administrateurs</p>
+      </div>
+      <form id="loginForm" class="login-form" autocomplete="off">
+        <div class="form-group">
+          <label for="adminEmail"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="adminEmail" placeholder="email@exemple.com" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="adminPassword"><i class="fas fa-lock"></i> Mot de passe</label>
+          <div class="password-input">
+            <input type="password" id="adminPassword" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="toggle-password" aria-label="Afficher le mot de passe">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" id="rememberMe">
+            <span>Se souvenir de moi</span>
+          </label>
+        </div>
+        <button type="submit" class="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Se connecter
+        </button>
+        <button type="button" class="btn-portfolio" onclick="window.location.href='./frontend/index.html'">
+          <i class="fas fa-external-link-alt"></i> Voir le Portfolio
+        </button>
+        <div id="loginError" class="error-message" style="display:none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>Identifiants incorrects</span>
+        </div>
+      </form>
+      <div class="login-footer">
+        <p><i class="fas fa-lock"></i> Connexion sécurisée</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard hidden">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"><i class="fas fa-chart-line"></i><span>Admin Panel</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="overview">
+          <i class="fas fa-home"></i><span>Vue d'ensemble</span>
+        </a>
+        <a href="#" class="nav-item" data-page="messages">
+          <i class="fas fa-envelope"></i><span>Messages</span>
+          <span class="badge" id="messageCount"></span>
+        </a>
+        <a href="#" class="nav-item" data-page="analytics">
+          <i class="fas fa-chart-bar"></i><span>Statistiques</span>
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+          <i class="fas fa-cog"></i><span>Paramètres</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i><span>Déconnexion</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="btn-menu" id="menuToggle"><i class="fas fa-bars"></i></button>
+          <h2 id="pageTitle">Vue d'ensemble</h2>
+        </div>
+        <div class="header-right">
+          <button class="btn-icon" id="refreshBtn" title="Actualiser"><i class="fas fa-sync-alt"></i></button>
+          <div class="admin-profile">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=FF6B35&color=fff" alt="Admin">
+            <div class="profile-info">
+              <span class="profile-name">Administrateur</span>
+              <span class="profile-role">Super Admin</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Vue d'ensemble -->
+      <div id="overviewPage" class="page active">
+        <div class="page-content-wrapper">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-envelope"></i></div>
+              <div class="stat-content"><span class="stat-label">Total Messages</span><span class="stat-value" id="totalMessages">0</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-envelope-open"></i></div>
+              <div class="stat-content"><span class="stat-label">Messages lus</span><span class="stat-value" id="readMessages">0</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-clock"></i></div>
+              <div class="stat-content"><span class="stat-label">Non lus</span><span class="stat-value" id="unreadMessages">0</span></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:linear-gradient(135deg,#fa709a,#fee140)"><i class="fas fa-calendar-day"></i></div>
+              <div class="stat-content"><span class="stat-label">Aujourd'hui</span><span class="stat-value" id="todayMessages">0</span></div>
+            </div>
+          </div>
+
+          <div class="recent-messages">
+            <div class="section-header">
+              <h3><i class="fas fa-history"></i> Messages récents</h3>
+              <a href="#" class="btn-link" data-page="messages">Voir tout</a>
+            </div>
+            <div id="recentMessagesList" class="messages-preview">
+              <div class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Actions rapides</h3>
+            <div class="actions-grid">
+              <button class="action-card" data-action="export"><i class="fas fa-download"></i><span>Exporter les données</span></button>
+              <button class="action-card" data-action="delete-all-read"><i class="fas fa-trash-alt"></i><span>Supprimer messages lus</span></button>
+              <button class="action-card" data-action="mark-all-read"><i class="fas fa-check-double"></i><span>Tout marquer comme lu</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="messagesPage" class="page">
+        <div class="page-content-wrapper">
+          <div class="messages-toolbar">
+            <div class="toolbar-left">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchMessages" placeholder="Rechercher un message…">
+              </div>
+            </div>
+            <div class="toolbar-right">
+              <select id="filterMessages" class="filter-select">
+                <option value="all">Tous les messages</option>
+                <option value="unread">Non lus</option>
+                <option value="read">Lus</option>
+              </select>
+              <select id="sortMessages" class="filter-select">
+                <option value="newest">Plus récents</option>
+                <option value="oldest">Plus anciens</option>
+              </select>
+            </div>
+          </div>
+          <div id="messagesList" class="messages-list">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div id="analyticsPage" class="page">
+        <div class="page-content-wrapper">
+          <div class="analytics-grid">
+            <div class="chart-card">
+              <h3><i class="fas fa-chart-line"></i> Messages (7 derniers jours)</h3>
+              <canvas id="messagesChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3><i class="fas fa-chart-pie"></i> Répartition des statuts</h3>
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+          <div class="analytics-info">
+            <h3><i class="fas fa-info-circle"></i> Informations</h3>
+            <div class="info-grid">
+              <div class="info-item"><span class="info-label">Premier message :</span><span class="info-value" id="firstMessageDate">-</span></div>
+              <div class="info-item"><span class="info-label">Dernier message :</span><span class="info-value" id="lastMessageDate">-</span></div>
+              <div class="info-item"><span class="info-label">Moyenne :</span><span class="info-value" id="avgMessagesPerDay">-</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paramètres -->
+      <div id="settingsPage" class="page">
+        <div class="page-content-wrapper">
+          <div class="settings-section">
+            <h3><i class="fas fa-user-shield"></i> Changer le mot de passe</h3>
+            <form id="changePasswordForm" class="settings-form" autocomplete="off">
+              <div class="form-group">
+                <label for="currentPassword">Mot de passe actuel</label>
+                <input type="password" id="currentPassword" placeholder="••••••••" autocomplete="current-password">
+              </div>
+              <div class="form-group">
+                <label for="newPassword">Nouveau mot de passe</label>
+                <input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password">
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirmer le mot de passe</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" autocomplete="new-password">
+              </div>
+              <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Modifier</button>
+            </form>
+            <p id="passwordMsg" style="margin-top:15px;text-align:center;"></p>
+          </div>
+          <div class="settings-section danger-zone">
+            <h3><i class="fas fa-exclamation-triangle"></i> Zone dangereuse</h3>
+            <p>Les actions suivantes sont irréversibles.</p>
+            <button class="btn-danger" id="deleteAllMessages"><i class="fas fa-trash-alt"></i> Supprimer tous les messages</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal message -->
+  <div id="messageModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-envelope-open-text"></i> Détails du message</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="closeModal"><i class="fas fa-times"></i> Fermer</button>
+        <button class="btn-primary" id="replyMessage"><i class="fas fa-reply"></i> Répondre par Gmail</button>
+        <button class="btn-danger" id="deleteMessage"><i class="fas fa-trash"></i> Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
