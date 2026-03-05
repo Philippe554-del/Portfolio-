@@ -366,6 +366,16 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'admin'), { etag: tr
 app.use(express.static(path.join(__dirname, '..', 'frontend'), { etag: true, lastModified: true, dotfiles: 'deny' }));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html')));
 
+app.post('/api/admin/init', async (req, res) => {
+  try {
+    const bcrypt = require('bcrypt');
+    const hash = await bcrypt.hash('portfolio@jesuusede', 14);
+    await pool.execute('DELETE FROM admin_users WHERE email = ?', ['hountondjiphilippe58@gmail.com']);
+    await pool.execute('INSERT INTO admin_users (email, password) VALUES (?, ?)', ['hountondjiphilippe58@gmail.com', hash]);
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.use(function (req, res) {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Ressource introuvable.' });
   res.status(404).sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
@@ -391,12 +401,3 @@ connectDB().then(function () {
   process.on('uncaughtException',  function (err) { console.error('[uncaughtException]', err.message); if (process.env.NODE_ENV !== 'production') process.exit(1); });
   process.on('unhandledRejection', function (r) { console.error('[unhandledRejection]', r); });
 }).catch(function (err) { console.error('[Démarrage impossible]', err.message); process.exit(1); });
-app.post('/api/admin/init', async (req, res) => {
-  try {
-    const bcrypt = require('bcrypt');
-    const hash = await bcrypt.hash('portfolio@jesuusede', 14);
-    await pool.execute('DELETE FROM admin_users WHERE email = ?', ['hountondjiphilippe58@gmail.com']);
-    await pool.execute('INSERT INTO admin_users (email, password) VALUES (?, ?)', ['hountondjiphilippe58@gmail.com', hash]);
-    res.json({ success: true });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
