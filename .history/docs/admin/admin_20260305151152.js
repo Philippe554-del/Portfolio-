@@ -9,9 +9,13 @@
     document.head.appendChild(chartScript);
   }
 
-  var API_URL = 'https://portfolio-philippe.up.railway.app';
+  var API_URL = (function () {
+    var h = window.location.hostname;
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
+    return window.location.origin;
+  })();
 
-  var PORTFOLIO_URL = 'https://philippe554-del.github.io/Portfolio-/';
+  var PORTFOLIO_URL = window.location.origin;
   var GMAIL_ADDRESS = 'hountondjiphilippe58@gmail.com';
   var TOKEN_KEY = '_adm_tk';
   var currentMessageId   = null;
@@ -132,7 +136,7 @@
     backButton.className = 'btn-back-portfolio';
     backButton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
     backButton.addEventListener('click', function () {
-      window.location.href = PORTFOLIO_URL;
+      window.location.href = '../frontend/index.html';
     });
 
     var logoutBtn = document.getElementById('logoutBtn');
@@ -172,6 +176,7 @@
         .then(function (res) {
           if (res.status === 200 && res.data.token) {
             setToken(res.data.token, remember);
+            // Sauvegarder dans les deux pour être sûr
             try { sessionStorage.setItem('_adm_tk', res.data.token); } catch(e) {}
             try { localStorage.setItem('_adm_tk', res.data.token); } catch(e) {}
             showDashboard();
@@ -248,6 +253,7 @@
   var menuToggle = document.getElementById('menuToggle');
   var sidebar    = document.querySelector('.sidebar');
 
+  // Overlay pour fermer la sidebar en cliquant dehors
   var sidebarOverlay = document.getElementById('_sidebar_overlay');
   if (!sidebarOverlay) {
     sidebarOverlay = document.createElement('div');
@@ -280,9 +286,17 @@
   }
 
   if (menuToggle) {
-    menuToggle.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
-    menuToggle.addEventListener('touchend', function(e) { handleMenuToggle(e); }, { passive: false });
-    menuToggle.addEventListener('click', function(e) { handleMenuToggle(e); });
+    // Touch
+    menuToggle.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+    menuToggle.addEventListener('touchend', function(e) {
+      handleMenuToggle(e);
+    }, { passive: false });
+    // Click (desktop)
+    menuToggle.addEventListener('click', function(e) {
+      handleMenuToggle(e);
+    });
   }
 
   sidebarOverlay.addEventListener('click', closeSidebar);
@@ -292,7 +306,7 @@
   }, { passive: false });
 
   /* ================================================================
-     CLOCHE NOTIFICATIONS
+     CLOCHE NOTIFICATIONS (comme l'ancien)
   ================================================================ */
   var notifBtn = document.getElementById('notificationsBtn');
   if (notifBtn) {
@@ -353,6 +367,7 @@
     apiRequest('GET', '/api/admin/stats')
       .then(function (res) {
         if (res.status !== 200) {
+          console.error('[overview] Erreur stats:', res.status, res.data);
           showNotification('Erreur chargement stats: ' + (res.data.error || res.status), 'error');
           return;
         }
@@ -370,6 +385,7 @@
         loadRecentMessages();
       })
       .catch(function (err) {
+        console.error('[overview]', err);
         showNotification('Erreur réseau: ' + err.message, 'error');
       });
   }
@@ -682,15 +698,21 @@
   function csvCell(val) { return '"' + String(val || '').replace(/"/g, '""') + '"'; }
 
   /* ================================================================
-     STATISTIQUES
+     STATISTIQUES — comme l'ancien (graphiques automatiques)
   ================================================================ */
   function loadAnalytics() {
     var tok = getToken();
     if (!tok) { showNotification('Session expirée, reconnectez-vous', 'error'); return; }
     apiRequest('GET', '/api/admin/stats')
       .then(function (res) {
-        if (res.status !== 200) { showNotification('Erreur stats: ' + (res.data.error || res.status), 'error'); return; }
+        if (res.status !== 200) { 
+          console.error('[analytics] Erreur:', res.status, res.data);
+          showNotification('Erreur stats: ' + (res.data.error || res.status), 'error'); 
+          return; 
+        }
         var s = res.data.stats || {};
+
+        // Infos détaillées
         var daily = s.daily || [];
         if (daily.length > 0) {
           setText('firstMessageDate', formatDate(daily[0].date));
@@ -702,15 +724,18 @@
           setText('lastMessageDate',  s.total > 0 ? '-' : 'Aucun message');
           setText('avgMessagesPerDay', '0 messages/jour');
         }
+
         renderCharts(s);
       })
-      .catch(function (err) { showNotification('Erreur réseau', 'error'); });
+      .catch(function (err) { console.error('[analytics]', err); showNotification('Erreur réseau', 'error'); });
   }
 
   function renderCharts(s) {
     var daily  = s.daily || [];
     var labels = [];
     var counts = [];
+
+    // Génère les 7 derniers jours comme l'ancien
     for (var i = 6; i >= 0; i--) {
       var d = new Date();
       d.setDate(d.getDate() - i);
@@ -719,27 +744,65 @@
       var found = daily.find(function (x) { return new Date(x.date).toDateString() === dateStr; });
       counts.push(found ? parseInt(found.count || 0, 10) : 0);
     }
+
+    /* Graphique ligne */
     var ctx1 = document.getElementById('messagesChart');
     if (ctx1) {
       if (messagesChart) { messagesChart.destroy(); messagesChart = null; }
       try {
         messagesChart = new Chart(ctx1, {
           type: 'line',
-          data: { labels: labels, datasets: [{ label: 'Messages reçus', data: counts, borderColor: '#FF6B35', backgroundColor: 'rgba(255,107,53,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#FF6B35', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 7 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.1)' } } } }
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Messages reçus',
+              data: counts,
+              borderColor: '#FF6B35',
+              backgroundColor: 'rgba(255,107,53,0.1)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#FF6B35',
+              pointBorderColor: '#fff',
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#B4B8D4' } } },
+            scales: {
+              y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } },
+              x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+          }
         });
       } catch (e) { console.error('[Chart line]', e); }
     }
-    var ctx2 = document.getElementById('statusChart');
-    var readCount = parseInt(s.read || 0, 10);
+
+    /* Graphique donut */
+    var ctx2       = document.getElementById('statusChart');
+    var readCount  = parseInt(s.read   || 0, 10);
     var unreadCount = parseInt(s.unread || 0, 10);
     if (ctx2) {
       if (statusChart) { statusChart.destroy(); statusChart = null; }
       try {
         statusChart = new Chart(ctx2, {
           type: 'doughnut',
-          data: { labels: ['Lus', 'Non lus'], datasets: [{ data: [readCount, unreadCount], backgroundColor: ['#10B981', '#FF6B35'], borderWidth: 0 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, cutout: '60%' }
+          data: {
+            labels: ['Lus', 'Non lus'],
+            datasets: [{
+              data: [readCount, unreadCount],
+              backgroundColor: ['#10B981', '#FF6B35'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#B4B8D4' } } },
+            cutout: '60%'
+          }
         });
       } catch (e) { console.error('[Chart donut]', e); }
     }
@@ -756,12 +819,21 @@
       var next    = document.getElementById('newPassword').value;
       var confirm = document.getElementById('confirmPassword').value;
       var msgEl   = document.getElementById('passwordMsg');
+
       if (next !== confirm) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
       if (next.length < 12) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Mot de passe trop court (12 caractères min).'; return; }
+
       apiRequest('POST', '/api/admin/change-password', { current: current, next: next })
         .then(function (res) {
-          if (res.status === 200) { msgEl.style.color = '#10B981'; msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.'; changePasswordForm.reset(); setTimeout(logout, 2000); }
-          else { msgEl.style.color = '#EF4444'; msgEl.textContent = res.data.error || 'Erreur.'; }
+          if (res.status === 200) {
+            msgEl.style.color = '#10B981';
+            msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.';
+            changePasswordForm.reset();
+            setTimeout(logout, 2000);
+          } else {
+            msgEl.style.color = '#EF4444';
+            msgEl.textContent = res.data.error || 'Erreur.';
+          }
         }).catch(function () { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Erreur réseau.'; });
     });
   }
@@ -781,7 +853,13 @@
      UTILITAIRES
   ================================================================ */
   function setText(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
-  function esc(str) { var d = document.createElement('div'); d.textContent = String(str || ''); return d.innerHTML; }
+
+  function esc(str) {
+    var d = document.createElement('div');
+    d.textContent = String(str || '');
+    return d.innerHTML;
+  }
+
   function formatDate(dateStr) {
     if (!dateStr) return '-';
     var d = new Date(dateStr);
@@ -794,13 +872,17 @@
     if (diff < 604800000) return 'Il y a ' + Math.floor(diff / 86400000) + ' jour(s)';
     return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
+
   function updateMessageCount() {
     apiRequest('GET', '/api/admin/stats')
       .then(function (res) {
         if (res.status !== 200) return;
         var count = parseInt(res.data.stats.unread || 0, 10);
         var badge = document.getElementById('messageCount');
-        if (badge) { badge.textContent = count > 0 ? count : ''; badge.style.display = count > 0 ? 'inline-flex' : 'none'; }
+        if (badge) {
+          badge.textContent   = count > 0 ? count : '';
+          badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
       }).catch(console.error);
   }
 
@@ -828,13 +910,13 @@
   }
 
   /* ================================================================
-     MODAL CONFIRMATION
+     MODAL CONFIRMATION PERSONNALISÉ
   ================================================================ */
   function confirmModal(message, onConfirm) {
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,14,39,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;';
     overlay.innerHTML =
-      '<div style="background:#16192F;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.6);">' +
+      '<div style="background:#16192F;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.6);animation:slideUp 0.2s ease;">' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;">' +
           '<div style="width:44px;height:44px;background:rgba(239,68,68,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
             '<i class="fas fa-exclamation-triangle" style="color:#EF4444;font-size:1.25rem;"></i>' +
@@ -843,8 +925,8 @@
         '</div>' +
         '<p style="color:#B4B8D4;margin:0 0 1.75rem 0;line-height:1.6;font-size:0.95rem;">' + message + '</p>' +
         '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
-          '<button id="_conf_cancel" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#B4B8D4;font-weight:600;cursor:pointer;font-size:0.9rem;">Annuler</button>' +
-          '<button id="_conf_ok" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#EF4444,#DC2626);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">Supprimer</button>' +
+          '<button id="_conf_cancel" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#B4B8D4;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">Annuler</button>' +
+          '<button id="_conf_ok" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#EF4444,#DC2626);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;box-shadow:0 4px 12px rgba(239,68,68,0.3);">Supprimer</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(overlay);
@@ -856,7 +938,10 @@
   /* ================================================================
      INIT
   ================================================================ */
-  if (window.innerWidth <= 992) { closeSidebar(); }
+  // Forcer sidebar fermée au démarrage sur mobile
+  if (window.innerWidth <= 992) {
+    closeSidebar();
+  }
   checkAuth();
 
 })();
