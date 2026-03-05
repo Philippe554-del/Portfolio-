@@ -235,7 +235,7 @@ app.get('/api/admin/messages', auth, adminLimiter, async (req, res) => {
     const [[{ total }]] = await pool.execute(`SELECT COUNT(*) AS total FROM messages ${where}`);
     const [rows] = await pool.execute(
       `SELECT id, name, email, phone, message, is_read, replied_at, created_at FROM messages ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [limit, offset]);
+      [parseInt(limit), parseInt(offset)]);
     res.json({ success: true, messages: rows, total, page, limit });
   } catch (err) { console.error('[messages]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
