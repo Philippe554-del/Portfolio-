@@ -1,13 +1,11 @@
 (function () {
   'use strict';
 
-  // empêche le drag des images
   document.addEventListener('dragstart', function (e) { e.preventDefault(); });
   document.addEventListener('contextmenu', function (e) { if (e.target.tagName === 'IMG') e.preventDefault(); });
 
   document.addEventListener('DOMContentLoaded', function () {
 
-    // url de l'api selon l'environnement
     var API_URL = (function () {
       var h = window.location.hostname;
       if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
@@ -21,7 +19,9 @@
     var navLinksItems = document.querySelectorAll('.nav-links a');
     var contactForm   = document.getElementById('contactForm');
 
-    // menu burger mobile
+    /* ================================================================
+       MENU MOBILE — VERSION SIMPLE (identique à l'ancien qui marchait)
+    ================================================================ */
     if (hamburger) {
       hamburger.addEventListener('click', function (e) {
         e.preventDefault();
@@ -30,7 +30,6 @@
       });
     }
 
-    // fermer le menu quand on clique sur un lien
     navLinksItems.forEach(function (link) {
       link.addEventListener('click', function () {
         hamburger.classList.remove('active');
@@ -38,7 +37,6 @@
       });
     });
 
-    // reset menu si on redimensionne en desktop
     window.addEventListener('resize', function () {
       if (window.innerWidth > 768) {
         if (hamburger) hamburger.classList.remove('active');
@@ -46,7 +44,7 @@
       }
     });
 
-    // scroll smooth pour tous les liens ancres
+    // ✅ Scroll vers section pour TOUS les liens #
     document.addEventListener('click', function (e) {
       var link = e.target.closest('a[href^="#"]');
       if (!link) return;
@@ -58,7 +56,9 @@
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    // header qui change au scroll + bouton retour en haut
+    /* ================================================================
+       SCROLL HEADER + BACK TO TOP
+    ================================================================ */
     window.addEventListener('scroll', function () {
       var s = window.pageYOffset;
       if (header)    header.classList.toggle('scrolled', s > 100);
@@ -71,7 +71,9 @@
       });
     }
 
-    // lien actif dans la nav selon la section visible
+    /* ================================================================
+       ACTIVE NAV LINK AU SCROLL
+    ================================================================ */
     var sections = document.querySelectorAll('section[id]');
 
     function activateNavLink() {
@@ -89,7 +91,9 @@
     }
     window.addEventListener('scroll', activateNavLink, { passive: true });
 
-    // animations à l'apparition des éléments
+    /* ================================================================
+       ANIMATIONS AU SCROLL
+    ================================================================ */
     if (window.IntersectionObserver) {
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -108,7 +112,6 @@
         observer.observe(el);
       });
 
-      // animation séparée pour la section cv
       var cvObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
@@ -127,7 +130,9 @@
       });
     }
 
-    // compteur animé pour les stats
+    /* ================================================================
+       COMPTEUR STATS ANIMÉ
+    ================================================================ */
     if (window.IntersectionObserver) {
       var statsObs = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -149,7 +154,9 @@
       document.querySelectorAll('.stat').forEach(function (s) { statsObs.observe(s); });
     }
 
-    // boutons cv
+    /* ================================================================
+       CV — BOUTONS
+    ================================================================ */
     var cvDownloadBtn = document.querySelector('.btn-cv-download');
     if (cvDownloadBtn) {
       cvDownloadBtn.addEventListener('click', function () {
@@ -168,7 +175,9 @@
       });
     }
 
-    // nettoyage basique des inputs
+    /* ================================================================
+       UTILITAIRES
+    ================================================================ */
     function sanitizeInput(input, maxLen) {
       maxLen = maxLen || 2000;
       return String(input || '').trim().slice(0, maxLen);
@@ -192,7 +201,6 @@
       });
     }
 
-    // notification flottante (succès / erreur / info)
     function showNotification(message, type) {
       if (['success', 'error', 'info'].indexOf(type) === -1) type = 'info';
       var box  = document.createElement('div');
@@ -211,10 +219,17 @@
       }, 5000);
     }
 
-    // formulaire de contact
+    /* ================================================================
+       FORMULAIRE DE CONTACT
+    ================================================================ */
     if (contactForm) {
+      var honeypot = document.createElement('input');
+      honeypot.type = 'text'; honeypot.name = 'website';
+      honeypot.style.cssText = 'position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none;';
+      honeypot.tabIndex = -1; honeypot.autocomplete = 'off';
+      honeypot.setAttribute('aria-hidden', 'true');
+      contactForm.appendChild(honeypot);
 
-      // rate limiting côté client (3 envois max par 10 min)
       function getSubmitData() { try { return JSON.parse(sessionStorage.getItem('_sf') || '{}'); } catch (e) { return {}; } }
       function setSubmitData(d) { try { sessionStorage.setItem('_sf', JSON.stringify(d)); } catch (e) {} }
       function isRateLimited() {
@@ -232,11 +247,7 @@
       contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
         clearFieldErrors();
-
-        // honeypot anti-bot
-        var hpField = document.getElementById('hp_field');
-        if (hpField && hpField.value) return;
-
+        if (honeypot.value) return;
         if (isRateLimited()) return;
 
         var name    = sanitizeInput(document.getElementById('name').value,    100);
@@ -244,7 +255,6 @@
         var phone   = sanitizeInput(document.getElementById('phone').value,    20);
         var message = sanitizeInput(document.getElementById('message').value, 2000);
 
-        // validation
         var hasErr = false;
         if (name.length < 2)      { showFieldError('error-name',    'Le nom doit contenir au moins 2 caractères.'); hasErr = true; }
         if (!isValidEmail(email)) { showFieldError('error-email',   'Adresse email invalide.'); hasErr = true; }
@@ -281,14 +291,12 @@
         });
       });
 
-      // validation en temps réel sur blur
       var nameInput = document.getElementById('name');
       if (nameInput) nameInput.addEventListener('blur', function () { this.style.borderColor = (this.value.trim().length > 0 && this.value.trim().length < 2) ? '#EF4444' : ''; });
 
       var emailInput = document.getElementById('email');
       if (emailInput) emailInput.addEventListener('blur', function () { this.style.borderColor = (this.value.trim() && !isValidEmail(this.value.trim())) ? '#EF4444' : ''; });
 
-      // compteur de caractères pour le message
       var messageInput = document.getElementById('message');
       if (messageInput) {
         messageInput.addEventListener('input', function () {
@@ -302,7 +310,9 @@
       }
     }
 
-    // newsletter footer
+    /* ================================================================
+       NEWSLETTER
+    ================================================================ */
     var newsletterForm = document.querySelector('.newsletter-form');
     if (newsletterForm) {
       var nlSent = false;
@@ -318,9 +328,11 @@
       });
     }
 
+    /* ================================================================
+       STYLES NOTIFICATION
+    ================================================================ */
     activateNavLink();
 
-    // styles pour les notifs (injectés une seule fois)
     if (!document.getElementById('_notif_styles')) {
       var s = document.createElement('style');
       s.id = '_notif_styles';

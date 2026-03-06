@@ -1,13 +1,11 @@
 (function () {
   'use strict';
 
-  // empêche le drag des images
   document.addEventListener('dragstart', function (e) { e.preventDefault(); });
   document.addEventListener('contextmenu', function (e) { if (e.target.tagName === 'IMG') e.preventDefault(); });
 
   document.addEventListener('DOMContentLoaded', function () {
 
-    // url de l'api selon l'environnement
     var API_URL = (function () {
       var h = window.location.hostname;
       if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
@@ -21,7 +19,6 @@
     var navLinksItems = document.querySelectorAll('.nav-links a');
     var contactForm   = document.getElementById('contactForm');
 
-    // menu burger mobile
     if (hamburger) {
       hamburger.addEventListener('click', function (e) {
         e.preventDefault();
@@ -30,7 +27,6 @@
       });
     }
 
-    // fermer le menu quand on clique sur un lien
     navLinksItems.forEach(function (link) {
       link.addEventListener('click', function () {
         hamburger.classList.remove('active');
@@ -38,7 +34,6 @@
       });
     });
 
-    // reset menu si on redimensionne en desktop
     window.addEventListener('resize', function () {
       if (window.innerWidth > 768) {
         if (hamburger) hamburger.classList.remove('active');
@@ -46,7 +41,6 @@
       }
     });
 
-    // scroll smooth pour tous les liens ancres
     document.addEventListener('click', function (e) {
       var link = e.target.closest('a[href^="#"]');
       if (!link) return;
@@ -58,7 +52,6 @@
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    // header qui change au scroll + bouton retour en haut
     window.addEventListener('scroll', function () {
       var s = window.pageYOffset;
       if (header)    header.classList.toggle('scrolled', s > 100);
@@ -71,7 +64,6 @@
       });
     }
 
-    // lien actif dans la nav selon la section visible
     var sections = document.querySelectorAll('section[id]');
 
     function activateNavLink() {
@@ -89,7 +81,6 @@
     }
     window.addEventListener('scroll', activateNavLink, { passive: true });
 
-    // animations à l'apparition des éléments
     if (window.IntersectionObserver) {
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -108,7 +99,6 @@
         observer.observe(el);
       });
 
-      // animation séparée pour la section cv
       var cvObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
@@ -127,7 +117,6 @@
       });
     }
 
-    // compteur animé pour les stats
     if (window.IntersectionObserver) {
       var statsObs = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -149,7 +138,6 @@
       document.querySelectorAll('.stat').forEach(function (s) { statsObs.observe(s); });
     }
 
-    // boutons cv
     var cvDownloadBtn = document.querySelector('.btn-cv-download');
     if (cvDownloadBtn) {
       cvDownloadBtn.addEventListener('click', function () {
@@ -168,7 +156,6 @@
       });
     }
 
-    // nettoyage basique des inputs
     function sanitizeInput(input, maxLen) {
       maxLen = maxLen || 2000;
       return String(input || '').trim().slice(0, maxLen);
@@ -192,7 +179,6 @@
       });
     }
 
-    // notification flottante (succès / erreur / info)
     function showNotification(message, type) {
       if (['success', 'error', 'info'].indexOf(type) === -1) type = 'info';
       var box  = document.createElement('div');
@@ -211,10 +197,7 @@
       }, 5000);
     }
 
-    // formulaire de contact
     if (contactForm) {
-
-      // rate limiting côté client (3 envois max par 10 min)
       function getSubmitData() { try { return JSON.parse(sessionStorage.getItem('_sf') || '{}'); } catch (e) { return {}; } }
       function setSubmitData(d) { try { sessionStorage.setItem('_sf', JSON.stringify(d)); } catch (e) {} }
       function isRateLimited() {
@@ -233,7 +216,6 @@
         e.preventDefault();
         clearFieldErrors();
 
-        // honeypot anti-bot
         var hpField = document.getElementById('hp_field');
         if (hpField && hpField.value) return;
 
@@ -244,7 +226,6 @@
         var phone   = sanitizeInput(document.getElementById('phone').value,    20);
         var message = sanitizeInput(document.getElementById('message').value, 2000);
 
-        // validation
         var hasErr = false;
         if (name.length < 2)      { showFieldError('error-name',    'Le nom doit contenir au moins 2 caractères.'); hasErr = true; }
         if (!isValidEmail(email)) { showFieldError('error-email',   'Adresse email invalide.'); hasErr = true; }
@@ -281,14 +262,12 @@
         });
       });
 
-      // validation en temps réel sur blur
       var nameInput = document.getElementById('name');
       if (nameInput) nameInput.addEventListener('blur', function () { this.style.borderColor = (this.value.trim().length > 0 && this.value.trim().length < 2) ? '#EF4444' : ''; });
 
       var emailInput = document.getElementById('email');
       if (emailInput) emailInput.addEventListener('blur', function () { this.style.borderColor = (this.value.trim() && !isValidEmail(this.value.trim())) ? '#EF4444' : ''; });
 
-      // compteur de caractères pour le message
       var messageInput = document.getElementById('message');
       if (messageInput) {
         messageInput.addEventListener('input', function () {
@@ -302,7 +281,6 @@
       }
     }
 
-    // newsletter footer
     var newsletterForm = document.querySelector('.newsletter-form');
     if (newsletterForm) {
       var nlSent = false;
@@ -320,7 +298,6 @@
 
     activateNavLink();
 
-    // styles pour les notifs (injectés une seule fois)
     if (!document.getElementById('_notif_styles')) {
       var s = document.createElement('style');
       s.id = '_notif_styles';

@@ -4,21 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://cdnjs.cloudflare.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
-    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-    img-src 'self' data: https://img.icons8.com https://hountondji-philippe.github.io https://philippe554-del.github.io https://ui-avatars.com;
-    connect-src 'self' https://www.google-analytics.com https://portfolio-philippe.up.railway.app;
-    frame-ancestors 'none';
-    base-uri 'self';
-    form-action 'self';
-  ">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
   <meta name="google-site-verification" content="google50f42750b1197bd4" />
   <title>Philippe Hountondji | Développeur Web & Administrateur Réseau et système - Portfolio</title>
   <meta name="description" content="Philippe Hountondji - Étudiant passionné en Informatique & Réseaux au Bénin. Spécialisé en développement web full-stack (Python, JavaScript, Node.js) et administration réseau. Découvrez mon portfolio et mes projets.">
@@ -40,15 +25,14 @@
   <meta name="twitter:title" content="Philippe Hountondji | Développeur Web & Administrateur réseau et système">
   <meta name="twitter:description" content="Étudiant passionné en Informatique & Réseaux. Découvrez mon portfolio et mes projets.">
   <meta name="twitter:image" content="https://hountondji-philippe.github.io/portfolio/images/philippe.jpeg">
-  <meta name="google-site-verification" content="3FJI1G97jTdgIeMxFafZcVbAyquOecfTUwxUoUEYBEY" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Philippe Hountondji",
-    "url": "https://philippe554-del.github.io/Portfolio-/",
-    "image": "https://philippe554-del.github.io/Portfolio-/images/philippe.jpeg",
+    "url": "",
+    "image": "https://hountondji-philippe.github.io/portfolio/images/philippe.jpeg",
     "jobTitle": "Étudiant en Informatique et Réseaux",
     "description": "Développeur web et administrateur réseau passionné",
     "email": "hountondjiphilippe58@gmail.com",
@@ -63,9 +47,13 @@
   }
   </script>
 
+  <!-- ✅ SUPPRIMÉ : <meta http-equiv="X-Frame-Options"> ne doit PAS être dans le HTML -->
+  <!-- helmet dans server.js envoie déjà ce header correctement via HTTP -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="css/style.css" as="style">
+  <!-- ✅ CORRIGÉ : philippe.jpeg (et non acceuil.jpeg qui n'existe plus) -->
   <link rel="preload" href="images/philippe.jpeg" as="image">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -408,12 +396,6 @@
               placeholder="Décrivez votre projet ou demande..." required minlength="10" maxlength="2000"></textarea>
             <small class="error-message" id="error-message"></small>
           </div>
-
-          <!-- champ honeypot invisible pour piéger les bots -->
-          <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
-            <input type="text" name="website" id="hp_field" tabindex="-1" autocomplete="off">
-          </div>
-
           <div class="form-actions">
             <button type="submit" class="btn btn-primary btn-submit">
               <i class="fas fa-paper-plane"></i> Envoyer le message
