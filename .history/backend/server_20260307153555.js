@@ -53,7 +53,7 @@ app.use(helmet({
         'https://ui-avatars.com',
         'https://img.icons8.com',
         'https:',
-      ],
+      ]
       connectSrc: [
         "'self'",
         'https://cdn.jsdelivr.net',

@@ -54,6 +54,8 @@ app.use(helmet({
         'https://img.icons8.com',
         'https:',
       ],
+      // ✅ CORRECTION PRINCIPALE : ajout de Google Analytics dans connectSrc
+      // Sans ça, Android Chrome bloque toutes les requêtes fetch() du site
       connectSrc: [
         "'self'",
         'https://cdn.jsdelivr.net',
