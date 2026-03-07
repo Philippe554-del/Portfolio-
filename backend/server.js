@@ -10,7 +10,7 @@ const helmet     = require('helmet');
 const validator  = require('validator');
 const path       = require('path');
 const crypto     = require('crypto');
-const { Resend } = require('resend');
+const { google } = require('googleapis');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -328,15 +328,25 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
     if (message.length < 5)      return res.status(400).json({ error: 'Message trop court.' });
     if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)
       return res.status(500).json({ error: 'Configuration email manquante.' });
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      'https://developers.google.com/oauthplayground'
+    );
+    oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
     const safeMessage = validator.escape(message).replace(/\n/g, '<br>');
-    await resend.emails.send({
-      from: 'Portfolio <onboarding@resend.dev>',
-      to,
-      subject,
-      text: message,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>${safeMessage}</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji — hountondjiphilippe58@gmail.com</p></div>`
-    });
+    const emailContent = [
+      'Content-Type: text/html; charset=utf-8',
+      'MIME-Version: 1.0',
+      `To: ${to}`,
+      `From: Philippe Hountondji <hountondjiphilippe58@gmail.com>`,
+      `Subject: ${subject}`,
+      '',
+      `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>${safeMessage}</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji — hountondjiphilippe58@gmail.com</p></div>`
+    ].join('\n');
+    const encodedEmail = Buffer.from(emailContent).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    await gmail.users.messages.send({ userId: 'me', requestBody: { raw: encodedEmail } });
     if (msgId > 0) await pool.execute('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = ?', [msgId]);
     res.json({ success: true });
   } catch (err) { console.error('[send-reply]', err.message); res.status(500).json({ error: 'Erreur envoi email : ' + err.message }); }
