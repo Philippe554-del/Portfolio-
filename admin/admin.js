@@ -1,486 +1,390 @@
 (function () {
   'use strict';
 
-  // Charger Chart.js depuis cdnjs (autorisé par CSP)
   if (typeof Chart === 'undefined') {
-    var chartScript = document.createElement('script');
-    chartScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-    chartScript.onload = function() { console.log('[Chart.js] Chargé depuis cdnjs'); };
-    document.head.appendChild(chartScript);
+    var scriptGraphique = document.createElement('script');
+    scriptGraphique.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+    document.head.appendChild(scriptGraphique);
   }
 
-  var API_URL = (function () {
-    var h = window.location.hostname;
-    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
-    return window.location.origin;
-  })();
+  var urlApi          = 'https://portfolio-philippe.up.railway.app';
+  var urlPortfolio    = 'https://philippe554-del.github.io/Portfolio-/';
+  var emailAdmin      = 'hountondjiphilippe58@gmail.com';
+  var cleToken        = '_adm_tk';
 
-  var PORTFOLIO_URL = window.location.origin;
-  var GMAIL_ADDRESS = 'hountondjiphilippe58@gmail.com';
-  var TOKEN_KEY = '_adm_tk';
-  var currentMessageId   = null;
-  var currentMessageData = null;
-  var messagesChart = null;
-  var statusChart   = null;
-  var searchTimeout = null;
+  var idMessageActuel   = null;
+  var donneesMessageActuel = null;
+  var graphiqueMessages = null;
+  var graphiqueStatuts  = null;
+  var timerRecherche    = null;
 
-  /* ================================================================
-     TOKEN
-  ================================================================ */
-  function getToken() {
-    try { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+  function lireToken() {
+    try { return sessionStorage.getItem(cleToken) || localStorage.getItem(cleToken) || null; }
     catch (e) { return null; }
   }
-  function setToken(token, remember) {
+
+  function sauverToken(token, seRappeler) {
     try {
-      if (remember) { localStorage.setItem(TOKEN_KEY, token); sessionStorage.removeItem(TOKEN_KEY); }
-      else          { sessionStorage.setItem(TOKEN_KEY, token); localStorage.removeItem(TOKEN_KEY); }
+      if (seRappeler) { localStorage.setItem(cleToken, token); sessionStorage.removeItem(cleToken); }
+      else            { sessionStorage.setItem(cleToken, token); localStorage.removeItem(cleToken); }
     } catch (e) {}
   }
-  function clearToken() {
-    try { sessionStorage.removeItem(TOKEN_KEY); localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+
+  function supprimerToken() {
+    try { sessionStorage.removeItem(cleToken); localStorage.removeItem(cleToken); } catch (e) {}
   }
 
-  /* ================================================================
-     API
-  ================================================================ */
-  function apiRequest(method, endpoint, body) {
-    var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
-    var tok = getToken();
-    if (tok)  opts.headers['Authorization'] = 'Bearer ' + tok;
-    if (body) opts.body = JSON.stringify(body);
-    console.log('[API]', method, API_URL + endpoint, tok ? 'Token:'+tok.slice(0,20)+'...' : 'PAS DE TOKEN');
-    return fetch(API_URL + endpoint, opts)
-      .then(function (r) {
-        console.log('[API] Réponse', r.status, endpoint);
-        if (r.status === 401) { logout(); return Promise.reject(new Error('Session expirée.')); }
-        return r.json().then(function (data) { return { status: r.status, data: data }; });
+  function requeteApi(methode, chemin, corps) {
+    var options = { method: methode, headers: { 'Content-Type': 'application/json' } };
+    var tok = lireToken();
+    if (tok)   options.headers['Authorization'] = 'Bearer ' + tok;
+    if (corps) options.body = JSON.stringify(corps);
+    return fetch(urlApi + chemin, options)
+      .then(function (reponse) {
+        if (reponse.status === 401) { deconnecter(); return Promise.reject(new Error('Session expirée.')); }
+        return reponse.json().then(function (donnees) { return { statut: reponse.status, donnees: donnees }; });
       })
-      .catch(function(err) {
-        console.error('[API] Erreur fetch:', method, endpoint, err.message);
-        return Promise.reject(err);
-      });
+      .catch(function (err) { return Promise.reject(err); });
   }
 
-  /* ================================================================
-     NOTIFICATIONS (comme l'ancien)
-  ================================================================ */
-  function showNotification(message, type) {
+  function afficherNotification(texte, type) {
     type = type || 'info';
-    var notif = document.createElement('div');
-    notif.className = 'notification notification-' + type;
-    notif.innerHTML =
-      '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + '"></i>' +
-      '<span>' + String(message).slice(0, 200) + '</span>';
-    document.body.appendChild(notif);
-    setTimeout(function () { notif.classList.add('show'); }, 10);
+    var boite = document.createElement('div');
+    boite.className = 'notif-flottante notif-' + type;
+    boite.innerHTML =
+      '<i class="fas fa-' + (type === 'succes' ? 'check-circle' : type === 'erreur' ? 'exclamation-circle' : 'info-circle') + '"></i>' +
+      '<span>' + echapper(String(texte).slice(0, 200)) + '</span>';
+    document.body.appendChild(boite);
+    setTimeout(function () { boite.classList.add('visible'); }, 10);
     setTimeout(function () {
-      notif.classList.remove('show');
-      setTimeout(function () { if (notif.parentNode) notif.parentNode.removeChild(notif); }, 300);
+      boite.classList.remove('visible');
+      setTimeout(function () { if (boite.parentNode) boite.parentNode.removeChild(boite); }, 300);
     }, 4000);
   }
 
-  /* ================================================================
-     AUTH
-  ================================================================ */
-  function checkAuth() {
-    if (!getToken()) { showLoginPage(); } else { showDashboard(); }
+  function verifierSession() {
+    if (!lireToken()) { afficherPageConnexion(); } else { afficherTableauBord(); }
   }
 
-  function showLoginPage() {
-    var loginPage = document.getElementById('loginPage');
-    var dashboard = document.getElementById('dashboard');
-    if (dashboard) { dashboard.style.display = 'none'; dashboard.classList.add('hidden'); }
-    if (loginPage) {
-      loginPage.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:var(--bg-primary,#0A0E27);';
+  function afficherPageConnexion() {
+    var pageConnexion = document.getElementById('page-connexion');
+    var tableauBord   = document.getElementById('tableau-bord');
+    if (tableauBord) { tableauBord.style.display = 'none'; tableauBord.classList.add('masque'); }
+    if (pageConnexion) {
+      pageConnexion.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:var(--fond-principal,#0A0E27);';
     }
-    if (messagesChart) { messagesChart.destroy(); messagesChart = null; }
-    if (statusChart)   { statusChart.destroy();   statusChart   = null; }
+    if (graphiqueMessages) { graphiqueMessages.destroy(); graphiqueMessages = null; }
+    if (graphiqueStatuts)  { graphiqueStatuts.destroy();  graphiqueStatuts  = null; }
   }
 
-  function showDashboard() {
-    var loginPage = document.getElementById('loginPage');
-    var dashboard = document.getElementById('dashboard');
-    if (loginPage) loginPage.style.display = 'none';
-    if (dashboard) {
-      dashboard.classList.remove('hidden');
-      dashboard.style.display = 'flex';
-      dashboard.style.zIndex  = '';
+  function afficherTableauBord() {
+    var pageConnexion = document.getElementById('page-connexion');
+    var tableauBord   = document.getElementById('tableau-bord');
+    if (pageConnexion) pageConnexion.style.display = 'none';
+    if (tableauBord) {
+      tableauBord.classList.remove('masque');
+      tableauBord.style.display = 'flex';
+      tableauBord.style.zIndex  = '';
     }
-    createBackToPortfolioButton();
-    // Attendre que le DOM soit prêt avant de charger
-    setTimeout(function() {
-      loadOverviewData();
-      updateMessageCount();
+    ajouterBoutonPortfolio();
+    setTimeout(function () {
+      chargerDonneesAccueil();
+      actualiserCompteur();
     }, 100);
-    showNotification('Connexion réussie !', 'success');
+    afficherNotification('Connexion réussie !', 'succes');
   }
 
-  function logout() {
-    if (getToken()) { apiRequest('POST', '/api/admin/logout').catch(function () {}); }
-    clearToken();
-    showLoginPage();
-    showNotification('Déconnexion réussie', 'info');
+  function deconnecter() {
+    if (lireToken()) { requeteApi('POST', '/api/admin/logout').catch(function () {}); }
+    supprimerToken();
+    afficherPageConnexion();
+    afficherNotification('Déconnexion réussie', 'info');
   }
 
-  /* ================================================================
-     BOUTON RETOUR AU PORTFOLIO (comme l'ancien)
-  ================================================================ */
-  function createBackToPortfolioButton() {
-    var sidebarFooter = document.querySelector('.sidebar-footer');
-    if (!sidebarFooter) return;
-    if (document.getElementById('backToPortfolio')) return;
+  function ajouterBoutonPortfolio() {
+    var piedBarre = document.querySelector('.pied-barre');
+    if (!piedBarre) return;
+    if (document.getElementById('lien-portfolio')) return;
 
-    var backButton = document.createElement('button');
-    backButton.id = 'backToPortfolio';
-    backButton.className = 'btn-back-portfolio';
-    backButton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
-    backButton.addEventListener('click', function () {
-      window.location.href = '../frontend/index.html';
-    });
+    var bouton = document.createElement('button');
+    bouton.id        = 'lien-portfolio';
+    bouton.className = 'bouton-retour-portfolio';
+    bouton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
+    bouton.addEventListener('click', function () { window.location.href = urlPortfolio; });
 
-    var logoutBtn = document.getElementById('logoutBtn');
-    sidebarFooter.insertBefore(backButton, logoutBtn);
-
-    // Style du bouton
-    if (!document.getElementById('_back_btn_style')) {
-      var s = document.createElement('style');
-      s.id = '_back_btn_style';
-      s.textContent =
-        '.btn-back-portfolio{width:100%;padding:0.875rem;background:rgba(102,126,234,0.1);border:1px solid rgba(102,126,234,0.3);' +
-        'border-radius:12px;color:#667eea;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;' +
-        'gap:0.75rem;transition:all 0.3s;font-size:0.95rem;margin-bottom:0.75rem;}' +
-        '.btn-back-portfolio:hover{background:rgba(102,126,234,0.2);transform:translateY(-2px);}';
-      document.head.appendChild(s);
-    }
+    var btnDeconnexion = document.getElementById('btn-deconnexion');
+    piedBarre.insertBefore(bouton, btnDeconnexion);
   }
 
-  /* ================================================================
-     LOGIN
-  ================================================================ */
-  var loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', function (e) {
+  var formulaireConnexion = document.getElementById('formulaire-connexion');
+  if (formulaireConnexion) {
+    formulaireConnexion.addEventListener('submit', function (e) {
       e.preventDefault();
-      var email    = document.getElementById('adminEmail').value.trim();
-      var password = document.getElementById('adminPassword').value;
-      var remember = document.getElementById('rememberMe') ? document.getElementById('rememberMe').checked : false;
-      var errEl    = document.getElementById('loginError');
-      var btn      = loginForm.querySelector('.btn-login');
+      var email     = document.getElementById('champ-email').value.trim();
+      var motdepasse = document.getElementById('champ-motdepasse').value;
+      var seRappeler = document.getElementById('se-souvenir') ? document.getElementById('se-souvenir').checked : false;
+      var erreurEl  = document.getElementById('erreur-connexion');
+      var bouton    = formulaireConnexion.querySelector('.bouton-connexion');
 
-      errEl.style.display = 'none';
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+      if (!email || !motdepasse) { return; }
 
-      apiRequest('POST', '/api/admin/login', { email: email, password: password })
+      erreurEl.style.display = 'none';
+      bouton.disabled = true;
+      bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+
+      requeteApi('POST', '/api/admin/login', { email: email, password: motdepasse })
         .then(function (res) {
-          if (res.status === 200 && res.data.token) {
-            setToken(res.data.token, remember);
-            // Sauvegarder dans les deux pour être sûr
-            try { sessionStorage.setItem('_adm_tk', res.data.token); } catch(e) {}
-            try { localStorage.setItem('_adm_tk', res.data.token); } catch(e) {}
-            showDashboard();
+          if (res.statut === 200 && res.donnees.token) {
+            sauverToken(res.donnees.token, seRappeler);
+            afficherTableauBord();
           } else {
-            errEl.style.display = 'flex';
-            errEl.querySelector('span').textContent = res.data.error || 'Identifiants incorrects.';
-            var card = document.querySelector('.login-card');
-            if (card) { card.classList.add('shake'); setTimeout(function () { card.classList.remove('shake'); }, 600); }
+            erreurEl.style.display = 'flex';
+            erreurEl.querySelector('span').textContent = res.donnees.error || 'Identifiants incorrects.';
+            var carte = document.querySelector('.carte-connexion');
+            if (carte) { carte.classList.add('secouer'); setTimeout(function () { carte.classList.remove('secouer'); }, 600); }
           }
         })
         .catch(function (err) {
-          errEl.style.display = 'flex';
-          errEl.querySelector('span').textContent = err.message || 'Erreur réseau.';
+          erreurEl.style.display = 'flex';
+          erreurEl.querySelector('span').textContent = err.message || 'Erreur réseau.';
         })
         .finally(function () {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+          bouton.disabled = false;
+          bouton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
         });
     });
   }
 
-  var logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+  var btnDeconnexion = document.getElementById('btn-deconnexion');
+  if (btnDeconnexion) btnDeconnexion.addEventListener('click', deconnecter);
 
-  /* ================================================================
-     NAVIGATION
-  ================================================================ */
-  var pageTitles = { overview: "Vue d'ensemble", messages: 'Messages', analytics: 'Statistiques', settings: 'Paramètres' };
+  var titresPages = {
+    'vue-ensemble': "Vue d'ensemble",
+    'messages':     'Messages',
+    'statistiques': 'Statistiques',
+    'parametres':   'Paramètres'
+  };
 
-  document.querySelectorAll('.nav-item[data-page]').forEach(function (item) {
-    var _navTouched = false;
-    item.addEventListener('touchend', function (e) {
+  document.querySelectorAll('.element-nav[data-page]').forEach(function (element) {
+    var touchUtilise = false;
+    element.addEventListener('touchend', function (e) {
       e.preventDefault();
-      _navTouched = true;
+      touchUtilise = true;
       var page = this.dataset.page;
-      closeSidebar();
-      setTimeout(function() { navigateTo(page); _navTouched = false; }, 50);
+      fermerBarreLaterale();
+      setTimeout(function () { allerVers(page); touchUtilise = false; }, 50);
     }, { passive: false });
-    item.addEventListener('click', function (e) {
+    element.addEventListener('click', function (e) {
       e.preventDefault();
-      if (_navTouched) return;
-      var page = this.dataset.page;
-      closeSidebar();
-      navigateTo(page);
+      if (touchUtilise) return;
+      fermerBarreLaterale();
+      allerVers(this.dataset.page);
     });
   });
 
   document.querySelectorAll('[data-page]').forEach(function (el) {
-    if (el.tagName === 'A' && !el.classList.contains('nav-item')) {
-      el.addEventListener('click', function (e) { e.preventDefault(); navigateTo(this.dataset.page); });
+    if (el.tagName === 'A' && !el.classList.contains('element-nav')) {
+      el.addEventListener('click', function (e) { e.preventDefault(); allerVers(this.dataset.page); });
     }
   });
 
-  function navigateTo(page) {
-    document.querySelectorAll('.nav-item').forEach(function (i) { i.classList.remove('active'); });
-    var navItem = document.querySelector('.nav-item[data-page="' + page + '"]');
-    if (navItem) navItem.classList.add('active');
+  function allerVers(page) {
+    document.querySelectorAll('.element-nav').forEach(function (el) { el.classList.remove('actif'); });
+    var elementNav = document.querySelector('.element-nav[data-page="' + page + '"]');
+    if (elementNav) elementNav.classList.add('actif');
 
     document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
-    var pageEl = document.getElementById(page + 'Page');
+    var pageEl = document.getElementById('page-' + page);
     if (pageEl) pageEl.classList.add('active');
 
-    var titleEl = document.getElementById('pageTitle');
-    if (titleEl) titleEl.textContent = pageTitles[page] || page;
+    var titrePage = document.getElementById('titre-page');
+    if (titrePage) titrePage.textContent = titresPages[page] || page;
 
-    if (page === 'overview')  loadOverviewData();
-    if (page === 'messages')  loadMessages();
-    if (page === 'analytics') loadAnalytics();
+    if (page === 'vue-ensemble') chargerDonneesAccueil();
+    if (page === 'messages')     chargerMessages();
+    if (page === 'statistiques') chargerStatistiques();
   }
 
-  /* ================================================================
-     HAMBURGER MOBILE — CORRIGÉ
-  ================================================================ */
-  var menuToggle = document.getElementById('menuToggle');
-  var sidebar    = document.querySelector('.sidebar');
+  var btnMenu         = document.getElementById('btn-menu');
+  var barreLaterale   = document.querySelector('.barre-laterale');
+  var fondOverlay     = document.getElementById('fond-overlay');
 
-  // Overlay pour fermer la sidebar en cliquant dehors
-  var sidebarOverlay = document.getElementById('_sidebar_overlay');
-  if (!sidebarOverlay) {
-    sidebarOverlay = document.createElement('div');
-    sidebarOverlay.id = '_sidebar_overlay';
-    sidebarOverlay.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:98;cursor:pointer;';
-    document.body.appendChild(sidebarOverlay);
+  if (!fondOverlay) {
+    fondOverlay = document.createElement('div');
+    fondOverlay.id = 'fond-overlay';
+    fondOverlay.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:98;cursor:pointer;';
+    document.body.appendChild(fondOverlay);
   }
 
-  function openSidebar() {
-    if (sidebar) sidebar.classList.add('active');
-    sidebarOverlay.style.display = 'block';
-  }
-  function closeSidebar() {
-    if (sidebar) sidebar.classList.remove('active');
-    sidebarOverlay.style.display = 'none';
-  }
+  function ouvrirBarreLaterale()  { if (barreLaterale) barreLaterale.classList.add('ouverte'); fondOverlay.style.display = 'block'; }
+  function fermerBarreLaterale()  { if (barreLaterale) barreLaterale.classList.remove('ouverte'); fondOverlay.style.display = 'none'; }
 
-  var _lastToggle = 0;
-  function handleMenuToggle(e) {
+  var dernierClic = 0;
+  function gererMenuBurger(e) {
     e.preventDefault();
     e.stopPropagation();
-    var now = Date.now();
-    if (now - _lastToggle < 300) return;
-    _lastToggle = now;
-    if (sidebar && sidebar.classList.contains('active')) {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
+    var maintenant = Date.now();
+    if (maintenant - dernierClic < 300) return;
+    dernierClic = maintenant;
+    if (barreLaterale && barreLaterale.classList.contains('ouverte')) { fermerBarreLaterale(); } else { ouvrirBarreLaterale(); }
   }
 
-  if (menuToggle) {
-    // Touch
-    menuToggle.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-    }, { passive: false });
-    menuToggle.addEventListener('touchend', function(e) {
-      handleMenuToggle(e);
-    }, { passive: false });
-    // Click (desktop)
-    menuToggle.addEventListener('click', function(e) {
-      handleMenuToggle(e);
+  if (btnMenu) {
+    btnMenu.addEventListener('touchstart', function (e) { e.preventDefault(); }, { passive: false });
+    btnMenu.addEventListener('touchend',   function (e) { gererMenuBurger(e); }, { passive: false });
+    btnMenu.addEventListener('click',      function (e) { gererMenuBurger(e); });
+  }
+
+  fondOverlay.addEventListener('click', fermerBarreLaterale);
+  fondOverlay.addEventListener('touchend', function (e) { e.preventDefault(); fermerBarreLaterale(); }, { passive: false });
+
+  var btnNotifications = document.getElementById('btn-notifications');
+  if (btnNotifications) {
+    btnNotifications.addEventListener('click', function () {
+      requeteApi('GET', '/api/admin/stats').then(function (res) {
+        if (res.statut !== 200) return;
+        var nonLus = parseInt(res.donnees.stats.unread || 0, 10);
+        afficherNotification(nonLus === 0 ? 'Aucune nouvelle notification' : 'Vous avez ' + nonLus + ' message(s) non lu(s)', 'info');
+      }).catch(function () { afficherNotification('Erreur lors du chargement', 'erreur'); });
     });
   }
 
-  sidebarOverlay.addEventListener('click', closeSidebar);
-  sidebarOverlay.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    closeSidebar();
-  }, { passive: false });
-
-  /* ================================================================
-     CLOCHE NOTIFICATIONS (comme l'ancien)
-  ================================================================ */
-  var notifBtn = document.getElementById('notificationsBtn');
-  if (notifBtn) {
-    notifBtn.addEventListener('click', function () {
-      apiRequest('GET', '/api/admin/stats').then(function (res) {
-        if (res.status !== 200) return;
-        var unread = parseInt(res.data.stats.unread || 0, 10);
-        if (unread === 0) {
-          showNotification('Aucune nouvelle notification', 'info');
-        } else {
-          showNotification('Vous avez ' + unread + ' message(s) non lu(s)', 'info');
-        }
-      }).catch(function () {
-        showNotification('Erreur lors du chargement', 'error');
-      });
-    });
-  }
-
-  /* ================================================================
-     REFRESH
-  ================================================================ */
-  var refreshBtn = document.getElementById('refreshBtn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', function () {
-      var icon = this.querySelector('i');
-      if (icon) icon.classList.add('fa-spin');
-      var active = document.querySelector('.page.active');
-      if (active) {
-        var page = active.id.replace('Page', '');
-        if (page === 'overview')  loadOverviewData();
-        if (page === 'messages')  loadMessages();
-        if (page === 'analytics') loadAnalytics();
+  var btnActualiser = document.getElementById('btn-actualiser');
+  if (btnActualiser) {
+    btnActualiser.addEventListener('click', function () {
+      var icone = this.querySelector('i');
+      if (icone) icone.classList.add('fa-spin');
+      var pageActive = document.querySelector('.page.active');
+      if (pageActive) {
+        var page = pageActive.id.replace('page-', '');
+        if (page === 'vue-ensemble') chargerDonneesAccueil();
+        if (page === 'messages')     chargerMessages();
+        if (page === 'statistiques') chargerStatistiques();
       }
-      showNotification('Données rafraîchies', 'info');
-      setTimeout(function () { if (icon) icon.classList.remove('fa-spin'); }, 1000);
+      afficherNotification('Données rafraîchies', 'info');
+      setTimeout(function () { if (icone) icone.classList.remove('fa-spin'); }, 1000);
     });
   }
 
-  /* ================================================================
-     PASSWORD TOGGLE
-  ================================================================ */
-  document.querySelectorAll('.toggle-password').forEach(function (btn) {
+  document.querySelectorAll('.bouton-voir-mdp').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var input = this.previousElementSibling;
-      if (!input) return;
-      var isPass = input.type === 'password';
-      input.type = isPass ? 'text' : 'password';
-      this.querySelector('i').className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
+      var champ = this.previousElementSibling;
+      if (!champ) return;
+      var estMdp = champ.type === 'password';
+      champ.type = estMdp ? 'text' : 'password';
+      this.querySelector('i').className = estMdp ? 'fas fa-eye-slash' : 'fas fa-eye';
     });
   });
 
-  /* ================================================================
-     VUE D'ENSEMBLE
-  ================================================================ */
-  function loadOverviewData() {
-    var tok = getToken();
-    if (!tok) { console.warn('[overview] Pas de token'); return; }
-    apiRequest('GET', '/api/admin/stats')
+  function chargerDonneesAccueil() {
+    if (!lireToken()) return;
+    requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
-        if (res.status !== 200) {
-          console.error('[overview] Erreur stats:', res.status, res.data);
-          showNotification('Erreur chargement stats: ' + (res.data.error || res.status), 'error');
-          return;
-        }
-        var s = res.data.stats || {};
-        setText('totalMessages',  s.total  || 0);
-        setText('readMessages',   s.read   || 0);
-        setText('unreadMessages', s.unread || 0);
-        setText('todayMessages',  s.today  || 0);
+        if (res.statut !== 200) { afficherNotification('Erreur chargement stats', 'erreur'); return; }
+        var s = res.donnees.stats || {};
+        definirTexte('total-messages',         s.total  || 0);
+        definirTexte('messages-lus',           s.read   || 0);
+        definirTexte('messages-non-lus',       s.unread || 0);
+        definirTexte('messages-aujourd-hui',   s.today  || 0);
 
-        var badge = document.getElementById('messageCount');
-        if (badge) {
-          badge.textContent = (s.unread > 0) ? s.unread : '';
-          badge.style.display = (s.unread > 0) ? 'inline-flex' : 'none';
+        var compteur = document.getElementById('nb-messages');
+        if (compteur) {
+          compteur.textContent   = s.unread > 0 ? s.unread : '';
+          compteur.style.display = s.unread > 0 ? 'inline-flex' : 'none';
         }
-        loadRecentMessages();
+        chargerMessagesRecents();
       })
-      .catch(function (err) {
-        console.error('[overview]', err);
-        showNotification('Erreur réseau: ' + err.message, 'error');
-      });
+      .catch(function (err) { afficherNotification('Erreur réseau: ' + err.message, 'erreur'); });
   }
 
-  function loadRecentMessages() {
-    apiRequest('GET', '/api/admin/messages?limit=5')
+  function chargerMessagesRecents() {
+    requeteApi('GET', '/api/admin/messages?limit=5')
       .then(function (res) {
-        if (res.status !== 200) return;
-        renderRecentMessages(res.data.messages || []);
+        if (res.statut !== 200) return;
+        afficherMessagesRecents(res.donnees.messages || []);
       })
-      .catch(function (err) { console.error('[recentMessages]', err); });
+      .catch(function (err) { console.error(err); });
   }
 
-  function renderRecentMessages(messages) {
-    var container = document.getElementById('recentMessagesList');
-    if (!container) return;
+  function afficherMessagesRecents(messages) {
+    var conteneur = document.getElementById('liste-messages-recents');
+    if (!conteneur) return;
     if (!messages.length) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div>';
+      conteneur.innerHTML = '<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div>';
       return;
     }
-    container.innerHTML = messages.map(function (m) { return renderMessageItem(m, true); }).join('');
-    container.querySelectorAll('.message-item').forEach(function (el) {
-      el.addEventListener('click', function () { openMessage(parseInt(this.dataset.id, 10)); });
+    conteneur.innerHTML = messages.map(function (m) { return construireElementMessage(m, true); }).join('');
+    conteneur.querySelectorAll('.element-message').forEach(function (el) {
+      el.addEventListener('click', function () { ouvrirMessage(parseInt(this.dataset.id, 10)); });
     });
   }
 
-  /* ================================================================
-     PAGE MESSAGES
-  ================================================================ */
-  function loadMessages() {
-    var search = (document.getElementById('searchMessages') || {}).value || '';
-    var filter = (document.getElementById('filterMessages') || {}).value || 'all';
-    var sort   = (document.getElementById('sortMessages')   || {}).value || 'newest';
-    var qs     = '?limit=50' + (filter !== 'all' ? '&filter=' + encodeURIComponent(filter) : '');
+  function chargerMessages() {
+    var recherche = (document.getElementById('recherche-messages') || {}).value || '';
+    var filtre    = (document.getElementById('filtre-messages')    || {}).value || 'all';
+    var tri       = (document.getElementById('tri-messages')       || {}).value || 'newest';
+    var params    = '?limit=50' + (filtre !== 'all' ? '&filter=' + encodeURIComponent(filtre) : '');
 
-    apiRequest('GET', '/api/admin/messages' + qs)
+    requeteApi('GET', '/api/admin/messages' + params)
       .then(function (res) {
-        if (res.status !== 200) return;
-        var messages = res.data.messages || [];
-        if (search) {
-          var q = search.toLowerCase();
+        if (res.statut !== 200) return;
+        var messages = res.donnees.messages || [];
+        if (recherche) {
+          var motCle = recherche.toLowerCase();
           messages = messages.filter(function (m) {
-            return (m.name || '').toLowerCase().indexOf(q) !== -1 ||
-                   (m.email || '').toLowerCase().indexOf(q) !== -1 ||
-                   (m.message || '').toLowerCase().indexOf(q) !== -1;
+            return (m.name    || '').toLowerCase().indexOf(motCle) !== -1 ||
+                   (m.email   || '').toLowerCase().indexOf(motCle) !== -1 ||
+                   (m.message || '').toLowerCase().indexOf(motCle) !== -1;
           });
         }
-        if (sort === 'oldest') messages = messages.slice().reverse();
-        renderMessages(messages);
+        if (tri === 'oldest') messages = messages.slice().reverse();
+        afficherMessages(messages);
       })
-      .catch(function (err) { console.error('[loadMessages]', err); });
+      .catch(function (err) { console.error(err); });
   }
 
-  function renderMessages(messages) {
-    var container = document.getElementById('messagesList');
-    if (!container) return;
+  function afficherMessages(messages) {
+    var conteneur = document.getElementById('liste-messages');
+    if (!conteneur) return;
     if (!messages.length) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Aucun message ne correspond à votre recherche</p></div>';
+      conteneur.innerHTML = '<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Aucun message ne correspond à votre recherche</p></div>';
       return;
     }
-    container.innerHTML = messages.map(function (m) { return renderMessageItem(m, false); }).join('');
-    container.querySelectorAll('.message-item').forEach(function (el) {
+    conteneur.innerHTML = messages.map(function (m) { return construireElementMessage(m, false); }).join('');
+    conteneur.querySelectorAll('.element-message').forEach(function (el) {
       el.addEventListener('click', function (e) {
-        if (e.target.closest('.btn-small')) return;
-        openMessage(parseInt(this.dataset.id, 10));
+        if (e.target.closest('.bouton-petit')) return;
+        ouvrirMessage(parseInt(this.dataset.id, 10));
       });
     });
-    container.querySelectorAll('[data-action="delete"]').forEach(function (btn) {
-      btn.addEventListener('click', function (e) { e.stopPropagation(); deleteMessage(parseInt(this.dataset.id, 10)); });
+    conteneur.querySelectorAll('[data-action="supprimer"]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); supprimerMessage(parseInt(this.dataset.id, 10)); });
     });
-    container.querySelectorAll('[data-action="toggle-read"]').forEach(function (btn) {
-      btn.addEventListener('click', function (e) { e.stopPropagation(); toggleRead(parseInt(this.dataset.id, 10)); });
+    conteneur.querySelectorAll('[data-action="basculer-lu"]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); basculerLu(parseInt(this.dataset.id, 10)); });
     });
   }
 
-  function renderMessageItem(m, preview) {
-    var isUnread = !m.is_read;
-    var date     = formatDate(m.created_at);
-    var text     = (m.message || '').slice(0, 100);
+  function construireElementMessage(m, apercu) {
+    var nonLu = !m.is_read;
+    var date  = formaterDate(m.created_at);
+    var texte = (m.message || '').slice(0, 100);
     return (
-      '<div class="message-item ' + (isUnread ? 'unread' : '') + '" data-id="' + m.id + '">' +
-        '<div class="message-header">' +
-          '<span class="message-sender"><i class="fas fa-user"></i> ' + esc(m.name) +
-            (isUnread ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B35;margin-left:6px"></span>' : '') +
+      '<div class="element-message ' + (nonLu ? 'non-lu' : '') + '" data-id="' + m.id + '">' +
+        '<div class="entete-message">' +
+          '<span class="nom-expediteur"><i class="fas fa-user"></i> ' + echapper(m.name) +
+            (nonLu ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B35;margin-left:6px"></span>' : '') +
           '</span>' +
-          '<span class="message-date"><i class="fas fa-clock"></i> ' + date + '</span>' +
+          '<span class="date-message"><i class="fas fa-clock"></i> ' + date + '</span>' +
         '</div>' +
-        '<div class="message-email"><i class="fas fa-envelope"></i> ' + esc(m.email) + '</div>' +
-        '<div class="message-preview">' + esc(text) + (m.message && m.message.length > 100 ? '…' : '') + '</div>' +
-        (preview ? '' :
-          '<div class="message-actions">' +
-            '<button class="btn-small" data-action="toggle-read" data-id="' + m.id + '">' +
-              '<i class="fas fa-' + (isUnread ? 'envelope-open' : 'envelope') + '"></i> ' + (isUnread ? 'Marquer lu' : 'Marquer non lu') +
+        '<div class="email-expediteur"><i class="fas fa-envelope"></i> ' + echapper(m.email) + '</div>' +
+        '<div class="apercu-texte">' + echapper(texte) + (m.message && m.message.length > 100 ? '…' : '') + '</div>' +
+        (apercu ? '' :
+          '<div class="boutons-message">' +
+            '<button class="bouton-petit" data-action="basculer-lu" data-id="' + m.id + '">' +
+              '<i class="fas fa-' + (nonLu ? 'envelope-open' : 'envelope') + '"></i> ' + (nonLu ? 'Marquer lu' : 'Marquer non lu') +
             '</button>' +
-            '<button class="btn-small danger" data-action="delete" data-id="' + m.id + '">' +
+            '<button class="bouton-petit rouge" data-action="supprimer" data-id="' + m.id + '">' +
               '<i class="fas fa-trash"></i> Supprimer' +
             '</button>' +
           '</div>'
@@ -489,287 +393,257 @@
     );
   }
 
-  /* ================================================================
-     OUVRIR UN MESSAGE
-  ================================================================ */
-  function openMessage(id) {
-    apiRequest('GET', '/api/admin/messages?limit=1000')
+  function ouvrirMessage(id) {
+    requeteApi('GET', '/api/admin/messages?limit=1000')
       .then(function (res) {
-        if (res.status !== 200) return;
-        var msg = (res.data.messages || []).find(function (m) { return m.id === id; });
+        if (res.statut !== 200) return;
+        var msg = (res.donnees.messages || []).find(function (m) { return m.id === id; });
         if (!msg) return;
-        currentMessageId   = id;
-        currentMessageData = msg;
+        idMessageActuel       = id;
+        donneesMessageActuel  = msg;
 
         if (!msg.is_read) {
-          apiRequest('PATCH', '/api/admin/messages/' + id + '/read')
-            .then(function () { loadOverviewData(); loadMessages(); })
+          requeteApi('PATCH', '/api/admin/messages/' + id + '/read')
+            .then(function () { chargerDonneesAccueil(); chargerMessages(); })
             .catch(console.error);
         }
 
-        var body = document.getElementById('modalBody');
-        if (!body) return;
+        var corps = document.getElementById('corps-modale');
+        if (!corps) return;
 
-        body.innerHTML =
-          '<div class="modal-detail">' +
-            field('fas fa-user',     'Nom',     esc(msg.name)) +
-            field('fas fa-envelope', 'Email',   '<a href="mailto:' + esc(msg.email) + '" style="color:#00D9FF">' + esc(msg.email) + '</a>') +
-            (msg.phone ? field('fas fa-phone', 'Tél', '<a href="tel:' + esc(msg.phone) + '" style="color:#00D9FF">' + esc(msg.phone) + '</a>') : '') +
-            field('fas fa-clock',   'Date',    formatDate(msg.created_at)) +
-            field('fas fa-comment', 'Message', '<div style="white-space:pre-wrap;line-height:1.6">' + esc(msg.message) + '</div>') +
-            field('fas fa-circle',  'Statut',  msg.is_read ? '<span style="color:#10B981">Lu</span>' : '<span style="color:#FF6B35">Non lu</span>') +
-            (msg.replied_at ? field('fas fa-reply', 'Répondu le', formatDate(msg.replied_at)) : '') +
+        corps.innerHTML =
+          '<div class="detail-message">' +
+            lignDetail('fas fa-user',     'Nom',     echapper(msg.name)) +
+            lignDetail('fas fa-envelope', 'Email',   '<a href="mailto:' + echapper(msg.email) + '" style="color:#00D9FF">' + echapper(msg.email) + '</a>') +
+            (msg.phone ? lignDetail('fas fa-phone', 'Tél', '<a href="tel:' + echapper(msg.phone) + '" style="color:#00D9FF">' + echapper(msg.phone) + '</a>') : '') +
+            lignDetail('fas fa-clock',   'Date',    formaterDate(msg.created_at)) +
+            lignDetail('fas fa-comment', 'Message', '<div style="white-space:pre-wrap;line-height:1.6">' + echapper(msg.message) + '</div>') +
+            lignDetail('fas fa-circle',  'Statut',  msg.is_read ? '<span style="color:#10B981">Lu</span>' : '<span style="color:#FF6B35">Non lu</span>') +
+            (msg.replied_at ? lignDetail('fas fa-reply', 'Répondu le', formaterDate(msg.replied_at)) : '') +
           '</div>' +
-          '<div id="replySection" style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1.5rem">' +
+          '<div id="section-reponse" style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1.5rem">' +
             '<h4 style="color:#FF6B35;margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:8px">' +
-              '<i class="fas fa-reply"></i> Répondre à ' + esc(msg.name) +
+              '<i class="fas fa-reply"></i> Répondre à ' + echapper(msg.name) +
             '</h4>' +
             '<div style="margin-bottom:0.75rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Destinataire</label>' +
-              '<input id="replyTo" type="email" value="' + esc(msg.email) + '" readonly style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:0.9rem;box-sizing:border-box;cursor:not-allowed">' +
+              '<input id="champ-destinataire" type="email" value="' + echapper(msg.email) + '" readonly style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:0.9rem;box-sizing:border-box;cursor:not-allowed">' +
             '</div>' +
             '<div style="margin-bottom:0.75rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Sujet</label>' +
-              '<input id="replySubject" type="text" value="Re : Message depuis mon portfolio — ' + esc(msg.name) + '" style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none">' +
+              '<input id="champ-sujet" type="text" value="Re : Message depuis mon portfolio — ' + echapper(msg.name) + '" style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none">' +
             '</div>' +
             '<div style="margin-bottom:1rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Votre réponse</label>' +
-              '<textarea id="replyText" rows="9" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none;line-height:1.6">Bonjour ' + esc(msg.name) + ',\n\n\n\nCordialement,\nPhilippe Hountondji\n' + GMAIL_ADDRESS + '\n+229 01 58 15 69 30\n\n🌐 Mon portfolio : ' + PORTFOLIO_URL + '</textarea>' +
+              '<textarea id="champ-reponse" rows="9" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none;line-height:1.6">Bonjour ' + echapper(msg.name) + ',\n\n\n\nCordialement,\nPhilippe Hountondji\n' + emailAdmin + '\n+229 01 58 15 69 30\n\nMon portfolio : ' + urlPortfolio + '</textarea>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">' +
-              '<button id="sendReplyBtn" style="padding:0.75rem 1.75rem;background:linear-gradient(135deg,#FF6B35,#F7931E);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.95rem">' +
+              '<button id="btn-envoyer-reponse" style="padding:0.75rem 1.75rem;background:linear-gradient(135deg,#FF6B35,#F7931E);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.95rem">' +
                 '<i class="fas fa-paper-plane"></i> Envoyer par email' +
               '</button>' +
-              '<span id="replyStatus" style="font-size:0.9rem"></span>' +
+              '<span id="statut-reponse" style="font-size:0.9rem"></span>' +
             '</div>' +
           '</div>';
 
-        document.getElementById('sendReplyBtn').addEventListener('click', function () { sendReply(msg); });
-        document.getElementById('messageModal').classList.add('active');
+        document.getElementById('btn-envoyer-reponse').addEventListener('click', function () { envoyerReponse(msg); });
+        document.getElementById('fenetre-message').classList.add('active');
       })
-      .catch(function (err) { console.error('[openMessage]', err); });
+      .catch(function (err) { console.error(err); });
   }
 
-  /* ================================================================
-     ENVOYER EMAIL
-  ================================================================ */
-  function sendReply(msg) {
-    var to      = (document.getElementById('replyTo')      || {}).value || '';
-    var subject = (document.getElementById('replySubject') || {}).value || '';
-    var message = (document.getElementById('replyText')    || {}).value || '';
-    var btn     = document.getElementById('sendReplyBtn');
-    var status  = document.getElementById('replyStatus');
+  function envoyerReponse(msg) {
+    var destinataire = (document.getElementById('champ-destinataire') || {}).value || '';
+    var sujet        = (document.getElementById('champ-sujet')        || {}).value || '';
+    var reponse      = (document.getElementById('champ-reponse')      || {}).value || '';
+    var bouton       = document.getElementById('btn-envoyer-reponse');
+    var statut       = document.getElementById('statut-reponse');
 
-    if (!message.trim() || message.length < 10) {
-      status.innerHTML = '<span style="color:#EF4444"><i class="fas fa-exclamation-circle"></i> Écrivez un message avant d\'envoyer.</span>';
+    if (!reponse.trim() || reponse.length < 10) {
+      statut.innerHTML = '<span style="color:#EF4444"><i class="fas fa-exclamation-circle"></i> Écrivez un message avant d\'envoyer.</span>';
       return;
     }
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+    bouton.disabled     = true;
+    bouton.style.opacity = '0.6';
+    bouton.innerHTML    = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
 
-    apiRequest('POST', '/api/admin/send-reply', { to: to, subject: subject, message: message, messageId: msg.id })
+    requeteApi('POST', '/api/admin/send-reply', { to: destinataire, subject: sujet, message: reponse, messageId: msg.id })
       .then(function (res) {
-        if (res.status === 200 && res.data.success) {
-          status.innerHTML = '<span style="color:#10B981"><i class="fas fa-check-circle"></i> Email envoyé !</span>';
-          btn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
-          btn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
-          btn.style.opacity = '1';
-          showNotification('Email envoyé à ' + esc(to), 'success');
-          loadOverviewData(); loadMessages();
+        if (res.statut === 200 && res.donnees.success) {
+          statut.innerHTML      = '<span style="color:#10B981"><i class="fas fa-check-circle"></i> Email envoyé !</span>';
+          bouton.innerHTML      = '<i class="fas fa-check"></i> Envoyé !';
+          bouton.style.background  = 'linear-gradient(135deg,#10B981,#059669)';
+          bouton.style.opacity     = '1';
+          afficherNotification('Email envoyé à ' + echapper(destinataire), 'succes');
+          chargerDonneesAccueil(); chargerMessages();
         } else {
-          status.innerHTML = '<span style="color:#EF4444"><i class="fas fa-times-circle"></i> ' + esc(res.data.error || 'Erreur.') + '</span>';
-          btn.disabled = false; btn.style.opacity = '1';
-          btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer par email';
+          statut.innerHTML    = '<span style="color:#EF4444"><i class="fas fa-times-circle"></i> ' + echapper(res.donnees.error || 'Erreur.') + '</span>';
+          bouton.disabled     = false;
+          bouton.style.opacity = '1';
+          bouton.innerHTML    = '<i class="fas fa-paper-plane"></i> Envoyer par email';
         }
       })
       .catch(function () {
-        status.innerHTML = '<span style="color:#EF4444">Erreur réseau.</span>';
-        btn.disabled = false; btn.style.opacity = '1';
-        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer par email';
+        statut.innerHTML    = '<span style="color:#EF4444">Erreur réseau.</span>';
+        bouton.disabled     = false;
+        bouton.style.opacity = '1';
+        bouton.innerHTML    = '<i class="fas fa-paper-plane"></i> Envoyer par email';
       });
   }
 
-  function field(icon, label, value) {
-    return '<div class="modal-field"><label><i class="' + icon + '"></i> ' + label + '</label><div class="value">' + value + '</div></div>';
+  function lignDetail(icone, libelle, valeur) {
+    return '<div class="champ-message"><label><i class="' + icone + '"></i> ' + libelle + '</label><div class="valeur">' + valeur + '</div></div>';
   }
 
-  /* ================================================================
-     MODAL
-  ================================================================ */
-  function closeModal() {
-    var modal = document.getElementById('messageModal');
-    if (modal) modal.classList.remove('active');
-    currentMessageId = null; currentMessageData = null;
+  function fermerModale() {
+    var modale = document.getElementById('fenetre-message');
+    if (modale) modale.classList.remove('active');
+    idMessageActuel = null; donneesMessageActuel = null;
   }
 
-  var closeModalBtn    = document.getElementById('closeModal');
-  var modalCloseBtn    = document.querySelector('.modal-close');
-  var deleteMessageBtn = document.getElementById('deleteMessage');
+  var btnFermerModale1 = document.getElementById('btn-fermer-modale');
+  var btnFermerModale2 = document.querySelector('.bouton-fermer-modale');
+  var btnSupprimerMsg  = document.getElementById('btn-supprimer-message');
 
-  if (closeModalBtn)    closeModalBtn.addEventListener('click', closeModal);
-  if (modalCloseBtn)    modalCloseBtn.addEventListener('click', closeModal);
-  if (deleteMessageBtn) {
-    deleteMessageBtn.addEventListener('click', function () {
-      if (!currentMessageId) return;
-      deleteMessage(currentMessageId, true);
-    });
-  }
-  var modal = document.getElementById('messageModal');
-  if (modal) modal.addEventListener('click', function (e) { if (e.target === this) closeModal(); });
-
-  /* ================================================================
-     CRUD MESSAGES
-  ================================================================ */
-  function toggleRead(id) {
-    apiRequest('PATCH', '/api/admin/messages/' + id + '/read')
-      .then(function () {
-        showNotification('Statut mis à jour', 'success');
-        loadMessages(); loadOverviewData();
-      }).catch(console.error);
-  }
-
-  function deleteMessage(id, closeAfter) {
-    confirmModal('Supprimer ce message définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function() {
-      apiRequest('DELETE', '/api/admin/messages/' + id)
-      .then(function () {
-        showNotification('Message supprimé', 'success');
-        if (closeAfter) closeModal();
-        loadMessages(); loadOverviewData();
-      }).catch(console.error);
+  if (btnFermerModale1) btnFermerModale1.addEventListener('click', fermerModale);
+  if (btnFermerModale2) btnFermerModale2.addEventListener('click', fermerModale);
+  if (btnSupprimerMsg) {
+    btnSupprimerMsg.addEventListener('click', function () {
+      if (!idMessageActuel) return;
+      supprimerMessage(idMessageActuel, true);
     });
   }
 
-  /* ================================================================
-     RECHERCHE / FILTRE / TRI
-  ================================================================ */
-  var searchInput  = document.getElementById('searchMessages');
-  var filterSelect = document.getElementById('filterMessages');
-  var sortSelect   = document.getElementById('sortMessages');
+  var fenetre = document.getElementById('fenetre-message');
+  if (fenetre) fenetre.addEventListener('click', function (e) { if (e.target === this) fermerModale(); });
 
-  if (searchInput)  searchInput.addEventListener('input', function () { clearTimeout(searchTimeout); searchTimeout = setTimeout(loadMessages, 300); });
-  if (filterSelect) filterSelect.addEventListener('change', loadMessages);
-  if (sortSelect)   sortSelect.addEventListener('change', loadMessages);
+  function basculerLu(id) {
+    requeteApi('PATCH', '/api/admin/messages/' + id + '/read')
+      .then(function () { afficherNotification('Statut mis à jour', 'succes'); chargerMessages(); chargerDonneesAccueil(); })
+      .catch(console.error);
+  }
 
-  /* ================================================================
-     ACTIONS RAPIDES
-  ================================================================ */
-  document.querySelectorAll('.action-card[data-action]').forEach(function (btn) {
+  function supprimerMessage(id, fermerApres) {
+    confirmerAction('Supprimer ce message définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
+      requeteApi('DELETE', '/api/admin/messages/' + id)
+        .then(function () {
+          afficherNotification('Message supprimé', 'succes');
+          if (fermerApres) fermerModale();
+          chargerMessages(); chargerDonneesAccueil();
+        }).catch(console.error);
+    });
+  }
+
+  var champRecherche = document.getElementById('recherche-messages');
+  var selectFiltre   = document.getElementById('filtre-messages');
+  var selectTri      = document.getElementById('tri-messages');
+
+  if (champRecherche) champRecherche.addEventListener('input', function () { clearTimeout(timerRecherche); timerRecherche = setTimeout(chargerMessages, 300); });
+  if (selectFiltre)   selectFiltre.addEventListener('change', chargerMessages);
+  if (selectTri)      selectTri.addEventListener('change', chargerMessages);
+
+  document.querySelectorAll('.carte-action[data-action]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var action = this.dataset.action;
-      if (action === 'export')          exportMessages();
-      if (action === 'mark-all-read')   markAllRead();
-      if (action === 'delete-all-read') deleteAllRead();
+      if (action === 'exporter')          exporterMessages();
+      if (action === 'tout-marquer-lu')   toutMarquerLu();
+      if (action === 'supprimer-lus')     supprimerLus();
     });
   });
 
-  function markAllRead() {
+  function toutMarquerLu() {
     if (!confirm('Marquer tous les messages comme lus ?')) return;
-    apiRequest('PATCH', '/api/admin/messages/read-all')
-      .then(function () { showNotification('Tous les messages marqués comme lus', 'success'); loadOverviewData(); loadMessages(); })
+    requeteApi('PATCH', '/api/admin/messages/read-all')
+      .then(function () { afficherNotification('Tous les messages marqués comme lus', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
       .catch(console.error);
   }
-  function deleteAllRead() {
+
+  function supprimerLus() {
     if (!confirm('Supprimer tous les messages lus ?\n\nIrréversible.')) return;
-    apiRequest('DELETE', '/api/admin/messages?type=read')
-      .then(function () { showNotification('Messages lus supprimés', 'success'); loadOverviewData(); loadMessages(); })
+    requeteApi('DELETE', '/api/admin/messages?type=read')
+      .then(function () { afficherNotification('Messages lus supprimés', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
       .catch(console.error);
   }
-  function exportMessages() {
-    apiRequest('GET', '/api/admin/messages?limit=1000')
+
+  function exporterMessages() {
+    requeteApi('GET', '/api/admin/messages?limit=1000')
       .then(function (res) {
-        if (res.status !== 200) return;
-        var messages = res.data.messages || [];
-        if (!messages.length) { showNotification('Aucun message à exporter.', 'info'); return; }
+        if (res.statut !== 200) return;
+        var messages = res.donnees.messages || [];
+        if (!messages.length) { afficherNotification('Aucun message à exporter.', 'info'); return; }
         var csv = 'ID,Nom,Email,Téléphone,Message,Lu,Date\n';
         messages.forEach(function (m) {
-          csv += [m.id, csvCell(m.name), csvCell(m.email), csvCell(m.phone || ''), csvCell(m.message), m.is_read ? 'Oui' : 'Non', m.created_at].join(',') + '\n';
+          csv += [m.id, celluleCsv(m.name), celluleCsv(m.email), celluleCsv(m.phone || ''), celluleCsv(m.message), m.is_read ? 'Oui' : 'Non', m.created_at].join(',') + '\n';
         });
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         var url  = URL.createObjectURL(blob);
-        var a    = document.createElement('a');
-        a.href = url;
-        a.download = 'messages_' + new Date().toISOString().slice(0, 10) + '.csv';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        var lien = document.createElement('a');
+        lien.href     = url;
+        lien.download = 'messages_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(lien); lien.click(); document.body.removeChild(lien);
         URL.revokeObjectURL(url);
-        showNotification('Données exportées', 'success');
+        afficherNotification('Données exportées', 'succes');
       }).catch(console.error);
   }
-  function csvCell(val) { return '"' + String(val || '').replace(/"/g, '""') + '"'; }
 
-  /* ================================================================
-     STATISTIQUES — comme l'ancien (graphiques automatiques)
-  ================================================================ */
-  function loadAnalytics() {
-    var tok = getToken();
-    if (!tok) { showNotification('Session expirée, reconnectez-vous', 'error'); return; }
-    apiRequest('GET', '/api/admin/stats')
+  function celluleCsv(val) { return '"' + String(val || '').replace(/"/g, '""') + '"'; }
+
+  function chargerStatistiques() {
+    if (!lireToken()) { afficherNotification('Session expirée, reconnectez-vous', 'erreur'); return; }
+    requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
-        if (res.status !== 200) { 
-          console.error('[analytics] Erreur:', res.status, res.data);
-          showNotification('Erreur stats: ' + (res.data.error || res.status), 'error'); 
-          return; 
-        }
-        var s = res.data.stats || {};
-
-        // Infos détaillées
-        var daily = s.daily || [];
-        if (daily.length > 0) {
-          setText('firstMessageDate', formatDate(daily[0].date));
-          setText('lastMessageDate',  formatDate(daily[daily.length - 1].date));
-          var totalWeek = daily.reduce(function (acc, d) { return acc + parseInt(d.count || 0, 10); }, 0);
-          setText('avgMessagesPerDay', (totalWeek / daily.length).toFixed(1) + ' messages/jour');
+        if (res.statut !== 200) { afficherNotification('Erreur stats', 'erreur'); return; }
+        var s      = res.donnees.stats || {};
+        var parJour = s.daily || [];
+        if (parJour.length > 0) {
+          definirTexte('date-premier-message', formaterDate(parJour[0].date));
+          definirTexte('date-dernier-message',  formaterDate(parJour[parJour.length - 1].date));
+          var totalSemaine = parJour.reduce(function (acc, d) { return acc + parseInt(d.count || 0, 10); }, 0);
+          definirTexte('moyenne-par-jour', (totalSemaine / parJour.length).toFixed(1) + ' messages/jour');
         } else {
-          setText('firstMessageDate', s.total > 0 ? '-' : 'Aucun message');
-          setText('lastMessageDate',  s.total > 0 ? '-' : 'Aucun message');
-          setText('avgMessagesPerDay', '0 messages/jour');
+          definirTexte('date-premier-message', s.total > 0 ? '-' : 'Aucun message');
+          definirTexte('date-dernier-message',  s.total > 0 ? '-' : 'Aucun message');
+          definirTexte('moyenne-par-jour', '0 messages/jour');
         }
-
-        renderCharts(s);
+        construireGraphiques(s);
       })
-      .catch(function (err) { console.error('[analytics]', err); showNotification('Erreur réseau', 'error'); });
+      .catch(function () { afficherNotification('Erreur réseau', 'erreur'); });
   }
 
-  function renderCharts(s) {
-    var daily  = s.daily || [];
-    var labels = [];
-    var counts = [];
+  function construireGraphiques(s) {
+    var parJour  = s.daily || [];
+    var etiquettes = [];
+    var valeurs    = [];
 
-    // Génère les 7 derniers jours comme l'ancien
     for (var i = 6; i >= 0; i--) {
-      var d = new Date();
-      d.setDate(d.getDate() - i);
-      labels.push(d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
-      var dateStr = d.toDateString();
-      var found = daily.find(function (x) { return new Date(x.date).toDateString() === dateStr; });
-      counts.push(found ? parseInt(found.count || 0, 10) : 0);
+      var jour = new Date();
+      jour.setDate(jour.getDate() - i);
+      etiquettes.push(jour.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+      var jourStr = jour.toDateString();
+      var trouve  = parJour.find(function (x) { return new Date(x.date).toDateString() === jourStr; });
+      valeurs.push(trouve ? parseInt(trouve.count || 0, 10) : 0);
     }
 
-    /* Graphique ligne */
-    var ctx1 = document.getElementById('messagesChart');
-    if (ctx1) {
-      if (messagesChart) { messagesChart.destroy(); messagesChart = null; }
+    var canvas1 = document.getElementById('graphique-messages');
+    if (canvas1) {
+      if (graphiqueMessages) { graphiqueMessages.destroy(); graphiqueMessages = null; }
       try {
-        messagesChart = new Chart(ctx1, {
+        graphiqueMessages = new Chart(canvas1, {
           type: 'line',
           data: {
-            labels: labels,
+            labels: etiquettes,
             datasets: [{
               label: 'Messages reçus',
-              data: counts,
+              data: valeurs,
               borderColor: '#FF6B35',
               backgroundColor: 'rgba(255,107,53,0.1)',
-              tension: 0.4,
-              fill: true,
+              tension: 0.4, fill: true,
               pointBackgroundColor: '#FF6B35',
               pointBorderColor: '#fff',
-              pointRadius: 5,
-              pointHoverRadius: 7
+              pointRadius: 5, pointHoverRadius: 7
             }]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             plugins: { legend: { labels: { color: '#B4B8D4' } } },
             scales: {
               y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } },
@@ -777,146 +651,112 @@
             }
           }
         });
-      } catch (e) { console.error('[Chart line]', e); }
+      } catch (e) { console.error(e); }
     }
 
-    /* Graphique donut */
-    var ctx2       = document.getElementById('statusChart');
-    var readCount  = parseInt(s.read   || 0, 10);
-    var unreadCount = parseInt(s.unread || 0, 10);
-    if (ctx2) {
-      if (statusChart) { statusChart.destroy(); statusChart = null; }
+    var canvas2    = document.getElementById('graphique-statuts');
+    var nbLus      = parseInt(s.read   || 0, 10);
+    var nbNonLus   = parseInt(s.unread || 0, 10);
+    if (canvas2) {
+      if (graphiqueStatuts) { graphiqueStatuts.destroy(); graphiqueStatuts = null; }
       try {
-        statusChart = new Chart(ctx2, {
+        graphiqueStatuts = new Chart(canvas2, {
           type: 'doughnut',
           data: {
             labels: ['Lus', 'Non lus'],
-            datasets: [{
-              data: [readCount, unreadCount],
-              backgroundColor: ['#10B981', '#FF6B35'],
-              borderWidth: 0
-            }]
+            datasets: [{ data: [nbLus, nbNonLus], backgroundColor: ['#10B981', '#FF6B35'], borderWidth: 0 }]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             plugins: { legend: { labels: { color: '#B4B8D4' } } },
             cutout: '60%'
           }
         });
-      } catch (e) { console.error('[Chart donut]', e); }
+      } catch (e) { console.error(e); }
     }
   }
 
-  /* ================================================================
-     PARAMÈTRES
-  ================================================================ */
-  var changePasswordForm = document.getElementById('changePasswordForm');
-  if (changePasswordForm) {
-    changePasswordForm.addEventListener('submit', function (e) {
+  var formulaireMdp = document.getElementById('formulaire-mdp');
+  if (formulaireMdp) {
+    formulaireMdp.addEventListener('submit', function (e) {
       e.preventDefault();
-      var current = document.getElementById('currentPassword').value;
-      var next    = document.getElementById('newPassword').value;
-      var confirm = document.getElementById('confirmPassword').value;
-      var msgEl   = document.getElementById('passwordMsg');
+      var actuel    = document.getElementById('mdp-actuel').value;
+      var nouveau   = document.getElementById('nouveau-mdp').value;
+      var confirmer = document.getElementById('confirmer-mdp').value;
+      var msgEl     = document.getElementById('message-mdp');
 
-      if (next !== confirm) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
-      if (next.length < 12) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Mot de passe trop court (12 caractères min).'; return; }
+      if (nouveau !== confirmer) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+      if (nouveau.length < 12)  { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Mot de passe trop court (12 caractères min).'; return; }
 
-      apiRequest('POST', '/api/admin/change-password', { current: current, next: next })
+      requeteApi('POST', '/api/admin/change-password', { current: actuel, next: nouveau })
         .then(function (res) {
-          if (res.status === 200) {
+          if (res.statut === 200) {
             msgEl.style.color = '#10B981';
             msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.';
-            changePasswordForm.reset();
-            setTimeout(logout, 2000);
+            formulaireMdp.reset();
+            setTimeout(deconnecter, 2000);
           } else {
             msgEl.style.color = '#EF4444';
-            msgEl.textContent = res.data.error || 'Erreur.';
+            msgEl.textContent = res.donnees.error || 'Erreur.';
           }
         }).catch(function () { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Erreur réseau.'; });
     });
   }
 
-  var deleteAllBtn = document.getElementById('deleteAllMessages');
-  if (deleteAllBtn) {
-    deleteAllBtn.addEventListener('click', function () {
+  var btnSupprimerTout = document.getElementById('btn-supprimer-tout');
+  if (btnSupprimerTout) {
+    btnSupprimerTout.addEventListener('click', function () {
       if (!confirm('Supprimer TOUS les messages ?\n\nIrréversible.')) return;
       if (!confirm('Êtes-vous absolument sûr ?')) return;
-      apiRequest('DELETE', '/api/admin/messages?type=all')
-        .then(function () { showNotification('Tous les messages supprimés', 'success'); loadOverviewData(); loadMessages(); })
+      requeteApi('DELETE', '/api/admin/messages?type=all')
+        .then(function () { afficherNotification('Tous les messages supprimés', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
         .catch(console.error);
     });
   }
 
-  /* ================================================================
-     UTILITAIRES
-  ================================================================ */
-  function setText(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+  function definirTexte(id, valeur) { var el = document.getElementById(id); if (el) el.textContent = valeur; }
 
-  function esc(str) {
-    var d = document.createElement('div');
-    d.textContent = String(str || '');
-    return d.innerHTML;
+  function echapper(str) {
+    var div = document.createElement('div');
+    div.textContent = String(str || '');
+    return div.innerHTML;
   }
 
-  function formatDate(dateStr) {
+  function formaterDate(dateStr) {
     if (!dateStr) return '-';
-    var d = new Date(dateStr);
+    var d    = new Date(dateStr);
     if (isNaN(d.getTime())) return String(dateStr);
-    var now = new Date();
-    var diff = now - d;
-    if (diff < 60000)    return 'À l\'instant';
-    if (diff < 3600000)  return 'Il y a ' + Math.floor(diff / 60000) + ' min';
-    if (diff < 86400000) return 'Il y a ' + Math.floor(diff / 3600000) + 'h';
+    var maintenant = new Date();
+    var diff       = maintenant - d;
+    if (diff < 60000)     return 'À l\'instant';
+    if (diff < 3600000)   return 'Il y a ' + Math.floor(diff / 60000) + ' min';
+    if (diff < 86400000)  return 'Il y a ' + Math.floor(diff / 3600000) + 'h';
     if (diff < 604800000) return 'Il y a ' + Math.floor(diff / 86400000) + ' jour(s)';
     return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  function updateMessageCount() {
-    apiRequest('GET', '/api/admin/stats')
+  function actualiserCompteur() {
+    requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
-        if (res.status !== 200) return;
-        var count = parseInt(res.data.stats.unread || 0, 10);
-        var badge = document.getElementById('messageCount');
-        if (badge) {
-          badge.textContent   = count > 0 ? count : '';
-          badge.style.display = count > 0 ? 'inline-flex' : 'none';
-        }
+        if (res.statut !== 200) return;
+        var nb       = parseInt(res.donnees.stats.unread || 0, 10);
+        var compteur = document.getElementById('nb-messages');
+        if (compteur) { compteur.textContent = nb > 0 ? nb : ''; compteur.style.display = nb > 0 ? 'inline-flex' : 'none'; }
       }).catch(console.error);
   }
 
-  /* ================================================================
-     STYLES NOTIFICATIONS
-  ================================================================ */
-  if (!document.getElementById('_notif_styles')) {
-    var s = document.createElement('style');
-    s.id = '_notif_styles';
-    s.textContent =
-      '.notification{position:fixed;top:-100px;right:20px;background:rgba(10,14,39,.97);color:#fff;padding:1rem 1.5rem;border-radius:12px;' +
-      'box-shadow:0 8px 32px rgba(0,0,0,.5);display:flex;align-items:center;gap:.75rem;z-index:10000;' +
-      'min-width:280px;max-width:450px;transition:transform .3s cubic-bezier(.4,0,.2,1);border:1px solid rgba(255,255,255,.1);}' +
-      '.notification.show{transform:translateY(120px);}' +
-      '.notification-success{border-left:4px solid #10B981;}' +
-      '.notification-error{border-left:4px solid #EF4444;}' +
-      '.notification-info{border-left:4px solid #00D9FF;}' +
-      '.notification i{font-size:1.25rem;}' +
-      '.notification-success i{color:#10B981;}' +
-      '.notification-error i{color:#EF4444;}' +
-      '.notification-info i{color:#00D9FF;}' +
-      '.notification span{flex:1;font-weight:500;}' +
-      '@media(max-width:768px){.notification{right:10px;left:10px;min-width:auto;}}';
-    document.head.appendChild(s);
+  if (!document.getElementById('styles-notif')) {
+    var feuille = document.createElement('style');
+    feuille.id = 'styles-notif';
+    feuille.textContent = '.notif-flottante{position:fixed;top:-100px;right:20px;background:rgba(10,14,39,.97);color:#fff;padding:1rem 1.5rem;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:flex;align-items:center;gap:.75rem;z-index:10000;min-width:280px;max-width:450px;transition:transform .3s cubic-bezier(.4,0,.2,1);border:1px solid rgba(255,255,255,.1)}.notif-flottante.visible{transform:translateY(120px)}.notif-succes{border-left:4px solid #10B981}.notif-erreur{border-left:4px solid #EF4444}.notif-info{border-left:4px solid #00D9FF}.notif-flottante i{font-size:1.25rem}.notif-succes i{color:#10B981}.notif-erreur i{color:#EF4444}.notif-info i{color:#00D9FF}.notif-flottante span{flex:1;font-weight:500}@media(max-width:768px){.notif-flottante{right:10px;left:10px;min-width:auto}}';
+    document.head.appendChild(feuille);
   }
 
-  /* ================================================================
-     MODAL CONFIRMATION PERSONNALISÉ
-  ================================================================ */
-  function confirmModal(message, onConfirm) {
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,14,39,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;';
-    overlay.innerHTML =
-      '<div style="background:#16192F;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.6);animation:slideUp 0.2s ease;">' +
+  function confirmerAction(message, auConfirmer) {
+    var fond = document.createElement('div');
+    fond.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,14,39,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;';
+    fond.innerHTML =
+      '<div style="background:#16192F;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.6);">' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;">' +
           '<div style="width:44px;height:44px;background:rgba(239,68,68,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
             '<i class="fas fa-exclamation-triangle" style="color:#EF4444;font-size:1.25rem;"></i>' +
@@ -925,23 +765,17 @@
         '</div>' +
         '<p style="color:#B4B8D4;margin:0 0 1.75rem 0;line-height:1.6;font-size:0.95rem;">' + message + '</p>' +
         '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
-          '<button id="_conf_cancel" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#B4B8D4;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">Annuler</button>' +
-          '<button id="_conf_ok" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#EF4444,#DC2626);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;box-shadow:0 4px 12px rgba(239,68,68,0.3);">Supprimer</button>' +
+          '<button id="btn-annuler-confirm" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#B4B8D4;font-weight:600;cursor:pointer;font-size:0.9rem;">Annuler</button>' +
+          '<button id="btn-ok-confirm"     style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#EF4444,#DC2626);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">Supprimer</button>' +
         '</div>' +
       '</div>';
-    document.body.appendChild(overlay);
-    overlay.querySelector('#_conf_cancel').addEventListener('click', function() { document.body.removeChild(overlay); });
-    overlay.querySelector('#_conf_ok').addEventListener('click', function() { document.body.removeChild(overlay); onConfirm(); });
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+    document.body.appendChild(fond);
+    fond.querySelector('#btn-annuler-confirm').addEventListener('click', function () { document.body.removeChild(fond); });
+    fond.querySelector('#btn-ok-confirm').addEventListener('click',     function () { document.body.removeChild(fond); auConfirmer(); });
+    fond.addEventListener('click', function (e) { if (e.target === fond) document.body.removeChild(fond); });
   }
 
-  /* ================================================================
-     INIT
-  ================================================================ */
-  // Forcer sidebar fermée au démarrage sur mobile
-  if (window.innerWidth <= 992) {
-    closeSidebar();
-  }
-  checkAuth();
+  if (window.innerWidth <= 992) { fermerBarreLaterale(); }
+  verifierSession();
 
 })();
