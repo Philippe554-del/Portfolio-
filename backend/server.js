@@ -74,8 +74,6 @@ app.use(helmet({
     : false,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   crossOriginEmbedderPolicy: false,
-  // ✅ CORRECTION : 'same-origin' bloquait les ressources sur Android Chrome mobile
-  // 'cross-origin' permet aux ressources d'être chargées normalement
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   noSniff: true,
   frameguard: { action: 'deny' },
@@ -84,7 +82,18 @@ app.use(helmet({
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const originesParDefaut = [
+  'https://philippe554-del.github.io',
+  'https://hountondji-philippe.github.io',
+  'http://localhost:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:3000',
+];
+
+const originesEnv = (process.env.ALLOWED_ORIGINS || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+const allowedOrigins = originesParDefaut.concat(originesEnv);
+
 app.use(cors({
   origin: function (origin, cb) {
     if (!origin) return cb(null, true);
