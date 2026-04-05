@@ -19,8 +19,8 @@
     "googleapis": "^171.4.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.10.1",
     "nodemailer": "^6.10.1",
+    "pg": "^8.20.0",
     "resend": "^6.9.3",
     "validator": "^13.12.0"
   },
