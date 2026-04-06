@@ -434,20 +434,20 @@
   /* ══════════════════════════════════════════════════════════════
      DONNÉES STATIQUES (portfolio HTML)
   ══════════════════════════════════════════════════════════════ */
-  const PS = [ // Projets statiques
+  const PS = [
     { id:'ps1', titre:'Plateforme VBG', description:'Plateforme 100% anonyme et sécurisée permettant aux femmes de partager des témoignages sur les violences basées sur le genre.', technologies:'HTML/CSS, Node.js', lien_site:'https://vbg-production.up.railway.app', lien_github:'https://github.com/Philippe554-del', etiquette:'Social', statut:'termine', isS:true },
     { id:'ps2', titre:'Mon Portfolio', description:'Portfolio professionnel interactif avec animations, formulaire de contact sécurisé, design responsive et SEO optimisé.', technologies:'HTML/CSS, JavaScript', lien_site:'https://philippe554-del.github.io/Portfolio-/', lien_github:'https://github.com/Philippe554-del/Portfolio-', etiquette:'Portfolio', statut:'termine', isS:true },
     { id:'ps3', titre:'Dashboard Administratif', description:'Plateforme de gestion complète avec visualisation de données en temps réel, authentification et tableau de bord responsive.', technologies:'React, Node.js, MongoDB', etiquette:'En cours', statut:'en-cours', isS:true },
     { id:'ps4', titre:'Simulation Réseau Entreprise', description:'Modélisation complète d\'un réseau d\'entreprise avec routeurs, switches, VLANs et politiques de sécurité avancées.', technologies:'Cisco, Sécurité, Topologie', etiquette:'En cours', statut:'en-cours', isS:true },
     { id:'ps5', titre:'Système de Gestion API', description:'API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.', technologies:'Python, FastAPI, PostgreSQL', etiquette:'En cours', statut:'en-cours', isS:true }
   ];
-  const ES = [ // Expériences statiques
+  const ES = [
     { id:'es1', titre:'Stage de Licence 2', type_exp:'Stage académique — L2', entreprise:'En recherche active', lieu:'Bénin', date_debut:'2025', date_fin:'En cours', description:'Recherche active d\'un stage en développement web ou administration réseau.', tags:'Développement Web, Administration Réseau, Support IT', statut:'recherche', isS:true },
     { id:'es2', titre:'Stage de Licence 3', type_exp:'Stage académique — L3', entreprise:'À définir', lieu:'Bénin', date_debut:'2026', date_fin:'Prévu', description:'Stage prévu en troisième année de licence.', tags:'Full-Stack, Réseaux, Gestion de projet', statut:'prevu', isS:true },
     { id:'es3', titre:'Stage Professionnel', type_exp:'Stage de fin d\'études', entreprise:'À définir', lieu:'Bénin / International', date_debut:'2027', date_fin:'Prévu', description:'Stage professionnel de fin d\'études.', tags:'Professionnel, Fin d\'études, Emploi', statut:'prevu', isS:true },
     { id:'es4', titre:'Développeur Web — Projets Personnels', type_exp:'Projet personnel', entreprise:'Indépendant', lieu:'Porto-Novo, Bénin', date_debut:'2022', date_fin:'Présent', description:'Développement de plusieurs applications web en autonomie, dont une plateforme VBG déployée sur Railway.', tags:'HTML/CSS, JavaScript, Node.js, Déploiement', statut:'en-cours', isS:true }
   ];
-  const CS = [ // Compétences statiques
+  const CS = [
     { id:'cs1', categorie:'Développement Web', icone:'fas fa-code', couleur:'linear-gradient(135deg,#667eea,#764ba2)', niveau:75, label_niveau:'Avancé — 75%', items:'fab fa-python | Python\nfab fa-html5 | HTML5\nfab fa-css3-alt | CSS3\nfab fa-js | JavaScript\nfab fa-node-js | Node.js\nfas fa-database | Bases de données', isS:true },
     { id:'cs2', categorie:'Réseaux & Infrastructure', icone:'fas fa-network-wired', couleur:'linear-gradient(135deg,#f093fb,#f5576c)', niveau:60, label_niveau:'Intermédiaire — 60%', items:'fas fa-wifi | Configuration réseaux\nfas fa-server | Gestion de serveurs\nfas fa-shield-alt | Sécurité réseau\nfas fa-chart-line | Supervision\nfas fa-cloud | Cloud', isS:true },
     { id:'cs3', categorie:'Maintenance & Support', icone:'fas fa-laptop-medical', couleur:'linear-gradient(135deg,#4facfe,#00f2fe)', niveau:80, label_niveau:'Avancé — 80%', items:'fas fa-search | Diagnostic hardware/software\nfas fa-cogs | Installation systèmes\nfas fa-tools | Maintenance préventive\nfas fa-headset | Support utilisateurs\nfas fa-bolt | Optimisation performance', isS:true }
@@ -457,7 +457,6 @@
      PROJETS
   ══════════════════════════════════════════════════════════════ */
   async function chargerProjets() {
-    // Injecter upload photo
     if (!document.getElementById('upload-projet-img')) {
       const el = document.getElementById('projet-image');
       if (el) {
@@ -508,16 +507,14 @@
       '<div class="element-liste-info">' +
         '<div class="element-liste-titre">' + escHtml(p.titre) +
           '<span class="badge-element '+(bl[p.statut]||'')+'">'+( tl[p.statut]||p.statut)+'</span>' +
-          (p.isS ? badgeHTML('<span style="background:rgba(99,102,241,.15);color:#818CF8">Portfolio HTML</span>') : badgeHTML('<span style="background:rgba(16,185,129,.15);color:#10B981">Base de données</span>')) +
+          (p.isS ? '<span style="background:rgba(99,102,241,.15);color:#818CF8;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Portfolio HTML</span>' : '<span style="background:rgba(16,185,129,.15);color:#10B981;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Base de données</span>') +
         '</div>' +
         '<div class="element-liste-meta">'+escHtml((p.description||'').slice(0,100))+((p.description||'').length>100?'…':'')+'</div>' +
         (tags?'<div class="element-liste-tags">'+tags+'</div>':'') + lien +
       '</div>' +
       '<div style="display:flex;gap:6px;flex-shrink:0">' +
-        (!p.isS ? '<button class="bouton-modifier-element" data-id="'+p.id+'" data-type="projet"><i class="fas fa-edit"></i> Modifier</button>' : '') +
-        '<button class="bouton-supprimer-element" data-id="'+p.id+'" data-statique="'+(p.isS?1:0)+'" data-type="projet">' +
-          '<i class="fas fa-'+(p.isS?'info-circle':'trash')+'"></i> '+(p.isS?'Info':'Supprimer') +
-        '</button>' +
+        '<button class="bouton-modifier-element" data-id="'+p.id+'" data-type="projet" data-statique="'+(p.isS?'1':'0')+'"><i class="fas fa-edit"></i> Modifier</button>' +
+        (!p.isS ? '<button class="bouton-supprimer-element" data-id="'+p.id+'" data-statique="0" data-type="projet"><i class="fas fa-trash"></i> Supprimer</button>' : '') +
       '</div>' +
     '</div>';
   }
@@ -563,16 +560,14 @@
       '<div class="element-liste-info">' +
         '<div class="element-liste-titre">'+escHtml(exp.titre)+
           '<span class="badge-element '+(bl[exp.statut]||'')+'">'+(tl[exp.statut]||exp.statut)+'</span>'+
-          (exp.isS?badgeHTML('<span style="background:rgba(99,102,241,.15);color:#818CF8">Portfolio HTML</span>'):badgeHTML('<span style="background:rgba(16,185,129,.15);color:#10B981">Base de données</span>'))+
+          (exp.isS?'<span style="background:rgba(99,102,241,.15);color:#818CF8;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Portfolio HTML</span>':'<span style="background:rgba(16,185,129,.15);color:#10B981;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Base de données</span>')+
         '</div>'+
         '<div class="element-liste-meta">'+escHtml(exp.entreprise||'')+(exp.lieu?' · '+escHtml(exp.lieu):'')+(exp.date_debut?' · '+escHtml(exp.date_debut):'')+(exp.date_fin?' → '+escHtml(exp.date_fin):'')+'</div>'+
         (tags?'<div class="element-liste-tags">'+tags+'</div>':'')+
       '</div>'+
       '<div style="display:flex;gap:6px;flex-shrink:0">'+
-        (!exp.isS?'<button class="bouton-modifier-element" data-id="'+exp.id+'" data-type="experience"><i class="fas fa-edit"></i> Modifier</button>':'')+
-        '<button class="bouton-supprimer-element" data-id="'+exp.id+'" data-statique="'+(exp.isS?1:0)+'" data-type="experience">'+
-          '<i class="fas fa-'+(exp.isS?'info-circle':'trash')+'"></i> '+(exp.isS?'Info':'Supprimer')+
-        '</button>'+
+        '<button class="bouton-modifier-element" data-id="'+exp.id+'" data-type="experience" data-statique="'+(exp.isS?'1':'0')+'"><i class="fas fa-edit"></i> Modifier</button>'+
+        (!exp.isS?'<button class="bouton-supprimer-element" data-id="'+exp.id+'" data-statique="0" data-type="experience"><i class="fas fa-trash"></i> Supprimer</button>':'')+
       '</div>'+
     '</div>';
   }
@@ -617,22 +612,20 @@
           '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:'+escHtml(c.couleur||'#FF6B35')+';flex-shrink:0">'+
             '<i class="'+escHtml(c.icone||'fas fa-code')+'" style="color:white;font-size:.85rem"></i></span> '+
           escHtml(c.categorie)+
-          (c.isS?badgeHTML('<span style="background:rgba(99,102,241,.15);color:#818CF8">Portfolio HTML</span>'):badgeHTML('<span style="background:rgba(16,185,129,.15);color:#10B981">Base de données</span>'))+
+          (c.isS?'<span style="background:rgba(99,102,241,.15);color:#818CF8;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Portfolio HTML</span>':'<span style="background:rgba(16,185,129,.15);color:#10B981;font-size:.72rem;padding:2px 8px;border-radius:9999px;font-weight:600">Base de données</span>')+
         '</div>'+
         '<div class="barre-niveau-mini"><div class="barre-fond"><div class="barre-rempli" style="width:'+(c.niveau||0)+'%"></div></div><span>'+escHtml(c.label_niveau||c.niveau+'%')+'</span></div>'+
         (c.items?'<div class="element-liste-tags">'+c.items.split('\n').slice(0,4).map(function(l){const p=l.split('|');return '<span class="tag-petit">'+escHtml((p[1]||l).trim())+'</span>';}).join('')+'</div>':'')+
       '</div>'+
       '<div style="display:flex;gap:6px;flex-shrink:0">'+
-        (!c.isS?'<button class="bouton-modifier-element" data-id="'+c.id+'" data-type="competence"><i class="fas fa-edit"></i> Modifier</button>':'')+
-        '<button class="bouton-supprimer-element" data-id="'+c.id+'" data-statique="'+(c.isS?1:0)+'" data-type="competence">'+
-          '<i class="fas fa-'+(c.isS?'info-circle':'trash')+'"></i> '+(c.isS?'Info':'Supprimer')+
-        '</button>'+
+        '<button class="bouton-modifier-element" data-id="'+c.id+'" data-type="competence" data-statique="'+(c.isS?'1':'0')+'"><i class="fas fa-edit"></i> Modifier</button>'+
+        (!c.isS?'<button class="bouton-supprimer-element" data-id="'+c.id+'" data-statique="0" data-type="competence"><i class="fas fa-trash"></i> Supprimer</button>':'')+
       '</div>'+
     '</div>';
   }
 
   /* ══════════════════════════════════════════════════════════════
-     BIND BOUTONS (Supprimer + Modifier)
+     BIND BOUTONS
   ══════════════════════════════════════════════════════════════ */
   const ROUTES = { projet:'/api/admin/projets/', experience:'/api/admin/experiences/', competence:'/api/admin/competences/' };
   const PAGES  = { projet:'projets', experience:'experiences', competence:'competences' };
@@ -643,10 +636,6 @@
 
     liste.querySelectorAll('.bouton-supprimer-element').forEach(function (btn) {
       btn.addEventListener('click', async function () {
-        if (btn.dataset.statique === '1') {
-          toast('Cet élément est dans votre index.html (Portfolio HTML). Pour le retirer du site, modifiez directement le fichier index.html sur GitHub.', 'avert');
-          return;
-        }
         if (!confirm('Supprimer cet élément définitivement ?')) return;
         try {
           await req('DELETE', ROUTES[type] + btn.dataset.id);
@@ -657,21 +646,39 @@
     });
 
     liste.querySelectorAll('.bouton-modifier-element').forEach(function (btn) {
-      btn.addEventListener('click', function () { ouvrirModifier(btn.dataset.id, type); });
+      btn.addEventListener('click', function () {
+        ouvrirModifier(btn.dataset.id, type, btn.dataset.statique === '1');
+      });
     });
   }
 
   /* ── MODALE MODIFIER ── */
-  async function ouvrirModifier(id, type) {
+  async function ouvrirModifier(id, type, estStatique) {
+    // Pour les éléments statiques, on récupère les données depuis les tableaux PS/ES/CS
+    // Pour les éléments en base, on les récupère depuis l'API
     let item = null;
-    try {
-      const d = await req('GET', ROUTES[type].replace(/\/$/, ''));
-      const liste = d.projets || d.experiences || d.competences || [];
-      item = liste.find(function (el) { return String(el.id) === String(id); });
-    } catch (err) { toast(err.message, 'erreur'); return; }
-    if (!item) { toast('Élément introuvable', 'erreur'); return; }
+
+    if (estStatique) {
+      // Chercher dans les données statiques
+      const sourceStatique = { projet: PS, experience: ES, competence: CS };
+      item = sourceStatique[type].find(function (el) { return String(el.id) === String(id); });
+      if (!item) { toast('Élément introuvable', 'erreur'); return; }
+    } else {
+      try {
+        const d = await req('GET', ROUTES[type].replace(/\/$/, ''));
+        const liste = d.projets || d.experiences || d.competences || [];
+        item = liste.find(function (el) { return String(el.id) === String(id); });
+      } catch (err) { toast(err.message, 'erreur'); return; }
+      if (!item) { toast('Élément introuvable', 'erreur'); return; }
+    }
 
     let corps = '<div class="grille-champs-modif">';
+    if (estStatique) {
+      corps += '<div class="champ-form pleine-largeur" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:.75rem">' +
+        '<p style="color:#F59E0B;font-size:.85rem;margin:0"><i class="fas fa-info-circle"></i> <strong>Portfolio HTML</strong> — Les modifications seront sauvegardées en base de données. Pour mettre à jour votre index.html, éditez-le manuellement sur GitHub.</p>' +
+        '</div>';
+    }
+
     if (type === 'projet') {
       corps +=
         htmlChamp('Titre *','text','m-titre',item.titre,200) +
@@ -682,7 +689,7 @@
         htmlChamp('Lien du site','url','m-lien-site',item.lien_site||'',500) +
         htmlChamp('Lien GitHub','url','m-lien-github',item.lien_github||'',500) +
         htmlChamp('Ordre','number','m-ordre',item.ordre||0,null) +
-        '<div class="champ-form" style="grid-column:1/-1"><label>Photo du projet</label>' +
+        '<div class="champ-form pleine-largeur"><label>Photo du projet</label>' +
         (item.image_url ? '<div style="margin-bottom:8px"><img src="'+escHtml(item.image_url)+'" style="height:80px;border-radius:8px;object-fit:cover"><small style="display:block;color:#6B7280;margin-top:4px">Choisir une nouvelle photo pour remplacer</small></div>' : '') +
         htmlUpload('upload-modif-img','apercu-modif-img') +
         '<input type="hidden" id="m-img-actuelle" value="'+escHtml(item.image_url||'')+'"></div>';
@@ -714,17 +721,17 @@
     ouvrirModale(titres[type], corps, [{
       html: '<i class="fas fa-save"></i> Enregistrer',
       classe: 'bouton-principal',
-      fn: async function () { await sauvegarder(id, type); }
+      fn: async function () { await sauvegarder(id, type, estStatique); }
     }]);
 
     if (type === 'projet') bindUpload('upload-modif-img','apercu-modif-img');
   }
 
-  async function sauvegarder(id, type) {
+  async function sauvegarder(id, type, estStatique) {
     const btnS = document.querySelector('#mg .bouton-principal');
     if (btnS) { btnS.disabled=true; btnS.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enregistrement…'; }
     try {
-      let body = {}, url = ROUTES[type] + id;
+      let body = {};
       if (type === 'projet') {
         let image_url = val('m-img-actuelle');
         const fi = document.getElementById('upload-modif-img');
@@ -735,12 +742,25 @@
       } else if (type === 'competence') {
         body = { categorie:val('m-categorie'), icone:val('m-icone'), couleur:val('m-couleur'), niveau:parseInt(val('m-niveau'))||70, label_niveau:val('m-label-niveau'), items:val('m-items'), ordre:parseInt(val('m-ordre'))||0 };
       }
-      const d = await req('PATCH', url, body);
-      if (d.success) {
-        toast('✅ Modifications enregistrées !','succes');
-        document.getElementById('mg').classList.remove('active');
-        chargerDonnees(PAGES[type]);
-      } else toast(d.error||'Erreur','erreur');
+
+      let d;
+      if (estStatique) {
+        // Élément statique → créer une nouvelle entrée en base via POST
+        d = await req('POST', ROUTES[type].replace(/\/$/, ''), body);
+        if (d.success) {
+          toast('✅ Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
+          document.getElementById('mg').classList.remove('active');
+          chargerDonnees(PAGES[type]);
+        } else toast(d.error||'Erreur','erreur');
+      } else {
+        // Élément base de données → PATCH normal
+        d = await req('PATCH', ROUTES[type] + id, body);
+        if (d.success) {
+          toast('✅ Modifications enregistrées !','succes');
+          document.getElementById('mg').classList.remove('active');
+          chargerDonnees(PAGES[type]);
+        } else toast(d.error||'Erreur','erreur');
+      }
     } catch (err) { toast(err.message,'erreur'); }
     finally { if (btnS) { btnS.disabled=false; btnS.innerHTML='<i class="fas fa-save"></i> Enregistrer'; } }
   }
@@ -827,7 +847,6 @@
   }
 
   /* ── HELPERS HTML ── */
-  function badgeHTML(inner) { return inner; }
   function htmlVide(icone, titre, desc) {
     return '<div class="etat-vide-liste"><i class="fas '+icone+'"></i><p>'+escHtml(titre)+'</p>'+(desc?'<p style="font-size:.8rem">'+escHtml(desc)+'</p>':'')+'</div>';
   }
@@ -870,15 +889,14 @@
       .bouton-modifier-element{padding:.45rem .75rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;color:#60A5FA;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:5px;transition:background .2s;white-space:nowrap;flex-shrink:0}
       .bouton-modifier-element:hover{background:rgba(59,130,246,.2)}
 
-      /* Modale modifier */
       #mg .grille-champs-modif{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
       #mg .champ-form{display:flex;flex-direction:column;gap:6px}
+      #mg .champ-form.pleine-largeur{grid-column:1/-1}
       #mg .champ-form label{font-size:.8rem;color:#B4B8D4;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
       #mg .champ-form input,#mg .champ-form textarea,#mg .champ-form select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:.9rem;padding:.65rem .85rem;outline:none;transition:border-color .2s;font-family:inherit;width:100%;box-sizing:border-box}
       #mg .champ-form input:focus,#mg .champ-form textarea:focus,#mg .champ-form select:focus{border-color:#FF6B35}
       #mg .champ-form textarea{resize:vertical;min-height:80px}
       #mg .champ-form select option{background:#16192F}
-      #mg .champ-form[style*="1/-1"]{grid-column:1/-1}
       @media(max-width:600px){#mg .grille-champs-modif{grid-template-columns:1fr}}
     `;
     document.head.appendChild(s);
