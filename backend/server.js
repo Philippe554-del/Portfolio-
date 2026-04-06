@@ -10,7 +10,7 @@ const helmet     = require('helmet');
 const validator  = require('validator');
 const path       = require('path');
 const crypto     = require('crypto');
-const nodemailer = require('nodemailer');
+
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -309,22 +309,27 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
     if (!validator.isEmail(to)) return res.status(400).json({ error: 'Email destinataire invalide.' });
     if (!subject)               return res.status(400).json({ error: 'Sujet requis.' });
     if (message.length < 5)     return res.status(400).json({ error: 'Message trop court.' });
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)
+    if (!process.env.BREVO_API_KEY)
       return res.status(500).json({ error: 'Configuration email manquante.' });
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
-      }
-    });
     const safeMessage = validator.escape(message).replace(/\n/g, '<br>');
-    await transporter.sendMail({
-      from: `Philippe Hountondji <${process.env.GMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>${safeMessage}</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji — hountondjiphilippe58@gmail.com</p></div>`
+    const emailResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>' + safeMessage + '</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji</p></div>'
+      })
     });
+    if (!emailResponse.ok) {
+      const errData = await emailResponse.json();
+      throw new Error(errData.message || 'Erreur Brevo');
+    }
     if (msgId > 0) await pool.query('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = $1', [msgId]);
     res.json({ success: true });
   } catch (err) { console.error('[send-reply]', err.message); res.status(500).json({ error: 'Erreur envoi email : ' + err.message }); }
