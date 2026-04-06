@@ -20,10 +20,330 @@
 
   <style>
     #tableau-bord.masque { display: none !important; }
+
+    /* ── STYLES POUR LES 3 NOUVELLES SECTIONS ─────────────────────────────── */
+
+    .section-gestion {
+      margin-bottom: 2rem;
+    }
+
+    .entete-gestion {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .entete-gestion h3 {
+      font-size: 1.1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .entete-gestion h3 i {
+      color: #FF6B35;
+    }
+
+    /* Formulaires d'ajout */
+    .formulaire-ajout {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .formulaire-ajout h4 {
+      font-size: 0.95rem;
+      color: #FF6B35;
+      margin: 0 0 1.25rem 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grille-champs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .grille-champs.trois-colonnes {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .grille-champs.une-colonne {
+      grid-template-columns: 1fr;
+    }
+
+    .champ-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .champ-form.pleine-largeur {
+      grid-column: 1 / -1;
+    }
+
+    .champ-form label {
+      font-size: 0.8rem;
+      color: #B4B8D4;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .champ-form input,
+    .champ-form textarea,
+    .champ-form select {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+      padding: 0.65rem 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .champ-form input:focus,
+    .champ-form textarea:focus,
+    .champ-form select:focus {
+      border-color: #FF6B35;
+    }
+
+    .champ-form textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .champ-form select option {
+      background: #16192F;
+    }
+
+    .pied-formulaire {
+      margin-top: 1.25rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .bouton-ajouter {
+      padding: 0.7rem 1.5rem;
+      background: linear-gradient(135deg, #FF6B35, #F7931E);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .bouton-ajouter:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .bouton-ajouter:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Liste des éléments */
+    .liste-elements {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .element-liste {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .element-liste:hover {
+      border-color: rgba(255,107,53,0.3);
+    }
+
+    .element-liste-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .element-liste-titre {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-element {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-termine  { background: rgba(16,185,129,0.15); color: #10B981; }
+    .badge-en-cours { background: rgba(245,158,11,0.15); color: #F59E0B; }
+    .badge-prevu    { background: rgba(99,102,241,0.15); color: #818CF8; }
+    .badge-recherche { background: rgba(59,130,246,0.15); color: #60A5FA; }
+
+    .element-liste-meta {
+      font-size: 0.8rem;
+      color: #6B7280;
+      margin-top: 4px;
+    }
+
+    .element-liste-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .tag-petit {
+      font-size: 0.72rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: #9CA3AF;
+    }
+
+    .bouton-supprimer-element {
+      padding: 0.45rem 0.75rem;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px;
+      color: #EF4444;
+      cursor: pointer;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .bouton-supprimer-element:hover {
+      background: rgba(239,68,68,0.2);
+    }
+
+    .etat-vide-liste {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #6B7280;
+    }
+
+    .etat-vide-liste i {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .etat-vide-liste p {
+      font-size: 0.9rem;
+    }
+
+    /* Barre de niveau compétence */
+    .barre-niveau-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .barre-fond {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .barre-rempli {
+      height: 100%;
+      background: linear-gradient(90deg, #FF6B35, #F7931E);
+      border-radius: 2px;
+    }
+
+    .barre-niveau-mini span {
+      font-size: 0.75rem;
+      color: #9CA3AF;
+      white-space: nowrap;
+    }
+
+    /* Compteur */
+    .compteur-section {
+      font-size: 0.78rem;
+      background: rgba(255,107,53,0.15);
+      color: #FF6B35;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* Séparateur de section */
+    .separateur-page {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 2.5rem 0;
+    }
+
+    /* Chargement */
+    .chargement-liste {
+      text-align: center;
+      padding: 2rem;
+      color: #6B7280;
+      font-size: 0.9rem;
+    }
+
+    .chargement-liste i {
+      margin-right: 8px;
+      color: #FF6B35;
+    }
+
+    @media (max-width: 768px) {
+      .grille-champs,
+      .grille-champs.trois-colonnes {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
 
+  <!-- ── PAGE CONNEXION ──────────────────────────────────────────────────── -->
   <div id="page-connexion" class="zone-connexion">
     <div class="carte-connexion">
       <div class="titre-connexion">
@@ -85,6 +405,7 @@
     </div>
   </div>
 
+  <!-- ── TABLEAU DE BORD ─────────────────────────────────────────────────── -->
   <div id="tableau-bord" class="tableau-bord masque">
 
     <aside class="barre-laterale">
@@ -104,6 +425,18 @@
           <i class="fas fa-envelope"></i>
           <span>Messages</span>
           <span class="compteur-messages" id="nb-messages">0</span>
+        </a>
+        <a href="#" class="element-nav" data-page="projets">
+          <i class="fas fa-folder-open"></i>
+          <span>Projets</span>
+        </a>
+        <a href="#" class="element-nav" data-page="experiences">
+          <i class="fas fa-briefcase"></i>
+          <span>Expériences</span>
+        </a>
+        <a href="#" class="element-nav" data-page="competences">
+          <i class="fas fa-star"></i>
+          <span>Compétences</span>
         </a>
         <a href="#" class="element-nav" data-page="statistiques">
           <i class="fas fa-chart-bar"></i>
@@ -155,6 +488,7 @@
         </div>
       </header>
 
+      <!-- ── PAGE : VUE D'ENSEMBLE ──────────────────────────────────────── -->
       <div id="page-vue-ensemble" class="page active">
         <div class="contenu-page">
 
@@ -232,6 +566,7 @@
         </div>
       </div>
 
+      <!-- ── PAGE : MESSAGES ────────────────────────────────────────────── -->
       <div id="page-messages" class="page">
         <div class="contenu-page">
 
@@ -266,6 +601,214 @@
         </div>
       </div>
 
+      <!-- ── PAGE : PROJETS ─────────────────────────────────────────────── -->
+      <div id="page-projets" class="page">
+        <div class="contenu-page">
+
+          <!-- Formulaire ajout projet -->
+          <div class="section-gestion">
+            <div class="formulaire-ajout">
+              <h4><i class="fas fa-plus-circle"></i> Ajouter un nouveau projet</h4>
+              <form id="form-ajout-projet" novalidate>
+                <div class="grille-champs">
+                  <div class="champ-form">
+                    <label>Titre du projet *</label>
+                    <input type="text" id="projet-titre" placeholder="Ex: Plateforme VBG" maxlength="200" required>
+                  </div>
+                  <div class="champ-form">
+                    <label>Étiquette</label>
+                    <input type="text" id="projet-etiquette" placeholder="Ex: Social, Portfolio, API..." maxlength="100">
+                  </div>
+                  <div class="champ-form pleine-largeur">
+                    <label>Description *</label>
+                    <textarea id="projet-description" placeholder="Décrivez le projet en quelques phrases..." rows="3" maxlength="1000" required></textarea>
+                  </div>
+                  <div class="champ-form">
+                    <label>Technologies (séparées par des virgules)</label>
+                    <input type="text" id="projet-technologies" placeholder="Ex: HTML/CSS, Node.js, PostgreSQL" maxlength="500">
+                  </div>
+                  <div class="champ-form">
+                    <label>Statut</label>
+                    <select id="projet-statut">
+                      <option value="termine">Terminé</option>
+                      <option value="en-cours">En cours</option>
+                      <option value="prevu">Prévu</option>
+                    </select>
+                  </div>
+                  <div class="champ-form">
+                    <label>Lien du site</label>
+                    <input type="url" id="projet-lien-site" placeholder="https://..." maxlength="500">
+                  </div>
+                  <div class="champ-form">
+                    <label>Lien GitHub</label>
+                    <input type="url" id="projet-lien-github" placeholder="https://github.com/..." maxlength="500">
+                  </div>
+                  <div class="champ-form">
+                    <label>URL de l'image</label>
+                    <input type="url" id="projet-image" placeholder="https://... ou images/nom.jpg" maxlength="500">
+                  </div>
+                  <div class="champ-form">
+                    <label>Ordre d'affichage</label>
+                    <input type="number" id="projet-ordre" placeholder="0" min="0" max="999" value="0">
+                  </div>
+                </div>
+                <div class="pied-formulaire">
+                  <button type="submit" class="bouton-ajouter" id="btn-ajouter-projet">
+                    <i class="fas fa-plus"></i>
+                    Ajouter le projet
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Liste des projets -->
+            <div class="entete-gestion">
+              <h3><i class="fas fa-folder-open"></i> Projets enregistrés <span class="compteur-section" id="nb-projets">0</span></h3>
+            </div>
+            <div id="liste-projets" class="liste-elements">
+              <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── PAGE : EXPÉRIENCES ─────────────────────────────────────────── -->
+      <div id="page-experiences" class="page">
+        <div class="contenu-page">
+
+          <div class="section-gestion">
+            <div class="formulaire-ajout">
+              <h4><i class="fas fa-plus-circle"></i> Ajouter une nouvelle expérience</h4>
+              <form id="form-ajout-experience" novalidate>
+                <div class="grille-champs">
+                  <div class="champ-form">
+                    <label>Titre de l'expérience *</label>
+                    <input type="text" id="exp-titre" placeholder="Ex: Stage de Licence 2" maxlength="200" required>
+                  </div>
+                  <div class="champ-form">
+                    <label>Type</label>
+                    <input type="text" id="exp-type" placeholder="Ex: Stage académique, Projet personnel" maxlength="100">
+                  </div>
+                  <div class="champ-form">
+                    <label>Entreprise / Organisation</label>
+                    <input type="text" id="exp-entreprise" placeholder="Ex: ENEAM, Nom de la société..." maxlength="200">
+                  </div>
+                  <div class="champ-form">
+                    <label>Lieu</label>
+                    <input type="text" id="exp-lieu" placeholder="Ex: Cotonou, Bénin" maxlength="200">
+                  </div>
+                  <div class="champ-form">
+                    <label>Date de début</label>
+                    <input type="text" id="exp-date-debut" placeholder="Ex: Janvier 2025" maxlength="100">
+                  </div>
+                  <div class="champ-form">
+                    <label>Date de fin</label>
+                    <input type="text" id="exp-date-fin" placeholder="Ex: Juin 2025 ou Présent" maxlength="100">
+                  </div>
+                  <div class="champ-form pleine-largeur">
+                    <label>Description</label>
+                    <textarea id="exp-description" placeholder="Décrivez les missions et responsabilités..." rows="3" maxlength="1000"></textarea>
+                  </div>
+                  <div class="champ-form">
+                    <label>Tags (séparés par des virgules)</label>
+                    <input type="text" id="exp-tags" placeholder="Ex: Développement Web, Node.js, React" maxlength="500">
+                  </div>
+                  <div class="champ-form">
+                    <label>Statut</label>
+                    <select id="exp-statut">
+                      <option value="termine">Terminé</option>
+                      <option value="en-cours">En cours</option>
+                      <option value="prevu">Prévu</option>
+                      <option value="recherche">En recherche</option>
+                    </select>
+                  </div>
+                  <div class="champ-form">
+                    <label>Ordre d'affichage</label>
+                    <input type="number" id="exp-ordre" placeholder="0" min="0" max="999" value="0">
+                  </div>
+                </div>
+                <div class="pied-formulaire">
+                  <button type="submit" class="bouton-ajouter" id="btn-ajouter-experience">
+                    <i class="fas fa-plus"></i>
+                    Ajouter l'expérience
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Liste des expériences -->
+            <div class="entete-gestion">
+              <h3><i class="fas fa-briefcase"></i> Expériences enregistrées <span class="compteur-section" id="nb-experiences">0</span></h3>
+            </div>
+            <div id="liste-experiences" class="liste-elements">
+              <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── PAGE : COMPÉTENCES ─────────────────────────────────────────── -->
+      <div id="page-competences" class="page">
+        <div class="contenu-page">
+
+          <div class="section-gestion">
+            <div class="formulaire-ajout">
+              <h4><i class="fas fa-plus-circle"></i> Ajouter une nouvelle catégorie de compétences</h4>
+              <form id="form-ajout-competence" novalidate>
+                <div class="grille-champs">
+                  <div class="champ-form">
+                    <label>Catégorie *</label>
+                    <input type="text" id="comp-categorie" placeholder="Ex: Développement Web, Réseaux..." maxlength="200" required>
+                  </div>
+                  <div class="champ-form">
+                    <label>Icône Font Awesome</label>
+                    <input type="text" id="comp-icone" placeholder="Ex: fas fa-code" maxlength="100" value="fas fa-code">
+                  </div>
+                  <div class="champ-form">
+                    <label>Couleur du gradient (CSS)</label>
+                    <input type="text" id="comp-couleur" placeholder="Ex: linear-gradient(135deg,#667eea,#764ba2)" maxlength="200" value="linear-gradient(135deg,#667eea,#764ba2)">
+                  </div>
+                  <div class="champ-form">
+                    <label>Niveau (0 – 100)</label>
+                    <input type="number" id="comp-niveau" placeholder="Ex: 75" min="0" max="100" value="70">
+                  </div>
+                  <div class="champ-form">
+                    <label>Libellé du niveau</label>
+                    <input type="text" id="comp-label-niveau" placeholder="Ex: Avancé — 75%" maxlength="100">
+                  </div>
+                  <div class="champ-form">
+                    <label>Ordre d'affichage</label>
+                    <input type="number" id="comp-ordre" placeholder="0" min="0" max="999" value="0">
+                  </div>
+                  <div class="champ-form pleine-largeur">
+                    <label>Compétences (une par ligne : "icone_fa | Nom de la compétence")</label>
+                    <textarea id="comp-items" placeholder="fab fa-python | Python&#10;fab fa-html5 | HTML5&#10;fab fa-css3-alt | CSS3&#10;fab fa-js | JavaScript" rows="5" maxlength="1000"></textarea>
+                  </div>
+                </div>
+                <div class="pied-formulaire">
+                  <button type="submit" class="bouton-ajouter" id="btn-ajouter-competence">
+                    <i class="fas fa-plus"></i>
+                    Ajouter la catégorie
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Liste des compétences -->
+            <div class="entete-gestion">
+              <h3><i class="fas fa-star"></i> Catégories de compétences <span class="compteur-section" id="nb-competences">0</span></h3>
+            </div>
+            <div id="liste-competences" class="liste-elements">
+              <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── PAGE : STATISTIQUES ────────────────────────────────────────── -->
       <div id="page-statistiques" class="page">
         <div class="contenu-page">
 
@@ -301,6 +844,7 @@
         </div>
       </div>
 
+      <!-- ── PAGE : PARAMÈTRES ──────────────────────────────────────────── -->
       <div id="page-parametres" class="page">
         <div class="contenu-page">
 
@@ -356,6 +900,7 @@
     </main>
   </div>
 
+  <!-- ── MODALE MESSAGE ──────────────────────────────────────────────────── -->
   <div id="fenetre-message" class="fenetre-modale">
     <div class="contenu-modale">
       <div class="entete-modale">

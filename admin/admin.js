@@ -12,11 +12,13 @@
   var emailAdmin      = 'hountondjiphilippe58@gmail.com';
   var cleToken        = '_adm_tk';
 
-  var idMessageActuel   = null;
+  var idMessageActuel      = null;
   var donneesMessageActuel = null;
-  var graphiqueMessages = null;
-  var graphiqueStatuts  = null;
-  var timerRecherche    = null;
+  var graphiqueMessages    = null;
+  var graphiqueStatuts     = null;
+  var timerRecherche       = null;
+
+  // ── TOKEN ────────────────────────────────────────────────────────────────
 
   function lireToken() {
     try { return sessionStorage.getItem(cleToken) || localStorage.getItem(cleToken) || null; }
@@ -34,6 +36,8 @@
     try { sessionStorage.removeItem(cleToken); localStorage.removeItem(cleToken); } catch (e) {}
   }
 
+  // ── API ──────────────────────────────────────────────────────────────────
+
   function requeteApi(methode, chemin, corps) {
     var options = { method: methode, headers: { 'Content-Type': 'application/json' } };
     var tok = lireToken();
@@ -46,6 +50,8 @@
       })
       .catch(function (err) { return Promise.reject(err); });
   }
+
+  // ── NOTIFICATIONS ────────────────────────────────────────────────────────
 
   function afficherNotification(texte, type) {
     type = type || 'info';
@@ -61,6 +67,8 @@
       setTimeout(function () { if (boite.parentNode) boite.parentNode.removeChild(boite); }, 300);
     }, 4000);
   }
+
+  // ── SESSION ──────────────────────────────────────────────────────────────
 
   function verifierSession() {
     if (!lireToken()) { afficherPageConnexion(); } else { afficherTableauBord(); }
@@ -105,33 +113,30 @@
     var piedBarre = document.querySelector('.pied-barre');
     if (!piedBarre) return;
     if (document.getElementById('lien-portfolio')) return;
-
     var bouton = document.createElement('button');
     bouton.id        = 'lien-portfolio';
     bouton.className = 'bouton-retour-portfolio';
     bouton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
     bouton.addEventListener('click', function () { window.location.href = urlPortfolio; });
-
     var btnDeconnexion = document.getElementById('btn-deconnexion');
     piedBarre.insertBefore(bouton, btnDeconnexion);
   }
+
+  // ── CONNEXION ────────────────────────────────────────────────────────────
 
   var formulaireConnexion = document.getElementById('formulaire-connexion');
   if (formulaireConnexion) {
     formulaireConnexion.addEventListener('submit', function (e) {
       e.preventDefault();
-      var email     = document.getElementById('champ-email').value.trim();
+      var email      = document.getElementById('champ-email').value.trim();
       var motdepasse = document.getElementById('champ-motdepasse').value;
       var seRappeler = document.getElementById('se-souvenir') ? document.getElementById('se-souvenir').checked : false;
-      var erreurEl  = document.getElementById('erreur-connexion');
-      var bouton    = formulaireConnexion.querySelector('.bouton-connexion');
-
-      if (!email || !motdepasse) { return; }
-
+      var erreurEl   = document.getElementById('erreur-connexion');
+      var bouton     = formulaireConnexion.querySelector('.bouton-connexion');
+      if (!email || !motdepasse) return;
       erreurEl.style.display = 'none';
       bouton.disabled = true;
       bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
-
       requeteApi('POST', '/api/admin/login', { email: email, password: motdepasse })
         .then(function (res) {
           if (res.statut === 200 && res.donnees.token) {
@@ -158,9 +163,14 @@
   var btnDeconnexion = document.getElementById('btn-deconnexion');
   if (btnDeconnexion) btnDeconnexion.addEventListener('click', deconnecter);
 
+  // ── NAVIGATION ───────────────────────────────────────────────────────────
+
   var titresPages = {
     'vue-ensemble': "Vue d'ensemble",
     'messages':     'Messages',
+    'projets':      'Projets',
+    'experiences':  'Expériences',
+    'competences':  'Compétences',
     'statistiques': 'Statistiques',
     'parametres':   'Paramètres'
   };
@@ -203,11 +213,16 @@
     if (page === 'vue-ensemble') chargerDonneesAccueil();
     if (page === 'messages')     chargerMessages();
     if (page === 'statistiques') chargerStatistiques();
+    if (page === 'projets')      chargerProjets();
+    if (page === 'experiences')  chargerExperiences();
+    if (page === 'competences')  chargerCompetences();
   }
 
-  var btnMenu         = document.getElementById('btn-menu');
-  var barreLaterale   = document.querySelector('.barre-laterale');
-  var fondOverlay     = document.getElementById('fond-overlay');
+  // ── MENU HAMBURGER ───────────────────────────────────────────────────────
+
+  var btnMenu       = document.getElementById('btn-menu');
+  var barreLaterale = document.querySelector('.barre-laterale');
+  var fondOverlay   = document.getElementById('fond-overlay');
 
   if (!fondOverlay) {
     fondOverlay = document.createElement('div');
@@ -221,8 +236,7 @@
 
   var dernierClic = 0;
   function gererMenuBurger(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     var maintenant = Date.now();
     if (maintenant - dernierClic < 300) return;
     dernierClic = maintenant;
@@ -237,6 +251,8 @@
 
   fondOverlay.addEventListener('click', fermerBarreLaterale);
   fondOverlay.addEventListener('touchend', function (e) { e.preventDefault(); fermerBarreLaterale(); }, { passive: false });
+
+  // ── BOUTONS ENTÊTE ───────────────────────────────────────────────────────
 
   var btnNotifications = document.getElementById('btn-notifications');
   if (btnNotifications) {
@@ -260,6 +276,9 @@
         if (page === 'vue-ensemble') chargerDonneesAccueil();
         if (page === 'messages')     chargerMessages();
         if (page === 'statistiques') chargerStatistiques();
+        if (page === 'projets')      chargerProjets();
+        if (page === 'experiences')  chargerExperiences();
+        if (page === 'competences')  chargerCompetences();
       }
       afficherNotification('Données rafraîchies', 'info');
       setTimeout(function () { if (icone) icone.classList.remove('fa-spin'); }, 1000);
@@ -276,22 +295,20 @@
     });
   });
 
+  // ── VUE D'ENSEMBLE ───────────────────────────────────────────────────────
+
   function chargerDonneesAccueil() {
     if (!lireToken()) return;
     requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
         if (res.statut !== 200) { afficherNotification('Erreur chargement stats', 'erreur'); return; }
         var s = res.donnees.stats || {};
-        definirTexte('total-messages',         s.total  || 0);
-        definirTexte('messages-lus',           s.read   || 0);
-        definirTexte('messages-non-lus',       s.unread || 0);
-        definirTexte('messages-aujourd-hui',   s.today  || 0);
-
+        definirTexte('total-messages',       s.total  || 0);
+        definirTexte('messages-lus',         s.read   || 0);
+        definirTexte('messages-non-lus',     s.unread || 0);
+        definirTexte('messages-aujourd-hui', s.today  || 0);
         var compteur = document.getElementById('nb-messages');
-        if (compteur) {
-          compteur.textContent   = s.unread > 0 ? s.unread : '';
-          compteur.style.display = s.unread > 0 ? 'inline-flex' : 'none';
-        }
+        if (compteur) { compteur.textContent = s.unread > 0 ? s.unread : ''; compteur.style.display = s.unread > 0 ? 'inline-flex' : 'none'; }
         chargerMessagesRecents();
       })
       .catch(function (err) { afficherNotification('Erreur réseau: ' + err.message, 'erreur'); });
@@ -299,10 +316,7 @@
 
   function chargerMessagesRecents() {
     requeteApi('GET', '/api/admin/messages?limit=5')
-      .then(function (res) {
-        if (res.statut !== 200) return;
-        afficherMessagesRecents(res.donnees.messages || []);
-      })
+      .then(function (res) { if (res.statut !== 200) return; afficherMessagesRecents(res.donnees.messages || []); })
       .catch(function (err) { console.error(err); });
   }
 
@@ -319,12 +333,13 @@
     });
   }
 
+  // ── MESSAGES ─────────────────────────────────────────────────────────────
+
   function chargerMessages() {
     var recherche = (document.getElementById('recherche-messages') || {}).value || '';
     var filtre    = (document.getElementById('filtre-messages')    || {}).value || 'all';
     var tri       = (document.getElementById('tri-messages')       || {}).value || 'newest';
     var params    = '?limit=50' + (filtre !== 'all' ? '&filter=' + encodeURIComponent(filtre) : '');
-
     requeteApi('GET', '/api/admin/messages' + params)
       .then(function (res) {
         if (res.statut !== 200) return;
@@ -352,10 +367,7 @@
     }
     conteneur.innerHTML = messages.map(function (m) { return construireElementMessage(m, false); }).join('');
     conteneur.querySelectorAll('.element-message').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        if (e.target.closest('.bouton-petit')) return;
-        ouvrirMessage(parseInt(this.dataset.id, 10));
-      });
+      el.addEventListener('click', function (e) { if (e.target.closest('.bouton-petit')) return; ouvrirMessage(parseInt(this.dataset.id, 10)); });
     });
     conteneur.querySelectorAll('[data-action="supprimer"]').forEach(function (btn) {
       btn.addEventListener('click', function (e) { e.stopPropagation(); supprimerMessage(parseInt(this.dataset.id, 10)); });
@@ -399,23 +411,19 @@
         if (res.statut !== 200) return;
         var msg = (res.donnees.messages || []).find(function (m) { return m.id === id; });
         if (!msg) return;
-        idMessageActuel       = id;
-        donneesMessageActuel  = msg;
-
+        idMessageActuel      = id;
+        donneesMessageActuel = msg;
         var name    = deechapper(msg.name);
         var email   = deechapper(msg.email);
         var phone   = deechapper(msg.phone || '');
         var message = deechapper(msg.message);
-
         if (!msg.is_read) {
           requeteApi('PATCH', '/api/admin/messages/' + id + '/read')
             .then(function () { chargerDonneesAccueil(); chargerMessages(); })
             .catch(console.error);
         }
-
         var corps = document.getElementById('corps-modale');
         if (!corps) return;
-
         corps.innerHTML =
           '<div class="detail-message">' +
             lignDetail('fas fa-user',     'Nom',     echapper(name)) +
@@ -449,7 +457,6 @@
               '<span id="statut-reponse" style="font-size:0.9rem"></span>' +
             '</div>' +
           '</div>';
-
         document.getElementById('btn-envoyer-reponse').addEventListener('click', function () { envoyerReponse(msg); });
         document.getElementById('fenetre-message').classList.add('active');
       })
@@ -462,36 +469,31 @@
     var reponse      = (document.getElementById('champ-reponse')      || {}).value || '';
     var bouton       = document.getElementById('btn-envoyer-reponse');
     var statut       = document.getElementById('statut-reponse');
-
     if (!reponse.trim() || reponse.length < 10) {
       statut.innerHTML = '<span style="color:#EF4444"><i class="fas fa-exclamation-circle"></i> Écrivez un message avant d\'envoyer.</span>';
       return;
     }
-    bouton.disabled     = true;
-    bouton.style.opacity = '0.6';
-    bouton.innerHTML    = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
-
+    bouton.disabled = true; bouton.style.opacity = '0.6';
+    bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
     requeteApi('POST', '/api/admin/send-reply', { to: destinataire, subject: sujet, message: reponse, messageId: msg.id })
       .then(function (res) {
         if (res.statut === 200 && res.donnees.success) {
-          statut.innerHTML      = '<span style="color:#10B981"><i class="fas fa-check-circle"></i> Email envoyé !</span>';
-          bouton.innerHTML      = '<i class="fas fa-check"></i> Envoyé !';
-          bouton.style.background  = 'linear-gradient(135deg,#10B981,#059669)';
-          bouton.style.opacity     = '1';
+          statut.innerHTML = '<span style="color:#10B981"><i class="fas fa-check-circle"></i> Email envoyé !</span>';
+          bouton.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
+          bouton.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+          bouton.style.opacity    = '1';
           afficherNotification('Email envoyé à ' + echapper(destinataire), 'succes');
           chargerDonneesAccueil(); chargerMessages();
         } else {
           statut.innerHTML    = '<span style="color:#EF4444"><i class="fas fa-times-circle"></i> ' + echapper(res.donnees.error || 'Erreur.') + '</span>';
-          bouton.disabled     = false;
-          bouton.style.opacity = '1';
+          bouton.disabled     = false; bouton.style.opacity = '1';
           bouton.innerHTML    = '<i class="fas fa-paper-plane"></i> Envoyer par email';
         }
       })
       .catch(function () {
-        statut.innerHTML    = '<span style="color:#EF4444">Erreur réseau.</span>';
-        bouton.disabled     = false;
-        bouton.style.opacity = '1';
-        bouton.innerHTML    = '<i class="fas fa-paper-plane"></i> Envoyer par email';
+        statut.innerHTML = '<span style="color:#EF4444">Erreur réseau.</span>';
+        bouton.disabled  = false; bouton.style.opacity = '1';
+        bouton.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer par email';
       });
   }
 
@@ -508,7 +510,6 @@
   var btnFermerModale1 = document.getElementById('btn-fermer-modale');
   var btnFermerModale2 = document.querySelector('.bouton-fermer-modale');
   var btnSupprimerMsg  = document.getElementById('btn-supprimer-message');
-
   if (btnFermerModale1) btnFermerModale1.addEventListener('click', fermerModale);
   if (btnFermerModale2) btnFermerModale2.addEventListener('click', fermerModale);
   if (btnSupprimerMsg) {
@@ -541,7 +542,6 @@
   var champRecherche = document.getElementById('recherche-messages');
   var selectFiltre   = document.getElementById('filtre-messages');
   var selectTri      = document.getElementById('tri-messages');
-
   if (champRecherche) champRecherche.addEventListener('input', function () { clearTimeout(timerRecherche); timerRecherche = setTimeout(chargerMessages, 300); });
   if (selectFiltre)   selectFiltre.addEventListener('change', chargerMessages);
   if (selectTri)      selectTri.addEventListener('change', chargerMessages);
@@ -549,9 +549,9 @@
   document.querySelectorAll('.carte-action[data-action]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var action = this.dataset.action;
-      if (action === 'exporter')          exporterMessages();
-      if (action === 'tout-marquer-lu')   toutMarquerLu();
-      if (action === 'supprimer-lus')     supprimerLus();
+      if (action === 'exporter')        exporterMessages();
+      if (action === 'tout-marquer-lu') toutMarquerLu();
+      if (action === 'supprimer-lus')   supprimerLus();
     });
   });
 
@@ -582,8 +582,7 @@
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         var url  = URL.createObjectURL(blob);
         var lien = document.createElement('a');
-        lien.href     = url;
-        lien.download = 'messages_' + new Date().toISOString().slice(0, 10) + '.csv';
+        lien.href = url; lien.download = 'messages_' + new Date().toISOString().slice(0, 10) + '.csv';
         document.body.appendChild(lien); lien.click(); document.body.removeChild(lien);
         URL.revokeObjectURL(url);
         afficherNotification('Données exportées', 'succes');
@@ -592,12 +591,14 @@
 
   function celluleCsv(val) { return '"' + String(val || '').replace(/"/g, '""') + '"'; }
 
+  // ── STATISTIQUES ─────────────────────────────────────────────────────────
+
   function chargerStatistiques() {
-    if (!lireToken()) { afficherNotification('Session expirée, reconnectez-vous', 'erreur'); return; }
+    if (!lireToken()) return;
     requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
         if (res.statut !== 200) { afficherNotification('Erreur stats', 'erreur'); return; }
-        var s      = res.donnees.stats || {};
+        var s = res.donnees.stats || {};
         var parJour = s.daily || [];
         if (parJour.length > 0) {
           definirTexte('date-premier-message', formaterDate(parJour[0].date));
@@ -615,71 +616,41 @@
   }
 
   function construireGraphiques(s) {
-    var parJour  = s.daily || [];
-    var etiquettes = [];
-    var valeurs    = [];
-
+    var parJour = s.daily || [], etiquettes = [], valeurs = [];
     for (var i = 6; i >= 0; i--) {
-      var jour = new Date();
-      jour.setDate(jour.getDate() - i);
+      var jour = new Date(); jour.setDate(jour.getDate() - i);
       etiquettes.push(jour.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
       var jourStr = jour.toDateString();
       var trouve  = parJour.find(function (x) { return new Date(x.date).toDateString() === jourStr; });
       valeurs.push(trouve ? parseInt(trouve.count || 0, 10) : 0);
     }
-
     var canvas1 = document.getElementById('graphique-messages');
     if (canvas1) {
       if (graphiqueMessages) { graphiqueMessages.destroy(); graphiqueMessages = null; }
       try {
         graphiqueMessages = new Chart(canvas1, {
           type: 'line',
-          data: {
-            labels: etiquettes,
-            datasets: [{
-              label: 'Messages reçus',
-              data: valeurs,
-              borderColor: '#FF6B35',
-              backgroundColor: 'rgba(255,107,53,0.1)',
-              tension: 0.4, fill: true,
-              pointBackgroundColor: '#FF6B35',
-              pointBorderColor: '#fff',
-              pointRadius: 5, pointHoverRadius: 7
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#B4B8D4' } } },
-            scales: {
-              y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } },
-              x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.1)' } }
-            }
-          }
+          data: { labels: etiquettes, datasets: [{ label: 'Messages reçus', data: valeurs, borderColor: '#FF6B35', backgroundColor: 'rgba(255,107,53,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#FF6B35', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 7 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.1)' } } } }
         });
       } catch (e) { console.error(e); }
     }
-
-    var canvas2    = document.getElementById('graphique-statuts');
-    var nbLus      = parseInt(s.read   || 0, 10);
-    var nbNonLus   = parseInt(s.unread || 0, 10);
+    var canvas2  = document.getElementById('graphique-statuts');
+    var nbLus    = parseInt(s.read   || 0, 10);
+    var nbNonLus = parseInt(s.unread || 0, 10);
     if (canvas2) {
       if (graphiqueStatuts) { graphiqueStatuts.destroy(); graphiqueStatuts = null; }
       try {
         graphiqueStatuts = new Chart(canvas2, {
           type: 'doughnut',
-          data: {
-            labels: ['Lus', 'Non lus'],
-            datasets: [{ data: [nbLus, nbNonLus], backgroundColor: ['#10B981', '#FF6B35'], borderWidth: 0 }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#B4B8D4' } } },
-            cutout: '60%'
-          }
+          data: { labels: ['Lus', 'Non lus'], datasets: [{ data: [nbLus, nbNonLus], backgroundColor: ['#10B981', '#FF6B35'], borderWidth: 0 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, cutout: '60%' }
         });
       } catch (e) { console.error(e); }
     }
   }
+
+  // ── PARAMÈTRES ───────────────────────────────────────────────────────────
 
   var formulaireMdp = document.getElementById('formulaire-mdp');
   if (formulaireMdp) {
@@ -689,21 +660,14 @@
       var nouveau   = document.getElementById('nouveau-mdp').value;
       var confirmer = document.getElementById('confirmer-mdp').value;
       var msgEl     = document.getElementById('message-mdp');
-
       if (nouveau !== confirmer) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
       if (nouveau.length < 12)  { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Mot de passe trop court (12 caractères min).'; return; }
-
       requeteApi('POST', '/api/admin/change-password', { current: actuel, next: nouveau })
         .then(function (res) {
           if (res.statut === 200) {
-            msgEl.style.color = '#10B981';
-            msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.';
-            formulaireMdp.reset();
-            setTimeout(deconnecter, 2000);
-          } else {
-            msgEl.style.color = '#EF4444';
-            msgEl.textContent = res.donnees.error || 'Erreur.';
-          }
+            msgEl.style.color = '#10B981'; msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.';
+            formulaireMdp.reset(); setTimeout(deconnecter, 2000);
+          } else { msgEl.style.color = '#EF4444'; msgEl.textContent = res.donnees.error || 'Erreur.'; }
         }).catch(function () { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Erreur réseau.'; });
     });
   }
@@ -719,26 +683,336 @@
     });
   }
 
+  // ════════════════════════════════════════════════════════════════════════
+  //  PROJETS
+  // ════════════════════════════════════════════════════════════════════════
+
+  function chargerProjets() {
+    var conteneur = document.getElementById('liste-projets');
+    if (!conteneur) return;
+    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    requeteApi('GET', '/api/admin/projets')
+      .then(function (res) {
+        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
+        var projets = res.donnees.projets || [];
+        definirTexte('nb-projets', projets.length);
+        if (!projets.length) {
+          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-folder-open"></i><p>Aucun projet enregistré. Ajoutez votre premier projet !</p></div>';
+          return;
+        }
+        conteneur.innerHTML = projets.map(function (p) { return construireElementProjet(p); }).join('');
+        conteneur.querySelectorAll('[data-action="supprimer-projet"]').forEach(function (btn) {
+          btn.addEventListener('click', function () { supprimerProjet(parseInt(this.dataset.id, 10)); });
+        });
+      })
+      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
+  }
+
+  function construireElementProjet(p) {
+    var techs  = (p.technologies || '').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+    var statut = p.statut || 'termine';
+    var badgeClass = statut === 'termine' ? 'badge-termine' : statut === 'en-cours' ? 'badge-en-cours' : 'badge-prevu';
+    var badgeTexte = statut === 'termine' ? 'Terminé' : statut === 'en-cours' ? 'En cours' : 'Prévu';
+    return (
+      '<div class="element-liste">' +
+        '<div class="element-liste-info">' +
+          '<div class="element-liste-titre">' +
+            echapper(p.titre || '') +
+            '<span class="badge-element ' + badgeClass + '">' + badgeTexte + '</span>' +
+            (p.etiquette ? '<span class="badge-element" style="background:rgba(255,255,255,0.06);color:#9CA3AF">' + echapper(p.etiquette) + '</span>' : '') +
+          '</div>' +
+          '<div class="element-liste-meta">' + echapper((p.description || '').slice(0, 120)) + (p.description && p.description.length > 120 ? '…' : '') + '</div>' +
+          (techs.length ? '<div class="element-liste-tags">' + techs.map(function(t){ return '<span class="tag-petit">' + echapper(t) + '</span>'; }).join('') + '</div>' : '') +
+          '<div class="element-liste-meta" style="margin-top:6px">' +
+            (p.lien_site ? '<a href="' + echapper(p.lien_site) + '" target="_blank" rel="noopener" style="color:#00D9FF;font-size:0.78rem;margin-right:12px"><i class="fas fa-external-link-alt"></i> Site</a>' : '') +
+            (p.lien_github ? '<a href="' + echapper(p.lien_github) + '" target="_blank" rel="noopener" style="color:#9CA3AF;font-size:0.78rem"><i class="fab fa-github"></i> GitHub</a>' : '') +
+          '</div>' +
+        '</div>' +
+        '<button class="bouton-supprimer-element" data-action="supprimer-projet" data-id="' + p.id + '">' +
+          '<i class="fas fa-trash"></i> Supprimer' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  var formAjoutProjet = document.getElementById('form-ajout-projet');
+  if (formAjoutProjet) {
+    formAjoutProjet.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var titre       = (document.getElementById('projet-titre')        || {}).value || '';
+      var description = (document.getElementById('projet-description')  || {}).value || '';
+      var etiquette   = (document.getElementById('projet-etiquette')    || {}).value || '';
+      var technologies = (document.getElementById('projet-technologies') || {}).value || '';
+      var statut      = (document.getElementById('projet-statut')       || {}).value || 'termine';
+      var lienSite    = (document.getElementById('projet-lien-site')    || {}).value || '';
+      var lienGithub  = (document.getElementById('projet-lien-github')  || {}).value || '';
+      var image       = (document.getElementById('projet-image')        || {}).value || '';
+      var ordre       = parseInt((document.getElementById('projet-ordre') || {}).value || '0', 10);
+      var bouton      = document.getElementById('btn-ajouter-projet');
+
+      if (!titre.trim() || !description.trim()) { afficherNotification('Le titre et la description sont obligatoires.', 'erreur'); return; }
+
+      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
+
+      requeteApi('POST', '/api/admin/projets', {
+        titre: titre, description: description, etiquette: etiquette,
+        technologies: technologies, statut: statut, lien_site: lienSite,
+        lien_github: lienGithub, image_url: image, ordre: ordre
+      })
+      .then(function (res) {
+        if (res.statut === 201 && res.donnees.success) {
+          afficherNotification('Projet ajouté !', 'succes');
+          formAjoutProjet.reset();
+          chargerProjets();
+        } else {
+          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
+        }
+      })
+      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
+      .finally(function () {
+        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter le projet';
+      });
+    });
+  }
+
+  function supprimerProjet(id) {
+    confirmerAction('Supprimer ce projet définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
+      requeteApi('DELETE', '/api/admin/projets/' + id)
+        .then(function () { afficherNotification('Projet supprimé', 'succes'); chargerProjets(); })
+        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  //  EXPÉRIENCES
+  // ════════════════════════════════════════════════════════════════════════
+
+  function chargerExperiences() {
+    var conteneur = document.getElementById('liste-experiences');
+    if (!conteneur) return;
+    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    requeteApi('GET', '/api/admin/experiences')
+      .then(function (res) {
+        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
+        var experiences = res.donnees.experiences || [];
+        definirTexte('nb-experiences', experiences.length);
+        if (!experiences.length) {
+          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-briefcase"></i><p>Aucune expérience enregistrée. Ajoutez votre première expérience !</p></div>';
+          return;
+        }
+        conteneur.innerHTML = experiences.map(function (ex) { return construireElementExperience(ex); }).join('');
+        conteneur.querySelectorAll('[data-action="supprimer-experience"]').forEach(function (btn) {
+          btn.addEventListener('click', function () { supprimerExperience(parseInt(this.dataset.id, 10)); });
+        });
+      })
+      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
+  }
+
+  function construireElementExperience(ex) {
+    var tags    = (ex.tags || '').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+    var statut  = ex.statut || 'termine';
+    var badgeClass = statut === 'termine' ? 'badge-termine' : statut === 'en-cours' ? 'badge-en-cours' : statut === 'prevu' ? 'badge-prevu' : 'badge-recherche';
+    var badgeTexte = statut === 'termine' ? 'Terminé' : statut === 'en-cours' ? 'En cours' : statut === 'prevu' ? 'Prévu' : 'En recherche';
+    var periode = '';
+    if (ex.date_debut) periode += ex.date_debut;
+    if (ex.date_debut && ex.date_fin) periode += ' → ';
+    if (ex.date_fin) periode += ex.date_fin;
+    return (
+      '<div class="element-liste">' +
+        '<div class="element-liste-info">' +
+          '<div class="element-liste-titre">' +
+            echapper(ex.titre || '') +
+            '<span class="badge-element ' + badgeClass + '">' + badgeTexte + '</span>' +
+          '</div>' +
+          '<div class="element-liste-meta">' +
+            (ex.type_exp ? '<span style="margin-right:12px"><i class="fas fa-briefcase" style="color:#FF6B35;margin-right:4px"></i>' + echapper(ex.type_exp) + '</span>' : '') +
+            (ex.entreprise ? '<span style="margin-right:12px"><i class="fas fa-building" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(ex.entreprise) + '</span>' : '') +
+            (ex.lieu ? '<span style="margin-right:12px"><i class="fas fa-map-marker-alt" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(ex.lieu) + '</span>' : '') +
+            (periode ? '<span><i class="fas fa-calendar" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(periode) + '</span>' : '') +
+          '</div>' +
+          (ex.description ? '<div class="element-liste-meta" style="margin-top:4px">' + echapper((ex.description || '').slice(0, 100)) + (ex.description.length > 100 ? '…' : '') + '</div>' : '') +
+          (tags.length ? '<div class="element-liste-tags">' + tags.map(function(t){ return '<span class="tag-petit">' + echapper(t) + '</span>'; }).join('') + '</div>' : '') +
+        '</div>' +
+        '<button class="bouton-supprimer-element" data-action="supprimer-experience" data-id="' + ex.id + '">' +
+          '<i class="fas fa-trash"></i> Supprimer' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  var formAjoutExperience = document.getElementById('form-ajout-experience');
+  if (formAjoutExperience) {
+    formAjoutExperience.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var titre       = (document.getElementById('exp-titre')       || {}).value || '';
+      var typeExp     = (document.getElementById('exp-type')        || {}).value || '';
+      var entreprise  = (document.getElementById('exp-entreprise')  || {}).value || '';
+      var lieu        = (document.getElementById('exp-lieu')        || {}).value || '';
+      var dateDebut   = (document.getElementById('exp-date-debut')  || {}).value || '';
+      var dateFin     = (document.getElementById('exp-date-fin')    || {}).value || '';
+      var description = (document.getElementById('exp-description') || {}).value || '';
+      var tags        = (document.getElementById('exp-tags')        || {}).value || '';
+      var statut      = (document.getElementById('exp-statut')      || {}).value || 'termine';
+      var ordre       = parseInt((document.getElementById('exp-ordre') || {}).value || '0', 10);
+      var bouton      = document.getElementById('btn-ajouter-experience');
+
+      if (!titre.trim()) { afficherNotification('Le titre est obligatoire.', 'erreur'); return; }
+
+      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
+
+      requeteApi('POST', '/api/admin/experiences', {
+        titre: titre, type_exp: typeExp, entreprise: entreprise,
+        lieu: lieu, date_debut: dateDebut, date_fin: dateFin,
+        description: description, tags: tags, statut: statut, ordre: ordre
+      })
+      .then(function (res) {
+        if (res.statut === 201 && res.donnees.success) {
+          afficherNotification('Expérience ajoutée !', 'succes');
+          formAjoutExperience.reset();
+          chargerExperiences();
+        } else {
+          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
+        }
+      })
+      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
+      .finally(function () {
+        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter l\'expérience';
+      });
+    });
+  }
+
+  function supprimerExperience(id) {
+    confirmerAction('Supprimer cette expérience définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
+      requeteApi('DELETE', '/api/admin/experiences/' + id)
+        .then(function () { afficherNotification('Expérience supprimée', 'succes'); chargerExperiences(); })
+        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  //  COMPÉTENCES
+  // ════════════════════════════════════════════════════════════════════════
+
+  function chargerCompetences() {
+    var conteneur = document.getElementById('liste-competences');
+    if (!conteneur) return;
+    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    requeteApi('GET', '/api/admin/competences')
+      .then(function (res) {
+        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
+        var competences = res.donnees.competences || [];
+        definirTexte('nb-competences', competences.length);
+        if (!competences.length) {
+          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-star"></i><p>Aucune compétence enregistrée. Ajoutez votre première catégorie !</p></div>';
+          return;
+        }
+        conteneur.innerHTML = competences.map(function (c) { return construireElementCompetence(c); }).join('');
+        conteneur.querySelectorAll('[data-action="supprimer-competence"]').forEach(function (btn) {
+          btn.addEventListener('click', function () { supprimerCompetence(parseInt(this.dataset.id, 10)); });
+        });
+      })
+      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
+  }
+
+  function construireElementCompetence(c) {
+    var items  = (c.items || '').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+    var niveau = parseInt(c.niveau || 0, 10);
+    return (
+      '<div class="element-liste">' +
+        '<div class="element-liste-info">' +
+          '<div class="element-liste-titre">' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:' + echapper(c.couleur || '') + ';margin-right:8px;flex-shrink:0">' +
+              '<i class="' + echapper(c.icone || 'fas fa-code') + '" style="color:#fff;font-size:0.75rem"></i>' +
+            '</span>' +
+            echapper(c.categorie || '') +
+          '</div>' +
+          '<div class="barre-niveau-mini">' +
+            '<div class="barre-fond"><div class="barre-rempli" style="width:' + niveau + '%"></div></div>' +
+            '<span>' + echapper(c.label_niveau || niveau + '%') + '</span>' +
+          '</div>' +
+          (items.length ? '<div class="element-liste-tags" style="margin-top:8px">' +
+            items.slice(0, 6).map(function(item){
+              var parts = item.split('|');
+              var icone = parts[0] ? parts[0].trim() : '';
+              var nom   = parts[1] ? parts[1].trim() : item;
+              return '<span class="tag-petit">' + (icone ? '<i class="' + echapper(icone) + '" style="margin-right:4px"></i>' : '') + echapper(nom) + '</span>';
+            }).join('') +
+            (items.length > 6 ? '<span class="tag-petit">+' + (items.length - 6) + '</span>' : '') +
+          '</div>' : '') +
+        '</div>' +
+        '<button class="bouton-supprimer-element" data-action="supprimer-competence" data-id="' + c.id + '">' +
+          '<i class="fas fa-trash"></i> Supprimer' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  var formAjoutCompetence = document.getElementById('form-ajout-competence');
+  if (formAjoutCompetence) {
+    formAjoutCompetence.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var categorie   = (document.getElementById('comp-categorie')    || {}).value || '';
+      var icone       = (document.getElementById('comp-icone')        || {}).value || 'fas fa-code';
+      var couleur     = (document.getElementById('comp-couleur')      || {}).value || 'linear-gradient(135deg,#667eea,#764ba2)';
+      var niveau      = parseInt((document.getElementById('comp-niveau') || {}).value || '70', 10);
+      var labelNiveau = (document.getElementById('comp-label-niveau') || {}).value || '';
+      var items       = (document.getElementById('comp-items')        || {}).value || '';
+      var ordre       = parseInt((document.getElementById('comp-ordre') || {}).value || '0', 10);
+      var bouton      = document.getElementById('btn-ajouter-competence');
+
+      if (!categorie.trim()) { afficherNotification('La catégorie est obligatoire.', 'erreur'); return; }
+      if (!labelNiveau.trim()) labelNiveau = 'Niveau : ' + niveau + '%';
+
+      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
+
+      requeteApi('POST', '/api/admin/competences', {
+        categorie: categorie, icone: icone, couleur: couleur,
+        niveau: niveau, label_niveau: labelNiveau, items: items, ordre: ordre
+      })
+      .then(function (res) {
+        if (res.statut === 201 && res.donnees.success) {
+          afficherNotification('Compétence ajoutée !', 'succes');
+          formAjoutCompetence.reset();
+          document.getElementById('comp-icone').value  = 'fas fa-code';
+          document.getElementById('comp-couleur').value = 'linear-gradient(135deg,#667eea,#764ba2)';
+          document.getElementById('comp-niveau').value  = '70';
+          chargerCompetences();
+        } else {
+          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
+        }
+      })
+      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
+      .finally(function () {
+        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter la catégorie';
+      });
+    });
+  }
+
+  function supprimerCompetence(id) {
+    confirmerAction('Supprimer cette catégorie de compétences ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
+      requeteApi('DELETE', '/api/admin/competences/' + id)
+        .then(function () { afficherNotification('Compétence supprimée', 'succes'); chargerCompetences(); })
+        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
+    });
+  }
+
+  // ── UTILITAIRES ──────────────────────────────────────────────────────────
+
   function definirTexte(id, valeur) { var el = document.getElementById(id); if (el) el.textContent = valeur; }
 
   function deechapper(str) {
-    var div = document.createElement('div');
-    div.innerHTML = String(str || '');
-    return div.textContent;
+    var div = document.createElement('div'); div.innerHTML = String(str || ''); return div.textContent;
   }
 
   function echapper(str) {
-    var div = document.createElement('div');
-    div.textContent = String(str || '');
-    return div.innerHTML;
+    var div = document.createElement('div'); div.textContent = String(str || ''); return div.innerHTML;
   }
 
   function formaterDate(dateStr) {
     if (!dateStr) return '-';
-    var d    = new Date(dateStr);
+    var d = new Date(dateStr);
     if (isNaN(d.getTime())) return String(dateStr);
-    var maintenant = new Date();
-    var diff       = maintenant - d;
+    var maintenant = new Date(), diff = maintenant - d;
     if (diff < 60000)     return 'À l\'instant';
     if (diff < 3600000)   return 'Il y a ' + Math.floor(diff / 60000) + ' min';
     if (diff < 86400000)  return 'Il y a ' + Math.floor(diff / 3600000) + 'h';
@@ -750,12 +1024,13 @@
     requeteApi('GET', '/api/admin/stats')
       .then(function (res) {
         if (res.statut !== 200) return;
-        var nb       = parseInt(res.donnees.stats.unread || 0, 10);
+        var nb = parseInt(res.donnees.stats.unread || 0, 10);
         var compteur = document.getElementById('nb-messages');
         if (compteur) { compteur.textContent = nb > 0 ? nb : ''; compteur.style.display = nb > 0 ? 'inline-flex' : 'none'; }
       }).catch(console.error);
   }
 
+  // Styles notifications
   if (!document.getElementById('styles-notif')) {
     var feuille = document.createElement('style');
     feuille.id = 'styles-notif';
