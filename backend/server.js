@@ -457,6 +457,36 @@ app.post('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[projet-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
+// ── MODIFIER un projet ────────────────────────────────────────────────────
+app.patch('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
+
+    const titre        = sanitize(req.body.titre,        200);
+    const description  = sanitize(req.body.description,  1000);
+    const technologies = sanitize(req.body.technologies || '', 500);
+    const lien_site    = sanitize(req.body.lien_site    || '', 500);
+    const lien_github  = sanitize(req.body.lien_github  || '', 500);
+    const image_url    = req.body.image_url ? String(req.body.image_url).slice(0, 500000) : '';
+    const etiquette    = sanitize(req.body.etiquette    || 'Projet', 100);
+    const statut       = sanitize(req.body.statut       || 'termine', 50);
+    const ordre        = parseInt(req.body.ordre || 0, 10);
+
+    if (titre.length < 2)       return res.status(400).json({ error: 'Titre trop court.' });
+    if (description.length < 5) return res.status(400).json({ error: 'Description trop courte.' });
+
+    const r = await pool.query(
+      `UPDATE projets SET titre=$1, description=$2, technologies=$3, lien_site=$4, lien_github=$5,
+       image_url=$6, etiquette=$7, statut=$8, ordre=$9, updated_at=NOW()
+       WHERE id=$10 RETURNING *`,
+      [titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre, id]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Projet introuvable.' });
+    res.json({ success: true, projet: r.rows[0] });
+  } catch (err) { console.error('[projet-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
+});
+
 app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -500,6 +530,36 @@ app.post('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[experience-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
+// ── MODIFIER une expérience ───────────────────────────────────────────────
+app.patch('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
+
+    const titre       = sanitize(req.body.titre,       200);
+    const type_exp    = sanitize(req.body.type_exp    || '', 100);
+    const entreprise  = sanitize(req.body.entreprise  || '', 200);
+    const lieu        = sanitize(req.body.lieu        || '', 200);
+    const date_debut  = sanitize(req.body.date_debut  || '', 100);
+    const date_fin    = sanitize(req.body.date_fin    || '', 100);
+    const description = sanitize(req.body.description || '', 1000);
+    const tags        = sanitize(req.body.tags        || '', 500);
+    const statut      = sanitize(req.body.statut      || 'termine', 50);
+    const ordre       = parseInt(req.body.ordre || 0, 10);
+
+    if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
+
+    const r = await pool.query(
+      `UPDATE experiences SET titre=$1, type_exp=$2, entreprise=$3, lieu=$4, date_debut=$5,
+       date_fin=$6, description=$7, tags=$8, statut=$9, ordre=$10, updated_at=NOW()
+       WHERE id=$11 RETURNING *`,
+      [titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre, id]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Expérience introuvable.' });
+    res.json({ success: true, experience: r.rows[0] });
+  } catch (err) { console.error('[experience-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
+});
+
 app.delete('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -538,6 +598,33 @@ app.post('/api/admin/competences', auth, adminLimiter, async (req, res) => {
     );
     res.status(201).json({ success: true, competence: r.rows[0] });
   } catch (err) { console.error('[competence-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
+});
+
+// ── MODIFIER une compétence ───────────────────────────────────────────────
+app.patch('/api/admin/competences/:id', auth, adminLimiter, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
+
+    const categorie    = sanitize(req.body.categorie,    200);
+    const icone        = sanitize(req.body.icone        || 'fas fa-code', 100);
+    const couleur      = sanitize(req.body.couleur      || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
+    const niveau       = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
+    const label_niveau = sanitize(req.body.label_niveau || 'Intermédiaire', 100);
+    const items        = sanitize(req.body.items        || '', 1000);
+    const ordre        = parseInt(req.body.ordre || 0, 10);
+
+    if (categorie.length < 2) return res.status(400).json({ error: 'Catégorie trop courte.' });
+
+    const r = await pool.query(
+      `UPDATE competences SET categorie=$1, icone=$2, couleur=$3, niveau=$4,
+       label_niveau=$5, items=$6, ordre=$7, updated_at=NOW()
+       WHERE id=$8 RETURNING *`,
+      [categorie, icone, couleur, niveau, label_niveau, items, ordre, id]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ error: 'Compétence introuvable.' });
+    res.json({ success: true, competence: r.rows[0] });
+  } catch (err) { console.error('[competence-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
 app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) => {
