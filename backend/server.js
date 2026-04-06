@@ -94,7 +94,6 @@ async function connectDB() {
 }
 
 async function createTables() {
-  // Tables existantes
   await pool.query(`
     CREATE TABLE IF NOT EXISTS admin_users (
       id         SERIAL PRIMARY KEY,
@@ -124,8 +123,6 @@ async function createTables() {
       expires_at TIMESTAMP NOT NULL
     )
   `);
-
-  // ── NOUVELLES TABLES ──────────────────────────────────────────────────────
 
   // Table projets
   await pool.query(`
@@ -180,11 +177,10 @@ async function createTables() {
     )
   `);
 
-  // ── INDEX ──────────────────────────────────────────────────────────────────
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_created ON messages (created_at)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_is_read ON messages (is_read)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_revoked_expires  ON revoked_tokens (expires_at)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_projets_ordre    ON projets (ordre)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_created  ON messages (created_at)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_is_read  ON messages (is_read)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_revoked_expires   ON revoked_tokens (expires_at)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_projets_ordre     ON projets (ordre)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_experiences_ordre ON experiences (ordre)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_competences_ordre ON competences (ordre)`);
 
@@ -218,9 +214,11 @@ async function auth(req, res, next) {
   next();
 }
 
-// ── ROUTES EXISTANTES ──────────────────────────────────────────────────────
+// ── HEALTH ────────────────────────────────────────────────────────────────
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
+
+// ── CONTACT ───────────────────────────────────────────────────────────────
 
 app.post('/api/contact', contactLimiter, async (req, res) => {
   try {
@@ -237,6 +235,8 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     res.json({ success: true });
   } catch (err) { console.error('[contact]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
+
+// ── AUTH ADMIN ────────────────────────────────────────────────────────────
 
 app.post('/api/admin/login', loginLimiter, async (req, res) => {
   try {
@@ -264,6 +264,8 @@ app.post('/api/admin/logout', auth, async (req, res) => {
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
+
+// ── MESSAGES ──────────────────────────────────────────────────────────────
 
 app.get('/api/admin/messages', auth, adminLimiter, async (req, res) => {
   try {
@@ -401,7 +403,6 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
 
 // ── ROUTES PUBLIQUES : PROJETS / EXPÉRIENCES / COMPÉTENCES ───────────────
 
-// GET public projets (pour le portfolio)
 app.get('/api/projets', async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC');
@@ -409,7 +410,6 @@ app.get('/api/projets', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// GET public expériences
 app.get('/api/experiences', async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC');
@@ -417,7 +417,6 @@ app.get('/api/experiences', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// GET public compétences
 app.get('/api/competences', async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC');
@@ -427,7 +426,6 @@ app.get('/api/competences', async (req, res) => {
 
 // ── ROUTES ADMIN : PROJETS ────────────────────────────────────────────────
 
-// Lister les projets (admin)
 app.get('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC');
@@ -435,18 +433,17 @@ app.get('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Ajouter un projet
 app.post('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   try {
-    const titre       = sanitize(req.body.titre,       200);
-    const description = sanitize(req.body.description, 1000);
+    const titre        = sanitize(req.body.titre,        200);
+    const description  = sanitize(req.body.description,  1000);
     const technologies = sanitize(req.body.technologies || '', 500);
-    const lien_site   = sanitize(req.body.lien_site   || '', 500);
-    const lien_github = sanitize(req.body.lien_github || '', 500);
-    const image_url   = sanitize(req.body.image_url   || '', 500);
-    const etiquette   = sanitize(req.body.etiquette   || 'Projet', 100);
-    const statut      = sanitize(req.body.statut      || 'termine', 50);
-    const ordre       = parseInt(req.body.ordre || 0, 10);
+    const lien_site    = sanitize(req.body.lien_site    || '', 500);
+    const lien_github  = sanitize(req.body.lien_github  || '', 500);
+    const image_url    = sanitize(req.body.image_url    || '', 500);
+    const etiquette    = sanitize(req.body.etiquette    || 'Projet', 100);
+    const statut       = sanitize(req.body.statut       || 'termine', 50);
+    const ordre        = parseInt(req.body.ordre || 0, 10);
 
     if (titre.length < 2)       return res.status(400).json({ error: 'Titre trop court.' });
     if (description.length < 5) return res.status(400).json({ error: 'Description trop courte.' });
@@ -460,7 +457,6 @@ app.post('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[projet-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Supprimer un projet
 app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -473,7 +469,6 @@ app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
 
 // ── ROUTES ADMIN : EXPÉRIENCES ────────────────────────────────────────────
 
-// Lister les expériences (admin)
 app.get('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC');
@@ -481,19 +476,18 @@ app.get('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Ajouter une expérience
 app.post('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   try {
-    const titre      = sanitize(req.body.titre,      200);
-    const type_exp   = sanitize(req.body.type_exp   || '', 100);
-    const entreprise = sanitize(req.body.entreprise || '', 200);
-    const lieu       = sanitize(req.body.lieu       || '', 200);
-    const date_debut = sanitize(req.body.date_debut || '', 100);
-    const date_fin   = sanitize(req.body.date_fin   || '', 100);
+    const titre       = sanitize(req.body.titre,       200);
+    const type_exp    = sanitize(req.body.type_exp    || '', 100);
+    const entreprise  = sanitize(req.body.entreprise  || '', 200);
+    const lieu        = sanitize(req.body.lieu        || '', 200);
+    const date_debut  = sanitize(req.body.date_debut  || '', 100);
+    const date_fin    = sanitize(req.body.date_fin    || '', 100);
     const description = sanitize(req.body.description || '', 1000);
-    const tags       = sanitize(req.body.tags       || '', 500);
-    const statut     = sanitize(req.body.statut     || 'termine', 50);
-    const ordre      = parseInt(req.body.ordre || 0, 10);
+    const tags        = sanitize(req.body.tags        || '', 500);
+    const statut      = sanitize(req.body.statut      || 'termine', 50);
+    const ordre       = parseInt(req.body.ordre || 0, 10);
 
     if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
 
@@ -506,7 +500,6 @@ app.post('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[experience-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Supprimer une expérience
 app.delete('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -519,7 +512,6 @@ app.delete('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) =>
 
 // ── ROUTES ADMIN : COMPÉTENCES ────────────────────────────────────────────
 
-// Lister les compétences (admin)
 app.get('/api/admin/competences', auth, adminLimiter, async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC');
@@ -527,15 +519,14 @@ app.get('/api/admin/competences', auth, adminLimiter, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Ajouter une compétence
 app.post('/api/admin/competences', auth, adminLimiter, async (req, res) => {
   try {
-    const categorie    = sanitize(req.body.categorie,   200);
-    const icone        = sanitize(req.body.icone       || 'fas fa-code', 100);
-    const couleur      = sanitize(req.body.couleur     || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
+    const categorie    = sanitize(req.body.categorie,    200);
+    const icone        = sanitize(req.body.icone        || 'fas fa-code', 100);
+    const couleur      = sanitize(req.body.couleur      || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
     const niveau       = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
     const label_niveau = sanitize(req.body.label_niveau || 'Intermédiaire', 100);
-    const items        = sanitize(req.body.items       || '', 1000);
+    const items        = sanitize(req.body.items        || '', 1000);
     const ordre        = parseInt(req.body.ordre || 0, 10);
 
     if (categorie.length < 2) return res.status(400).json({ error: 'Catégorie trop courte.' });
@@ -549,7 +540,6 @@ app.post('/api/admin/competences', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[competence-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// Supprimer une compétence
 app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -560,7 +550,7 @@ app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) =>
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// ── INITIALISATION ADMIN ──────────────────────────────────────────────────
+// ── INIT ADMIN ────────────────────────────────────────────────────────────
 
 app.post('/api/admin/init', async (req, res) => {
   try {
@@ -571,16 +561,18 @@ app.post('/api/admin/init', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── STATIC & FALLBACK ──────────────────────────────────────────────────────
+// ── STATIC & FALLBACK ─────────────────────────────────────────────────────
+// ⚠️ CORRECTION : 'frontend' remplacé par 'docs' (nom réel du dossier)
 
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin'), { etag: true, lastModified: true, dotfiles: 'deny' }));
-app.use(express.static(path.join(__dirname, '..', 'frontend'), { etag: true, lastModified: true, dotfiles: 'deny' }));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html')));
+app.use(express.static(path.join(__dirname, '..', 'docs'), { etag: true, lastModified: true, dotfiles: 'deny' }));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'docs', 'index.html')));
 
 app.use(function (req, res) {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Ressource introuvable.' });
-  res.status(404).sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.status(404).sendFile(path.join(__dirname, '..', 'docs', 'index.html'));
 });
+
 app.use(function (err, req, res, next) {
   console.error('[erreur]', err.message);
   res.status(500).json({ error: process.env.NODE_ENV === 'production' ? 'Erreur interne.' : err.message });
