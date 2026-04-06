@@ -48,8 +48,8 @@ app.use(helmet({
   frameguard: { action: 'deny' },
 }));
 
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: false, limit: '10kb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 const originesParDefaut = [
   'https://philippe554-del.github.io',
