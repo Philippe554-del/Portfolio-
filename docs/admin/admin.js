@@ -368,16 +368,16 @@
   function construireElementMessage(m, apercu) {
     var nonLu = !m.is_read;
     var date  = formaterDate(m.created_at);
-    var texte = (m.message || '').slice(0, 100);
+    var texte = deechapper(m.message || '').slice(0, 100);
     return (
       '<div class="element-message ' + (nonLu ? 'non-lu' : '') + '" data-id="' + m.id + '">' +
         '<div class="entete-message">' +
-          '<span class="nom-expediteur"><i class="fas fa-user"></i> ' + echapper(m.name) +
+          '<span class="nom-expediteur"><i class="fas fa-user"></i> ' + echapper(deechapper(m.name)) +
             (nonLu ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B35;margin-left:6px"></span>' : '') +
           '</span>' +
           '<span class="date-message"><i class="fas fa-clock"></i> ' + date + '</span>' +
         '</div>' +
-        '<div class="email-expediteur"><i class="fas fa-envelope"></i> ' + echapper(m.email) + '</div>' +
+        '<div class="email-expediteur"><i class="fas fa-envelope"></i> ' + echapper(deechapper(m.email)) + '</div>' +
         '<div class="apercu-texte">' + echapper(texte) + (m.message && m.message.length > 100 ? '…' : '') + '</div>' +
         (apercu ? '' :
           '<div class="boutons-message">' +
@@ -413,29 +413,29 @@
 
         corps.innerHTML =
           '<div class="detail-message">' +
-            lignDetail('fas fa-user',     'Nom',     echapper(msg.name)) +
-            lignDetail('fas fa-envelope', 'Email',   '<a href="mailto:' + echapper(msg.email) + '" style="color:#00D9FF">' + echapper(msg.email) + '</a>') +
-            (msg.phone ? lignDetail('fas fa-phone', 'Tél', '<a href="tel:' + echapper(msg.phone) + '" style="color:#00D9FF">' + echapper(msg.phone) + '</a>') : '') +
+            lignDetail('fas fa-user',     'Nom',     echapper(deechapper(msg.name))) +
+            lignDetail('fas fa-envelope', 'Email',   '<a href="mailto:' + echapper(deechapper(msg.email)) + '" style="color:#00D9FF">' + echapper(deechapper(msg.email)) + '</a>') +
+            (msg.phone ? lignDetail('fas fa-phone', 'Tél', '<a href="tel:' + echapper(deechapper(msg.phone)) + '" style="color:#00D9FF">' + echapper(deechapper(msg.phone)) + '</a>') : '') +
             lignDetail('fas fa-clock',   'Date',    formaterDate(msg.created_at)) +
-            lignDetail('fas fa-comment', 'Message', '<div style="white-space:pre-wrap;line-height:1.6">' + echapper(msg.message) + '</div>') +
+            lignDetail('fas fa-comment', 'Message', '<div style="white-space:pre-wrap;line-height:1.6">' + echapper(deechapper(msg.message)) + '</div>') +
             lignDetail('fas fa-circle',  'Statut',  msg.is_read ? '<span style="color:#10B981">Lu</span>' : '<span style="color:#FF6B35">Non lu</span>') +
             (msg.replied_at ? lignDetail('fas fa-reply', 'Répondu le', formaterDate(msg.replied_at)) : '') +
           '</div>' +
           '<div id="section-reponse" style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1.5rem">' +
             '<h4 style="color:#FF6B35;margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:8px">' +
-              '<i class="fas fa-reply"></i> Répondre à ' + echapper(msg.name) +
+              '<i class="fas fa-reply"></i> Répondre à ' + echapper(deechapper(msg.name)) +
             '</h4>' +
             '<div style="margin-bottom:0.75rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Destinataire</label>' +
-              '<input id="champ-destinataire" type="email" value="' + echapper(msg.email) + '" readonly style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:0.9rem;box-sizing:border-box;cursor:not-allowed">' +
+              '<input id="champ-destinataire" type="email" value="' + echapper(deechapper(msg.email)) + '" readonly style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:0.9rem;box-sizing:border-box;cursor:not-allowed">' +
             '</div>' +
             '<div style="margin-bottom:0.75rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Sujet</label>' +
-              '<input id="champ-sujet" type="text" value="Re : Message depuis mon portfolio — ' + echapper(msg.name) + '" style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none">' +
+              '<input id="champ-sujet" type="text" value="Re : Message depuis mon portfolio — ' + echapper(deechapper(msg.name)) + '" style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none">' +
             '</div>' +
             '<div style="margin-bottom:1rem">' +
               '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Votre réponse</label>' +
-              '<textarea id="champ-reponse" rows="9" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none;line-height:1.6">Bonjour ' + echapper(msg.name) + ',\n\n\n\nCordialement,\nPhilippe Hountondji\n' + emailAdmin + '\n+229 01 58 15 69 30\n\nMon portfolio : ' + urlPortfolio + '</textarea>' +
+              '<textarea id="champ-reponse" rows="9" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none;line-height:1.6">Bonjour ' + echapper(deechapper(msg.name)) + ',\n\n\n\nCordialement,\nPhilippe Hountondji\n' + emailAdmin + '\n+229 01 58 15 69 30\n\nMon portfolio : ' + urlPortfolio + '</textarea>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">' +
               '<button id="btn-envoyer-reponse" style="padding:0.75rem 1.75rem;background:linear-gradient(135deg,#FF6B35,#F7931E);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.95rem">' +
@@ -716,6 +716,11 @@
 
   function definirTexte(id, valeur) { var el = document.getElementById(id); if (el) el.textContent = valeur; }
 
+  function deechapper(str) {
+    var div = document.createElement('div');
+    div.innerHTML = String(str || '');
+    return div.textContent;
+  }
   function echapper(str) {
     var div = document.createElement('div');
     div.textContent = String(str || '');
