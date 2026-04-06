@@ -1,1067 +1,1037 @@
 (function () {
   'use strict';
 
-  if (typeof Chart === 'undefined') {
-    var scriptGraphique = document.createElement('script');
-    scriptGraphique.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-    document.head.appendChild(scriptGraphique);
+  /* ══════════════════════════════════════════════════════════════
+     CONFIGURATION
+  ══════════════════════════════════════════════════════════════ */
+  const API = (function () {
+    const h = window.location.hostname;
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
+    return 'https://portfolio-backend-uaf9.onrender.com';
+  })();
+
+  let TOKEN = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+  let messageActuel = null;
+  let graphiqueMessages = null;
+  let graphiqueStatuts  = null;
+
+  /* ══════════════════════════════════════════════════════════════
+     HELPERS
+  ══════════════════════════════════════════════════════════════ */
+  function req(method, url, body) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}) }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    return fetch(API + url, opts).then(r => r.json());
   }
 
-  var urlApi          = 'https://portfolio-backend-uaf9.onrender.com';
-  var urlPortfolio    = 'https://philippe554-del.github.io/Portfolio-/';
-  var emailAdmin      = 'hountondjiphilippe58@gmail.com';
-  var cleToken        = '_adm_tk';
-
-  var idMessageActuel      = null;
-  var donneesMessageActuel = null;
-  var graphiqueMessages    = null;
-  var graphiqueStatuts     = null;
-  var timerRecherche       = null;
-
-  // ── TOKEN ────────────────────────────────────────────────────────────────
-
-  function lireToken() {
-    try { return sessionStorage.getItem(cleToken) || localStorage.getItem(cleToken) || null; }
-    catch (e) { return null; }
+  function toast(msg, type = 'info') {
+    const box = document.createElement('div');
+    box.className = 'toast toast-' + type;
+    const icons = { succes: 'fa-check-circle', erreur: 'fa-exclamation-circle', info: 'fa-info-circle', avert: 'fa-exclamation-triangle' };
+    box.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${String(msg).slice(0, 200)}</span>`;
+    document.body.appendChild(box);
+    setTimeout(() => box.classList.add('visible'), 10);
+    setTimeout(() => { box.classList.remove('visible'); setTimeout(() => box.remove(), 300); }, 4000);
   }
 
-  function sauverToken(token, seRappeler) {
-    try {
-      if (seRappeler) { localStorage.setItem(cleToken, token); sessionStorage.removeItem(cleToken); }
-      else            { sessionStorage.setItem(cleToken, token); localStorage.removeItem(cleToken); }
-    } catch (e) {}
+  function formaterDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  function supprimerToken() {
-    try { sessionStorage.removeItem(cleToken); localStorage.removeItem(cleToken); } catch (e) {}
+  function formaterDateCourte(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  // ── API ──────────────────────────────────────────────────────────────────
-
-  function requeteApi(methode, chemin, corps) {
-    var options = { method: methode, headers: { 'Content-Type': 'application/json' } };
-    var tok = lireToken();
-    if (tok)   options.headers['Authorization'] = 'Bearer ' + tok;
-    if (corps) options.body = JSON.stringify(corps);
-    return fetch(urlApi + chemin, options)
-      .then(function (reponse) {
-        if (reponse.status === 401) { deconnecter(); return Promise.reject(new Error('Session expirée.')); }
-        return reponse.json().then(function (donnees) { return { statut: reponse.status, donnees: donnees }; });
-      })
-      .catch(function (err) { return Promise.reject(err); });
-  }
-
-  // ── NOTIFICATIONS ────────────────────────────────────────────────────────
-
-  function afficherNotification(texte, type) {
-    type = type || 'info';
-    var boite = document.createElement('div');
-    boite.className = 'notif-flottante notif-' + type;
-    boite.innerHTML =
-      '<i class="fas fa-' + (type === 'succes' ? 'check-circle' : type === 'erreur' ? 'exclamation-circle' : 'info-circle') + '"></i>' +
-      '<span>' + echapper(String(texte).slice(0, 200)) + '</span>';
-    document.body.appendChild(boite);
-    setTimeout(function () { boite.classList.add('visible'); }, 10);
-    setTimeout(function () {
-      boite.classList.remove('visible');
-      setTimeout(function () { if (boite.parentNode) boite.parentNode.removeChild(boite); }, 300);
-    }, 4000);
-  }
-
-  // ── SESSION ──────────────────────────────────────────────────────────────
-
-  function verifierSession() {
-    if (!lireToken()) { afficherPageConnexion(); } else { afficherTableauBord(); }
-  }
-
-  function afficherPageConnexion() {
-    var pageConnexion = document.getElementById('page-connexion');
-    var tableauBord   = document.getElementById('tableau-bord');
-    if (tableauBord) { tableauBord.style.display = 'none'; tableauBord.classList.add('masque'); }
-    if (pageConnexion) {
-      pageConnexion.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:var(--fond-principal,#0A0E27);';
-    }
-    if (graphiqueMessages) { graphiqueMessages.destroy(); graphiqueMessages = null; }
-    if (graphiqueStatuts)  { graphiqueStatuts.destroy();  graphiqueStatuts  = null; }
-  }
-
-  function afficherTableauBord() {
-    var pageConnexion = document.getElementById('page-connexion');
-    var tableauBord   = document.getElementById('tableau-bord');
-    if (pageConnexion) pageConnexion.style.display = 'none';
-    if (tableauBord) {
-      tableauBord.classList.remove('masque');
-      tableauBord.style.display = 'flex';
-      tableauBord.style.zIndex  = '';
-    }
-    ajouterBoutonPortfolio();
-    setTimeout(function () {
-      chargerDonneesAccueil();
-      actualiserCompteur();
-    }, 100);
-    afficherNotification('Connexion réussie !', 'succes');
-  }
-
-  function deconnecter() {
-    if (lireToken()) { requeteApi('POST', '/api/admin/logout').catch(function () {}); }
-    supprimerToken();
-    afficherPageConnexion();
-    afficherNotification('Déconnexion réussie', 'info');
-  }
-
-  function ajouterBoutonPortfolio() {
-    var piedBarre = document.querySelector('.pied-barre');
-    if (!piedBarre) return;
-    if (document.getElementById('lien-portfolio')) return;
-    var bouton = document.createElement('button');
-    bouton.id        = 'lien-portfolio';
-    bouton.className = 'bouton-retour-portfolio';
-    bouton.innerHTML = '<i class="fas fa-arrow-left"></i> <span>Retour au Portfolio</span>';
-    bouton.addEventListener('click', function () { window.location.href = urlPortfolio; });
-    var btnDeconnexion = document.getElementById('btn-deconnexion');
-    piedBarre.insertBefore(bouton, btnDeconnexion);
-  }
-
-  // ── CONNEXION ────────────────────────────────────────────────────────────
-
-  var formulaireConnexion = document.getElementById('formulaire-connexion');
-  if (formulaireConnexion) {
-    formulaireConnexion.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email      = document.getElementById('champ-email').value.trim();
-      var motdepasse = document.getElementById('champ-motdepasse').value;
-      var seRappeler = document.getElementById('se-souvenir') ? document.getElementById('se-souvenir').checked : false;
-      var erreurEl   = document.getElementById('erreur-connexion');
-      var bouton     = formulaireConnexion.querySelector('.bouton-connexion');
-      if (!email || !motdepasse) return;
-      erreurEl.style.display = 'none';
-      bouton.disabled = true;
-      bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
-      requeteApi('POST', '/api/admin/login', { email: email, password: motdepasse })
-        .then(function (res) {
-          if (res.statut === 200 && res.donnees.token) {
-            sauverToken(res.donnees.token, seRappeler);
-            afficherTableauBord();
-          } else {
-            erreurEl.style.display = 'flex';
-            erreurEl.querySelector('span').textContent = res.donnees.error || 'Identifiants incorrects.';
-            var carte = document.querySelector('.carte-connexion');
-            if (carte) { carte.classList.add('secouer'); setTimeout(function () { carte.classList.remove('secouer'); }, 600); }
-          }
-        })
-        .catch(function (err) {
-          erreurEl.style.display = 'flex';
-          erreurEl.querySelector('span').textContent = err.message || 'Erreur réseau.';
-        })
-        .finally(function () {
-          bouton.disabled = false;
-          bouton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
-        });
+  /* ══════════════════════════════════════════════════════════════
+     UPLOAD IMAGE → BASE64
+  ══════════════════════════════════════════════════════════════ */
+  function imageVersBase64(fichier) {
+    return new Promise((resolve, reject) => {
+      if (!fichier.type.startsWith('image/')) return reject(new Error('Fichier non-image'));
+      if (fichier.size > 5 * 1024 * 1024) return reject(new Error('Image trop lourde (max 5 Mo)'));
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('Lecture échouée'));
+      reader.readAsDataURL(fichier);
     });
   }
 
-  var btnDeconnexion = document.getElementById('btn-deconnexion');
-  if (btnDeconnexion) btnDeconnexion.addEventListener('click', deconnecter);
+  function creerChampPhoto(idInput, idPreview) {
+    return `
+      <div class="upload-photo-zone" id="zone-${idInput}">
+        <input type="file" id="${idInput}" accept="image/*" style="display:none">
+        <div class="upload-declencheur" onclick="document.getElementById('${idInput}').click()">
+          <i class="fas fa-camera"></i>
+          <span>Choisir une photo</span>
+          <small>JPG, PNG, WebP — max 5 Mo</small>
+        </div>
+        <div class="upload-apercu" id="${idPreview}" style="display:none">
+          <img id="img-${idPreview}" src="" alt="Aperçu">
+          <button type="button" class="suppr-apercu" onclick="supprimerApercu('${idInput}','${idPreview}')">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>`;
+  }
 
-  // ── NAVIGATION ───────────────────────────────────────────────────────────
-
-  var titresPages = {
-    'vue-ensemble': "Vue d'ensemble",
-    'messages':     'Messages',
-    'projets':      'Projets',
-    'experiences':  'Expériences',
-    'competences':  'Compétences',
-    'statistiques': 'Statistiques',
-    'parametres':   'Paramètres'
+  window.supprimerApercu = function (idInput, idPreview) {
+    document.getElementById(idInput).value = '';
+    document.getElementById(idPreview).style.display = 'none';
+    document.getElementById('zone-' + idInput).querySelector('.upload-declencheur').style.display = 'flex';
   };
 
-  document.querySelectorAll('.element-nav[data-page]').forEach(function (element) {
-    var touchUtilise = false;
-    element.addEventListener('touchend', function (e) {
-      e.preventDefault();
-      touchUtilise = true;
-      var page = this.dataset.page;
-      fermerBarreLaterale();
-      setTimeout(function () { allerVers(page); touchUtilise = false; }, 50);
-    }, { passive: false });
-    element.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (touchUtilise) return;
-      fermerBarreLaterale();
-      allerVers(this.dataset.page);
+  function bindUpload(idInput, idPreview) {
+    const inp = document.getElementById(idInput);
+    if (!inp) return;
+    inp.addEventListener('change', async function () {
+      const f = this.files[0];
+      if (!f) return;
+      try {
+        const b64 = await imageVersBase64(f);
+        const prev = document.getElementById(idPreview);
+        document.getElementById('img-' + idPreview).src = b64;
+        prev.style.display = 'block';
+        document.getElementById('zone-' + idInput).querySelector('.upload-declencheur').style.display = 'none';
+      } catch (e) { toast(e.message, 'erreur'); }
     });
-  });
+  }
 
-  document.querySelectorAll('[data-page]').forEach(function (el) {
-    if (el.tagName === 'A' && !el.classList.contains('element-nav')) {
-      el.addEventListener('click', function (e) { e.preventDefault(); allerVers(this.dataset.page); });
+  /* ══════════════════════════════════════════════════════════════
+     CONNEXION / SESSION
+  ══════════════════════════════════════════════════════════════ */
+  function init() {
+    if (TOKEN) {
+      afficherTableau();
+    } else {
+      document.getElementById('page-connexion').style.display = 'flex';
+      document.getElementById('tableau-bord').classList.add('masque');
     }
-  });
-
-  function allerVers(page) {
-    document.querySelectorAll('.element-nav').forEach(function (el) { el.classList.remove('actif'); });
-    var elementNav = document.querySelector('.element-nav[data-page="' + page + '"]');
-    if (elementNav) elementNav.classList.add('actif');
-
-    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
-    var pageEl = document.getElementById('page-' + page);
-    if (pageEl) pageEl.classList.add('active');
-
-    var titrePage = document.getElementById('titre-page');
-    if (titrePage) titrePage.textContent = titresPages[page] || page;
-
-    if (page === 'vue-ensemble') chargerDonneesAccueil();
-    if (page === 'messages')     chargerMessages();
-    if (page === 'statistiques') chargerStatistiques();
-    if (page === 'projets')      chargerProjets();
-    if (page === 'experiences')  chargerExperiences();
-    if (page === 'competences')  chargerCompetences();
+    bindConnexion();
+    bindNavigation();
+    bindDeconnexion();
+    bindActions();
+    injecterStyles();
   }
 
-  // ── MENU HAMBURGER ───────────────────────────────────────────────────────
+  function bindConnexion() {
+    const form = document.getElementById('formulaire-connexion');
+    const btnVoir = document.querySelector('.bouton-voir-mdp');
+    const champMdp = document.getElementById('champ-motdepasse');
 
-  var btnMenu       = document.getElementById('btn-menu');
-  var barreLaterale = document.querySelector('.barre-laterale');
-  var fondOverlay   = document.getElementById('fond-overlay');
-
-  if (!fondOverlay) {
-    fondOverlay = document.createElement('div');
-    fondOverlay.id = 'fond-overlay';
-    fondOverlay.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:98;cursor:pointer;';
-    document.body.appendChild(fondOverlay);
-  }
-
-  function ouvrirBarreLaterale()  { if (barreLaterale) barreLaterale.classList.add('ouverte'); fondOverlay.style.display = 'block'; }
-  function fermerBarreLaterale()  { if (barreLaterale) barreLaterale.classList.remove('ouverte'); fondOverlay.style.display = 'none'; }
-
-  var dernierClic = 0;
-  function gererMenuBurger(e) {
-    e.preventDefault(); e.stopPropagation();
-    var maintenant = Date.now();
-    if (maintenant - dernierClic < 300) return;
-    dernierClic = maintenant;
-    if (barreLaterale && barreLaterale.classList.contains('ouverte')) { fermerBarreLaterale(); } else { ouvrirBarreLaterale(); }
-  }
-
-  if (btnMenu) {
-    btnMenu.addEventListener('touchstart', function (e) { e.preventDefault(); }, { passive: false });
-    btnMenu.addEventListener('touchend',   function (e) { gererMenuBurger(e); }, { passive: false });
-    btnMenu.addEventListener('click',      function (e) { gererMenuBurger(e); });
-  }
-
-  fondOverlay.addEventListener('click', fermerBarreLaterale);
-  fondOverlay.addEventListener('touchend', function (e) { e.preventDefault(); fermerBarreLaterale(); }, { passive: false });
-
-  // ── BOUTONS ENTÊTE ───────────────────────────────────────────────────────
-
-  var btnNotifications = document.getElementById('btn-notifications');
-  if (btnNotifications) {
-    btnNotifications.addEventListener('click', function () {
-      requeteApi('GET', '/api/admin/stats').then(function (res) {
-        if (res.statut !== 200) return;
-        var nonLus = parseInt(res.donnees.stats.unread || 0, 10);
-        afficherNotification(nonLus === 0 ? 'Aucune nouvelle notification' : 'Vous avez ' + nonLus + ' message(s) non lu(s)', 'info');
-      }).catch(function () { afficherNotification('Erreur lors du chargement', 'erreur'); });
-    });
-  }
-
-  var btnActualiser = document.getElementById('btn-actualiser');
-  if (btnActualiser) {
-    btnActualiser.addEventListener('click', function () {
-      var icone = this.querySelector('i');
-      if (icone) icone.classList.add('fa-spin');
-      var pageActive = document.querySelector('.page.active');
-      if (pageActive) {
-        var page = pageActive.id.replace('page-', '');
-        if (page === 'vue-ensemble') chargerDonneesAccueil();
-        if (page === 'messages')     chargerMessages();
-        if (page === 'statistiques') chargerStatistiques();
-        if (page === 'projets')      chargerProjets();
-        if (page === 'experiences')  chargerExperiences();
-        if (page === 'competences')  chargerCompetences();
-      }
-      afficherNotification('Données rafraîchies', 'info');
-      setTimeout(function () { if (icone) icone.classList.remove('fa-spin'); }, 1000);
-    });
-  }
-
-  document.querySelectorAll('.bouton-voir-mdp').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var champ = this.previousElementSibling;
-      if (!champ) return;
-      var estMdp = champ.type === 'password';
-      champ.type = estMdp ? 'text' : 'password';
-      this.querySelector('i').className = estMdp ? 'fas fa-eye-slash' : 'fas fa-eye';
-    });
-  });
-
-  // ── VUE D'ENSEMBLE ───────────────────────────────────────────────────────
-
-  function chargerDonneesAccueil() {
-    if (!lireToken()) return;
-    requeteApi('GET', '/api/admin/stats')
-      .then(function (res) {
-        if (res.statut !== 200) { afficherNotification('Erreur chargement stats', 'erreur'); return; }
-        var s = res.donnees.stats || {};
-        definirTexte('total-messages',       s.total  || 0);
-        definirTexte('messages-lus',         s.read   || 0);
-        definirTexte('messages-non-lus',     s.unread || 0);
-        definirTexte('messages-aujourd-hui', s.today  || 0);
-        var compteur = document.getElementById('nb-messages');
-        if (compteur) { compteur.textContent = s.unread > 0 ? s.unread : ''; compteur.style.display = s.unread > 0 ? 'inline-flex' : 'none'; }
-        chargerMessagesRecents();
-      })
-      .catch(function (err) { afficherNotification('Erreur réseau: ' + err.message, 'erreur'); });
-  }
-
-  function chargerMessagesRecents() {
-    requeteApi('GET', '/api/admin/messages?limit=5')
-      .then(function (res) { if (res.statut !== 200) return; afficherMessagesRecents(res.donnees.messages || []); })
-      .catch(function (err) { console.error(err); });
-  }
-
-  function afficherMessagesRecents(messages) {
-    var conteneur = document.getElementById('liste-messages-recents');
-    if (!conteneur) return;
-    if (!messages.length) {
-      conteneur.innerHTML = '<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div>';
-      return;
-    }
-    conteneur.innerHTML = messages.map(function (m) { return construireElementMessage(m, true); }).join('');
-    conteneur.querySelectorAll('.element-message').forEach(function (el) {
-      el.addEventListener('click', function () { ouvrirMessage(parseInt(this.dataset.id, 10)); });
-    });
-  }
-
-  // ── MESSAGES ─────────────────────────────────────────────────────────────
-
-  function chargerMessages() {
-    var recherche = (document.getElementById('recherche-messages') || {}).value || '';
-    var filtre    = (document.getElementById('filtre-messages')    || {}).value || 'all';
-    var tri       = (document.getElementById('tri-messages')       || {}).value || 'newest';
-    var params    = '?limit=50' + (filtre !== 'all' ? '&filter=' + encodeURIComponent(filtre) : '');
-    requeteApi('GET', '/api/admin/messages' + params)
-      .then(function (res) {
-        if (res.statut !== 200) return;
-        var messages = res.donnees.messages || [];
-        if (recherche) {
-          var motCle = recherche.toLowerCase();
-          messages = messages.filter(function (m) {
-            return (m.name    || '').toLowerCase().indexOf(motCle) !== -1 ||
-                   (m.email   || '').toLowerCase().indexOf(motCle) !== -1 ||
-                   (m.message || '').toLowerCase().indexOf(motCle) !== -1;
-          });
-        }
-        if (tri === 'oldest') messages = messages.slice().reverse();
-        afficherMessages(messages);
-      })
-      .catch(function (err) { console.error(err); });
-  }
-
-  function afficherMessages(messages) {
-    var conteneur = document.getElementById('liste-messages');
-    if (!conteneur) return;
-    if (!messages.length) {
-      conteneur.innerHTML = '<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Aucun message ne correspond à votre recherche</p></div>';
-      return;
-    }
-    conteneur.innerHTML = messages.map(function (m) { return construireElementMessage(m, false); }).join('');
-    conteneur.querySelectorAll('.element-message').forEach(function (el) {
-      el.addEventListener('click', function (e) { if (e.target.closest('.bouton-petit')) return; ouvrirMessage(parseInt(this.dataset.id, 10)); });
-    });
-    conteneur.querySelectorAll('[data-action="supprimer"]').forEach(function (btn) {
-      btn.addEventListener('click', function (e) { e.stopPropagation(); supprimerMessage(parseInt(this.dataset.id, 10)); });
-    });
-    conteneur.querySelectorAll('[data-action="basculer-lu"]').forEach(function (btn) {
-      btn.addEventListener('click', function (e) { e.stopPropagation(); basculerLu(parseInt(this.dataset.id, 10)); });
-    });
-  }
-
-  function construireElementMessage(m, apercu) {
-    var nonLu = !m.is_read;
-    var date  = formaterDate(m.created_at);
-    var texte = deechapper(m.message || '').slice(0, 100);
-    return (
-      '<div class="element-message ' + (nonLu ? 'non-lu' : '') + '" data-id="' + m.id + '">' +
-        '<div class="entete-message">' +
-          '<span class="nom-expediteur"><i class="fas fa-user"></i> ' + echapper(deechapper(m.name)) +
-            (nonLu ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF6B35;margin-left:6px"></span>' : '') +
-          '</span>' +
-          '<span class="date-message"><i class="fas fa-clock"></i> ' + date + '</span>' +
-        '</div>' +
-        '<div class="email-expediteur"><i class="fas fa-envelope"></i> ' + echapper(deechapper(m.email)) + '</div>' +
-        '<div class="apercu-texte">' + echapper(texte) + (m.message && m.message.length > 100 ? '…' : '') + '</div>' +
-        (apercu ? '' :
-          '<div class="boutons-message">' +
-            '<button class="bouton-petit" data-action="basculer-lu" data-id="' + m.id + '">' +
-              '<i class="fas fa-' + (nonLu ? 'envelope-open' : 'envelope') + '"></i> ' + (nonLu ? 'Marquer lu' : 'Marquer non lu') +
-            '</button>' +
-            '<button class="bouton-petit rouge" data-action="supprimer" data-id="' + m.id + '">' +
-              '<i class="fas fa-trash"></i> Supprimer' +
-            '</button>' +
-          '</div>'
-        ) +
-      '</div>'
-    );
-  }
-
-  function ouvrirMessage(id) {
-    requeteApi('GET', '/api/admin/messages?limit=1000')
-      .then(function (res) {
-        if (res.statut !== 200) return;
-        var msg = (res.donnees.messages || []).find(function (m) { return m.id === id; });
-        if (!msg) return;
-        idMessageActuel      = id;
-        donneesMessageActuel = msg;
-        var name    = deechapper(msg.name);
-        var email   = deechapper(msg.email);
-        var phone   = deechapper(msg.phone || '');
-        var message = deechapper(msg.message);
-        if (!msg.is_read) {
-          requeteApi('PATCH', '/api/admin/messages/' + id + '/read')
-            .then(function () { chargerDonneesAccueil(); chargerMessages(); })
-            .catch(console.error);
-        }
-        var corps = document.getElementById('corps-modale');
-        if (!corps) return;
-        corps.innerHTML =
-          '<div class="detail-message">' +
-            lignDetail('fas fa-user',     'Nom',     echapper(name)) +
-            lignDetail('fas fa-envelope', 'Email',   '<a href="mailto:' + echapper(email) + '" style="color:#00D9FF">' + echapper(email) + '</a>') +
-            (phone ? lignDetail('fas fa-phone', 'Tél', '<a href="tel:' + echapper(phone) + '" style="color:#00D9FF">' + echapper(phone) + '</a>') : '') +
-            lignDetail('fas fa-clock',   'Date',    formaterDate(msg.created_at)) +
-            lignDetail('fas fa-comment', 'Message', '<div style="white-space:pre-wrap;line-height:1.6">' + echapper(message) + '</div>') +
-            lignDetail('fas fa-circle',  'Statut',  msg.is_read ? '<span style="color:#10B981">Lu</span>' : '<span style="color:#FF6B35">Non lu</span>') +
-            (msg.replied_at ? lignDetail('fas fa-reply', 'Répondu le', formaterDate(msg.replied_at)) : '') +
-          '</div>' +
-          '<div id="section-reponse" style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:1.5rem">' +
-            '<h4 style="color:#FF6B35;margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:8px">' +
-              '<i class="fas fa-reply"></i> Répondre à ' + echapper(name) +
-            '</h4>' +
-            '<div style="margin-bottom:0.75rem">' +
-              '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Destinataire</label>' +
-              '<input id="champ-destinataire" type="email" value="' + echapper(email) + '" readonly style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#888;font-size:0.9rem;box-sizing:border-box;cursor:not-allowed">' +
-            '</div>' +
-            '<div style="margin-bottom:0.75rem">' +
-              '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Sujet</label>' +
-              '<input id="champ-sujet" type="text" value="Re : Message depuis mon portfolio — ' + echapper(name) + '" style="width:100%;padding:0.65rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none">' +
-            '</div>' +
-            '<div style="margin-bottom:1rem">' +
-              '<label style="display:block;margin-bottom:4px;font-size:0.82rem;color:#B4B8D4;font-weight:600">Votre réponse</label>' +
-              '<textarea id="champ-reponse" rows="9" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;resize:vertical;font-family:inherit;box-sizing:border-box;outline:none;line-height:1.6">Bonjour ' + echapper(name) + ',\n\n\n\nCordialement,\nPhilippe Hountondji\n' + emailAdmin + '\n+229 01 58 15 69 30\n\nMon portfolio : ' + urlPortfolio + '</textarea>' +
-            '</div>' +
-            '<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">' +
-              '<button id="btn-envoyer-reponse" style="padding:0.75rem 1.75rem;background:linear-gradient(135deg,#FF6B35,#F7931E);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.95rem">' +
-                '<i class="fas fa-paper-plane"></i> Envoyer par email' +
-              '</button>' +
-              '<span id="statut-reponse" style="font-size:0.9rem"></span>' +
-            '</div>' +
-          '</div>';
-        document.getElementById('btn-envoyer-reponse').addEventListener('click', function () { envoyerReponse(msg); });
-        document.getElementById('fenetre-message').classList.add('active');
-      })
-      .catch(function (err) { console.error(err); });
-  }
-
-  function envoyerReponse(msg) {
-    var destinataire = (document.getElementById('champ-destinataire') || {}).value || '';
-    var sujet        = (document.getElementById('champ-sujet')        || {}).value || '';
-    var reponse      = (document.getElementById('champ-reponse')      || {}).value || '';
-    var bouton       = document.getElementById('btn-envoyer-reponse');
-    var statut       = document.getElementById('statut-reponse');
-    if (!reponse.trim() || reponse.length < 10) {
-      statut.innerHTML = '<span style="color:#EF4444"><i class="fas fa-exclamation-circle"></i> Écrivez un message avant d\'envoyer.</span>';
-      return;
-    }
-    bouton.disabled = true; bouton.style.opacity = '0.6';
-    bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
-    requeteApi('POST', '/api/admin/send-reply', { to: destinataire, subject: sujet, message: reponse, messageId: msg.id })
-      .then(function (res) {
-        if (res.statut === 200 && res.donnees.success) {
-          statut.innerHTML = '<span style="color:#10B981"><i class="fas fa-check-circle"></i> Email envoyé !</span>';
-          bouton.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
-          bouton.style.background = 'linear-gradient(135deg,#10B981,#059669)';
-          bouton.style.opacity    = '1';
-          afficherNotification('Email envoyé à ' + echapper(destinataire), 'succes');
-          chargerDonneesAccueil(); chargerMessages();
-        } else {
-          statut.innerHTML    = '<span style="color:#EF4444"><i class="fas fa-times-circle"></i> ' + echapper(res.donnees.error || 'Erreur.') + '</span>';
-          bouton.disabled     = false; bouton.style.opacity = '1';
-          bouton.innerHTML    = '<i class="fas fa-paper-plane"></i> Envoyer par email';
-        }
-      })
-      .catch(function () {
-        statut.innerHTML = '<span style="color:#EF4444">Erreur réseau.</span>';
-        bouton.disabled  = false; bouton.style.opacity = '1';
-        bouton.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer par email';
+    if (btnVoir) {
+      btnVoir.addEventListener('click', () => {
+        const estMdp = champMdp.type === 'password';
+        champMdp.type = estMdp ? 'text' : 'password';
+        btnVoir.querySelector('i').className = estMdp ? 'fas fa-eye-slash' : 'fas fa-eye';
       });
+    }
+
+    if (!form) return;
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('champ-email').value.trim();
+      const mdp   = document.getElementById('champ-motdepasse').value;
+      const btnC  = form.querySelector('.bouton-connexion');
+      const errDiv = document.getElementById('erreur-connexion');
+
+      btnC.disabled = true;
+      btnC.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion…';
+      errDiv.style.display = 'none';
+
+      try {
+        const data = await req('POST', '/api/admin/login', { email, password: mdp });
+        if (data.success && data.token) {
+          TOKEN = data.token;
+          if (document.getElementById('se-souvenir')?.checked) {
+            localStorage.setItem('admin_token', TOKEN);
+          } else {
+            sessionStorage.setItem('admin_token', TOKEN);
+          }
+          afficherTableau();
+        } else {
+          errDiv.style.display = 'flex';
+          errDiv.querySelector('span').textContent = data.error || 'Identifiants incorrects';
+          form.classList.add('secouer');
+          setTimeout(() => form.classList.remove('secouer'), 500);
+        }
+      } catch {
+        errDiv.style.display = 'flex';
+        errDiv.querySelector('span').textContent = 'Erreur réseau.';
+      } finally {
+        btnC.disabled = false;
+        btnC.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+      }
+    });
   }
 
-  function lignDetail(icone, libelle, valeur) {
-    return '<div class="champ-message"><label><i class="' + icone + '"></i> ' + libelle + '</label><div class="valeur">' + valeur + '</div></div>';
+  function afficherTableau() {
+    document.getElementById('page-connexion').style.display = 'none';
+    document.getElementById('tableau-bord').classList.remove('masque');
+    chargerDonnees('vue-ensemble');
+    chargerStatsRapides();
   }
+
+  function bindDeconnexion() {
+    document.getElementById('btn-deconnexion')?.addEventListener('click', async () => {
+      try { await req('POST', '/api/admin/logout'); } catch {}
+      TOKEN = null;
+      localStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_token');
+      location.reload();
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     NAVIGATION
+  ══════════════════════════════════════════════════════════════ */
+  function bindNavigation() {
+    document.querySelectorAll('.element-nav').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const page = el.dataset.page;
+        document.querySelectorAll('.element-nav').forEach(n => n.classList.remove('actif'));
+        el.classList.add('actif');
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + page)?.classList.add('active');
+        document.getElementById('titre-page').textContent = el.querySelector('span').textContent;
+        fermerBarreLatAuMobile();
+        chargerDonnees(page);
+      });
+    });
+
+    document.querySelectorAll('[data-page]').forEach(el => {
+      if (el.classList.contains('element-nav')) return;
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const page = el.dataset.page;
+        document.querySelector(`.element-nav[data-page="${page}"]`)?.click();
+      });
+    });
+
+    document.getElementById('btn-menu')?.addEventListener('click', () => {
+      document.querySelector('.barre-laterale')?.classList.toggle('ouverte');
+    });
+
+    document.getElementById('btn-actualiser')?.addEventListener('click', () => {
+      const pageActive = document.querySelector('.page.active')?.id.replace('page-', '');
+      if (pageActive) chargerDonnees(pageActive);
+      chargerStatsRapides();
+    });
+  }
+
+  function fermerBarreLatAuMobile() {
+    if (window.innerWidth <= 992) {
+      document.querySelector('.barre-laterale')?.classList.remove('ouverte');
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     CHARGEMENT DES DONNÉES PAR PAGE
+  ══════════════════════════════════════════════════════════════ */
+  function chargerDonnees(page) {
+    switch (page) {
+      case 'vue-ensemble':  chargerVueEnsemble(); break;
+      case 'messages':      chargerMessages(); break;
+      case 'projets':       chargerProjets(); break;
+      case 'experiences':   chargerExperiences(); break;
+      case 'competences':   chargerCompetences(); break;
+      case 'statistiques':  chargerStatistiques(); break;
+      case 'parametres':    bindParametres(); break;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     STATS RAPIDES (badge non-lus)
+  ══════════════════════════════════════════════════════════════ */
+  async function chargerStatsRapides() {
+    try {
+      const d = await req('GET', '/api/admin/stats');
+      if (d.success) {
+        const nb = document.getElementById('nb-messages');
+        if (nb) nb.textContent = d.stats.unread;
+        const ptNotif = document.querySelector('.point-notif');
+        if (ptNotif) ptNotif.style.display = d.stats.unread > 0 ? 'block' : 'none';
+      }
+    } catch {}
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     VUE D'ENSEMBLE
+  ══════════════════════════════════════════════════════════════ */
+  async function chargerVueEnsemble() {
+    try {
+      const d = await req('GET', '/api/admin/stats');
+      if (d.success) {
+        document.getElementById('total-messages').textContent   = d.stats.total;
+        document.getElementById('messages-lus').textContent     = d.stats.read;
+        document.getElementById('messages-non-lus').textContent = d.stats.unread;
+        document.getElementById('messages-aujourd-hui').textContent = d.stats.today;
+        document.getElementById('nb-messages').textContent = d.stats.unread;
+      }
+    } catch {}
+
+    try {
+      const d = await req('GET', '/api/admin/messages?limit=5');
+      const cont = document.getElementById('liste-messages-recents');
+      if (!cont) return;
+      if (!d.messages?.length) {
+        cont.innerHTML = `<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages apparaîtront ici</p></div>`;
+        return;
+      }
+      cont.innerHTML = d.messages.map(renderMessageElement).join('');
+      cont.querySelectorAll('.element-message').forEach(el => {
+        el.addEventListener('click', () => ouvrirMessage(parseInt(el.dataset.id)));
+      });
+    } catch {}
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     MESSAGES
+  ══════════════════════════════════════════════════════════════ */
+  let pageMessages = 1;
+  let filtreMessages = 'all';
+
+  async function chargerMessages() {
+    const cont = document.getElementById('liste-messages');
+    if (!cont) return;
+    cont.innerHTML = `<div class="chargement"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>`;
+    try {
+      const d = await req('GET', `/api/admin/messages?page=${pageMessages}&limit=20&filter=${filtreMessages}`);
+      if (!d.messages?.length) {
+        cont.innerHTML = `<div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Aucun message à afficher</p></div>`;
+        return;
+      }
+      const recherche = document.getElementById('recherche-messages')?.value.toLowerCase() || '';
+      let msgs = d.messages;
+      if (recherche) {
+        msgs = msgs.filter(m =>
+          m.name.toLowerCase().includes(recherche) ||
+          m.email.toLowerCase().includes(recherche) ||
+          m.message.toLowerCase().includes(recherche)
+        );
+      }
+      cont.innerHTML = msgs.map(renderMessageElement).join('');
+      cont.querySelectorAll('.element-message').forEach(el => {
+        el.addEventListener('click', () => ouvrirMessage(parseInt(el.dataset.id)));
+      });
+    } catch { cont.innerHTML = `<div class="etat-vide"><i class="fas fa-exclamation-triangle"></i><h3>Erreur</h3><p>Impossible de charger les messages</p></div>`; }
+  }
+
+  function renderMessageElement(m) {
+    const nonLu = !m.is_read;
+    return `
+      <div class="element-message ${nonLu ? 'non-lu' : ''}" data-id="${m.id}">
+        <div class="entete-message">
+          <span class="nom-expediteur"><i class="fas fa-user-circle"></i>${escHtml(m.name)}</span>
+          <span class="date-message"><i class="fas fa-clock"></i>${formaterDateCourte(m.created_at)}</span>
+        </div>
+        <div class="email-expediteur"><i class="fas fa-envelope"></i>${escHtml(m.email)}</div>
+        <div class="apercu-texte">${escHtml(m.message)}</div>
+        <div class="boutons-message">
+          <button class="bouton-petit" onclick="event.stopPropagation();toggleLu(${m.id},this)">
+            <i class="fas fa-${nonLu ? 'envelope-open' : 'envelope'}"></i> ${nonLu ? 'Marquer lu' : 'Marquer non lu'}
+          </button>
+          <button class="bouton-petit rouge" onclick="event.stopPropagation();supprimerMessage(${m.id})">
+            <i class="fas fa-trash"></i> Supprimer
+          </button>
+          ${m.replied_at ? '<span class="badge-repondu"><i class="fas fa-reply"></i> Répondu</span>' : ''}
+        </div>
+      </div>`;
+  }
+
+  async function ouvrirMessage(id) {
+    try {
+      const d = await req('GET', `/api/admin/messages?limit=100`);
+      const msg = d.messages?.find(m => m.id === id);
+      if (!msg) return;
+      messageActuel = msg;
+      const corps = document.getElementById('corps-modale');
+      corps.innerHTML = `
+        <div class="detail-message">
+          <div class="champ-message"><label><i class="fas fa-user"></i> Expéditeur</label><div class="valeur">${escHtml(msg.name)}</div></div>
+          <div class="champ-message"><label><i class="fas fa-envelope"></i> Email</label><div class="valeur"><a href="mailto:${escHtml(msg.email)}" style="color:var(--orange)">${escHtml(msg.email)}</a></div></div>
+          ${msg.phone ? `<div class="champ-message"><label><i class="fas fa-phone"></i> Téléphone</label><div class="valeur">${escHtml(msg.phone)}</div></div>` : ''}
+          <div class="champ-message"><label><i class="fas fa-calendar"></i> Date</label><div class="valeur">${formaterDate(msg.created_at)}</div></div>
+          <div class="champ-message"><label><i class="fas fa-comment"></i> Message</label><div class="valeur" style="white-space:pre-wrap">${escHtml(msg.message)}</div></div>
+          ${msg.replied_at ? `<div class="champ-message"><label><i class="fas fa-reply"></i> Répondu le</label><div class="valeur">${formaterDate(msg.replied_at)}</div></div>` : ''}
+          <div class="champ-message">
+            <label><i class="fas fa-reply-all"></i> Répondre par email</label>
+            <textarea id="texte-reponse" placeholder="Votre réponse…" style="width:100%;min-height:100px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;padding:0.75rem;font-family:inherit;resize:vertical"></textarea>
+            <button class="bouton-principal" style="margin-top:8px" onclick="envoyerReponse(${msg.id},'${escHtml(msg.email)}')">
+              <i class="fas fa-paper-plane"></i> Envoyer la réponse
+            </button>
+          </div>
+        </div>`;
+      document.getElementById('fenetre-message').classList.add('active');
+      if (!msg.is_read) await req('PATCH', `/api/admin/messages/${id}/read`);
+    } catch {}
+  }
+
+  window.toggleLu = async function (id, btn) {
+    try {
+      await req('PATCH', `/api/admin/messages/${id}/read`);
+      chargerMessages();
+      chargerStatsRapides();
+    } catch { toast('Erreur', 'erreur'); }
+  };
+
+  window.supprimerMessage = async function (id) {
+    if (!confirm('Supprimer ce message ?')) return;
+    try {
+      await req('DELETE', `/api/admin/messages/${id}`);
+      toast('Message supprimé', 'succes');
+      chargerMessages();
+      chargerStatsRapides();
+    } catch { toast('Erreur', 'erreur'); }
+  };
+
+  window.envoyerReponse = async function (id, email) {
+    const texte = document.getElementById('texte-reponse')?.value.trim();
+    if (!texte) return toast('Écrivez une réponse', 'avert');
+    try {
+      const d = await req('POST', '/api/admin/send-reply', {
+        to: email,
+        subject: 'Réponse à votre message — Philippe Hountondji',
+        message: texte,
+        messageId: id
+      });
+      if (d.success) { toast('Réponse envoyée !', 'succes'); fermerModale(); chargerMessages(); }
+      else toast(d.error, 'erreur');
+    } catch { toast('Erreur réseau', 'erreur'); }
+  };
 
   function fermerModale() {
-    var modale = document.getElementById('fenetre-message');
-    if (modale) modale.classList.remove('active');
-    idMessageActuel = null; donneesMessageActuel = null;
+    document.getElementById('fenetre-message')?.classList.remove('active');
   }
 
-  var btnFermerModale1 = document.getElementById('btn-fermer-modale');
-  var btnFermerModale2 = document.querySelector('.bouton-fermer-modale');
-  var btnSupprimerMsg  = document.getElementById('btn-supprimer-message');
-  if (btnFermerModale1) btnFermerModale1.addEventListener('click', fermerModale);
-  if (btnFermerModale2) btnFermerModale2.addEventListener('click', fermerModale);
-  if (btnSupprimerMsg) {
-    btnSupprimerMsg.addEventListener('click', function () {
-      if (!idMessageActuel) return;
-      supprimerMessage(idMessageActuel, true);
-    });
-  }
-
-  var fenetre = document.getElementById('fenetre-message');
-  if (fenetre) fenetre.addEventListener('click', function (e) { if (e.target === this) fermerModale(); });
-
-  function basculerLu(id) {
-    requeteApi('PATCH', '/api/admin/messages/' + id + '/read')
-      .then(function () { afficherNotification('Statut mis à jour', 'succes'); chargerMessages(); chargerDonneesAccueil(); })
-      .catch(console.error);
-  }
-
-  function supprimerMessage(id, fermerApres) {
-    confirmerAction('Supprimer ce message définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
-      requeteApi('DELETE', '/api/admin/messages/' + id)
-        .then(function () {
-          afficherNotification('Message supprimé', 'succes');
-          if (fermerApres) fermerModale();
-          chargerMessages(); chargerDonneesAccueil();
-        }).catch(console.error);
-    });
-  }
-
-  var champRecherche = document.getElementById('recherche-messages');
-  var selectFiltre   = document.getElementById('filtre-messages');
-  var selectTri      = document.getElementById('tri-messages');
-  if (champRecherche) champRecherche.addEventListener('input', function () { clearTimeout(timerRecherche); timerRecherche = setTimeout(chargerMessages, 300); });
-  if (selectFiltre)   selectFiltre.addEventListener('change', chargerMessages);
-  if (selectTri)      selectTri.addEventListener('change', chargerMessages);
-
-  document.querySelectorAll('.carte-action[data-action]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var action = this.dataset.action;
-      if (action === 'exporter')        exporterMessages();
-      if (action === 'tout-marquer-lu') toutMarquerLu();
-      if (action === 'supprimer-lus')   supprimerLus();
-    });
+  document.getElementById('btn-fermer-modale')?.addEventListener('click', fermerModale);
+  document.querySelector('.bouton-fermer-modale')?.addEventListener('click', fermerModale);
+  document.getElementById('btn-supprimer-message')?.addEventListener('click', () => {
+    if (messageActuel) supprimerMessage(messageActuel.id);
+    fermerModale();
   });
 
-  function toutMarquerLu() {
-    if (!confirm('Marquer tous les messages comme lus ?')) return;
-    requeteApi('PATCH', '/api/admin/messages/read-all')
-      .then(function () { afficherNotification('Tous les messages marqués comme lus', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
-      .catch(console.error);
-  }
+  document.getElementById('filtre-messages')?.addEventListener('change', function () {
+    filtreMessages = this.value; pageMessages = 1; chargerMessages();
+  });
 
-  function supprimerLus() {
-    if (!confirm('Supprimer tous les messages lus ?\n\nIrréversible.')) return;
-    requeteApi('DELETE', '/api/admin/messages?type=read')
-      .then(function () { afficherNotification('Messages lus supprimés', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
-      .catch(console.error);
-  }
+  let rechercheTimer;
+  document.getElementById('recherche-messages')?.addEventListener('input', () => {
+    clearTimeout(rechercheTimer);
+    rechercheTimer = setTimeout(chargerMessages, 300);
+  });
 
-  function exporterMessages() {
-    requeteApi('GET', '/api/admin/messages?limit=1000')
-      .then(function (res) {
-        if (res.statut !== 200) return;
-        var messages = res.donnees.messages || [];
-        if (!messages.length) { afficherNotification('Aucun message à exporter.', 'info'); return; }
-        var csv = 'ID,Nom,Email,Téléphone,Message,Lu,Date\n';
-        messages.forEach(function (m) {
-          csv += [m.id, celluleCsv(deechapper(m.name)), celluleCsv(deechapper(m.email)), celluleCsv(deechapper(m.phone || '')), celluleCsv(deechapper(m.message)), m.is_read ? 'Oui' : 'Non', m.created_at].join(',') + '\n';
-        });
-        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        var url  = URL.createObjectURL(blob);
-        var lien = document.createElement('a');
-        lien.href = url; lien.download = 'messages_' + new Date().toISOString().slice(0, 10) + '.csv';
-        document.body.appendChild(lien); lien.click(); document.body.removeChild(lien);
-        URL.revokeObjectURL(url);
-        afficherNotification('Données exportées', 'succes');
-      }).catch(console.error);
-  }
+  /* ══════════════════════════════════════════════════════════════
+     PROJETS
+  ══════════════════════════════════════════════════════════════ */
 
-  function celluleCsv(val) { return '"' + String(val || '').replace(/"/g, '""') + '"'; }
-
-  // ── STATISTIQUES ─────────────────────────────────────────────────────────
-
-  function chargerStatistiques() {
-    if (!lireToken()) return;
-    requeteApi('GET', '/api/admin/stats')
-      .then(function (res) {
-        if (res.statut !== 200) { afficherNotification('Erreur stats', 'erreur'); return; }
-        var s = res.donnees.stats || {};
-        var parJour = s.daily || [];
-        if (parJour.length > 0) {
-          definirTexte('date-premier-message', formaterDate(parJour[0].date));
-          definirTexte('date-dernier-message',  formaterDate(parJour[parJour.length - 1].date));
-          var totalSemaine = parJour.reduce(function (acc, d) { return acc + parseInt(d.count || 0, 10); }, 0);
-          definirTexte('moyenne-par-jour', (totalSemaine / parJour.length).toFixed(1) + ' messages/jour');
-        } else {
-          definirTexte('date-premier-message', s.total > 0 ? '-' : 'Aucun message');
-          definirTexte('date-dernier-message',  s.total > 0 ? '-' : 'Aucun message');
-          definirTexte('moyenne-par-jour', '0 messages/jour');
-        }
-        construireGraphiques(s);
-      })
-      .catch(function () { afficherNotification('Erreur réseau', 'erreur'); });
-  }
-
-  function construireGraphiques(s) {
-    var parJour = s.daily || [], etiquettes = [], valeurs = [];
-    for (var i = 6; i >= 0; i--) {
-      var jour = new Date(); jour.setDate(jour.getDate() - i);
-      etiquettes.push(jour.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
-      var jourStr = jour.toDateString();
-      var trouve  = parJour.find(function (x) { return new Date(x.date).toDateString() === jourStr; });
-      valeurs.push(trouve ? parseInt(trouve.count || 0, 10) : 0);
+  // Projets statiques déjà présents sur le portfolio (à afficher dans l'admin)
+  const PROJETS_STATIQUES = [
+    {
+      id: 'static-1',
+      titre: 'Plateforme VBG',
+      description: 'Plateforme 100% anonyme et sécurisée permettant aux femmes de partager des témoignages sur les violences basées sur le genre.',
+      technologies: 'HTML/CSS, Node.js',
+      lien_site: 'https://vbg-production.up.railway.app',
+      lien_github: 'https://github.com/Philippe554-del',
+      etiquette: 'Social',
+      statut: 'termine',
+      isStatique: true
+    },
+    {
+      id: 'static-2',
+      titre: 'Mon Portfolio',
+      description: 'Portfolio professionnel interactif avec animations, formulaire de contact sécurisé, design responsive et SEO optimisé.',
+      technologies: 'HTML/CSS, JavaScript',
+      lien_site: 'https://philippe554-del.github.io/Portfolio-/',
+      lien_github: 'https://github.com/Philippe554-del/Portfolio-',
+      etiquette: 'Portfolio',
+      statut: 'termine',
+      isStatique: true
+    },
+    {
+      id: 'static-3',
+      titre: 'Dashboard Administratif',
+      description: 'Plateforme de gestion complète avec visualisation de données en temps réel, authentification et tableau de bord responsive.',
+      technologies: 'React, Node.js, MongoDB',
+      etiquette: 'En cours',
+      statut: 'en-cours',
+      isStatique: true
+    },
+    {
+      id: 'static-4',
+      titre: 'Simulation Réseau Entreprise',
+      description: 'Modélisation complète d\'un réseau d\'entreprise avec routeurs, switches, VLANs et politiques de sécurité.',
+      technologies: 'Cisco, Sécurité, Topologie',
+      etiquette: 'En cours',
+      statut: 'en-cours',
+      isStatique: true
+    },
+    {
+      id: 'static-5',
+      titre: 'Système de Gestion API',
+      description: 'API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.',
+      technologies: 'Python, FastAPI, PostgreSQL',
+      etiquette: 'En cours',
+      statut: 'en-cours',
+      isStatique: true
     }
-    var canvas1 = document.getElementById('graphique-messages');
-    if (canvas1) {
-      if (graphiqueMessages) { graphiqueMessages.destroy(); graphiqueMessages = null; }
-      try {
-        graphiqueMessages = new Chart(canvas1, {
+  ];
+
+  async function chargerProjets() {
+    // Injecter le champ upload photo dans le formulaire
+    const zoneUpload = document.getElementById('zone-upload-projet');
+    if (!zoneUpload) {
+      const champImg = document.querySelector('#form-ajout-projet .champ-form:has(#projet-image)') ||
+                       document.getElementById('projet-image')?.closest('.champ-form');
+      if (champImg) {
+        champImg.querySelector('label').textContent = 'Photo du projet';
+        champImg.innerHTML = `<label>Photo du projet</label>${creerChampPhoto('upload-projet-img', 'apercu-projet-img')}`;
+        bindUpload('upload-projet-img', 'apercu-projet-img');
+      }
+    }
+
+    const liste = document.getElementById('liste-projets');
+    if (!liste) return;
+    liste.innerHTML = `<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>`;
+
+    try {
+      const d = await req('GET', '/api/admin/projets');
+      const projetsDB = d.projets || [];
+      const tous = [...PROJETS_STATIQUES, ...projetsDB];
+
+      document.getElementById('nb-projets').textContent = tous.length;
+
+      if (!tous.length) {
+        liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-folder-open"></i><p>Aucun projet enregistré</p></div>`;
+        return;
+      }
+      liste.innerHTML = tous.map(p => renderProjetElement(p)).join('');
+
+      liste.querySelectorAll('.bouton-supprimer-element').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const isStatique = btn.dataset.statique === '1';
+          if (isStatique) return toast('Les projets du portfolio HTML ne peuvent pas être supprimés ici. Modifiez directement index.html.', 'avert');
+          if (!confirm('Supprimer ce projet ?')) return;
+          try {
+            await req('DELETE', `/api/admin/projets/${id}`);
+            toast('Projet supprimé', 'succes');
+            chargerProjets();
+          } catch { toast('Erreur', 'erreur'); }
+        });
+      });
+    } catch {
+      liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-exclamation-triangle"></i><p>Erreur de chargement</p></div>`;
+    }
+
+    // Bind formulaire ajout projet
+    const form = document.getElementById('form-ajout-projet');
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = '1';
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-ajouter-projet');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout…';
+
+        // Récupérer image base64
+        let image_url = '';
+        const fileInp = document.getElementById('upload-projet-img');
+        if (fileInp?.files[0]) {
+          try { image_url = await imageVersBase64(fileInp.files[0]); }
+          catch (e) { toast(e.message, 'erreur'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Ajouter le projet'; return; }
+        }
+
+        const body = {
+          titre:        document.getElementById('projet-titre').value,
+          description:  document.getElementById('projet-description').value,
+          technologies: document.getElementById('projet-technologies').value,
+          lien_site:    document.getElementById('projet-lien-site').value,
+          lien_github:  document.getElementById('projet-lien-github').value,
+          image_url,
+          etiquette:    document.getElementById('projet-etiquette').value || 'Projet',
+          statut:       document.getElementById('projet-statut').value,
+          ordre:        parseInt(document.getElementById('projet-ordre').value) || 0
+        };
+
+        try {
+          const d = await req('POST', '/api/admin/projets', body);
+          if (d.success) {
+            toast('Projet ajouté avec succès !', 'succes');
+            form.reset();
+            supprimerApercu('upload-projet-img', 'apercu-projet-img');
+            chargerProjets();
+          } else toast(d.error, 'erreur');
+        } catch { toast('Erreur réseau', 'erreur'); }
+        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Ajouter le projet'; }
+      });
+    }
+  }
+
+  function renderProjetElement(p) {
+    const badgeClass = { 'termine': 'badge-termine', 'en-cours': 'badge-en-cours', 'prevu': 'badge-prevu' };
+    const badges = { 'termine': 'Terminé', 'en-cours': 'En cours', 'prevu': 'Prévu' };
+    const isStatique = !!p.isStatique;
+    const imgHtml = p.image_url ? `<img src="${p.image_url}" alt="${escHtml(p.titre)}" style="width:64px;height:48px;object-fit:cover;border-radius:8px;margin-right:12px;flex-shrink:0">` : '';
+
+    return `
+      <div class="element-liste">
+        ${imgHtml}
+        <div class="element-liste-info">
+          <div class="element-liste-titre">
+            ${escHtml(p.titre)}
+            <span class="badge-element ${badgeClass[p.statut] || ''}">${badges[p.statut] || p.statut}</span>
+            ${isStatique ? '<span class="badge-element" style="background:rgba(99,102,241,0.15);color:#818CF8">Portfolio HTML</span>' : '<span class="badge-element" style="background:rgba(16,185,129,0.15);color:#10B981">Base de données</span>'}
+          </div>
+          <div class="element-liste-meta">${escHtml(p.description || '').slice(0, 100)}${(p.description||'').length > 100 ? '…' : ''}</div>
+          ${p.technologies ? `<div class="element-liste-tags">${p.technologies.split(',').map(t => `<span class="tag-petit">${escHtml(t.trim())}</span>`).join('')}</div>` : ''}
+          ${p.lien_site ? `<div class="element-liste-meta" style="margin-top:4px"><a href="${escHtml(p.lien_site)}" target="_blank" style="color:var(--orange);font-size:0.78rem"><i class="fas fa-external-link-alt"></i> ${escHtml(p.lien_site).slice(0,50)}</a></div>` : ''}
+        </div>
+        <button class="bouton-supprimer-element" data-id="${p.id}" data-statique="${isStatique ? 1 : 0}">
+          <i class="fas fa-trash"></i> ${isStatique ? 'Info' : 'Supprimer'}
+        </button>
+      </div>`;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     EXPÉRIENCES
+  ══════════════════════════════════════════════════════════════ */
+
+  const EXPERIENCES_STATIQUES = [
+    {
+      id: 'static-exp-1',
+      titre: 'Stage de Licence 2',
+      type_exp: 'Stage académique — L2',
+      entreprise: 'En recherche active',
+      lieu: 'Bénin',
+      date_debut: '2025',
+      date_fin: 'En cours',
+      description: 'Recherche active d\'un stage en développement web ou administration réseau. Disponible pour toute entreprise souhaitant accueillir un étudiant motivé.',
+      tags: 'Développement Web, Administration Réseau, Support IT',
+      statut: 'recherche',
+      isStatique: true
+    },
+    {
+      id: 'static-exp-2',
+      titre: 'Stage de Licence 3',
+      type_exp: 'Stage académique — L3',
+      entreprise: 'À définir',
+      lieu: 'Bénin',
+      date_debut: '2026',
+      date_fin: 'Prévu',
+      description: 'Stage prévu en troisième année de licence. Consolidation des acquis théoriques par une expérience pratique en entreprise.',
+      tags: 'Full-Stack, Réseaux, Gestion de projet',
+      statut: 'prevu',
+      isStatique: true
+    },
+    {
+      id: 'static-exp-3',
+      titre: 'Stage Professionnel',
+      type_exp: 'Stage de fin d\'études',
+      entreprise: 'À définir',
+      lieu: 'Bénin / International',
+      date_debut: '2027',
+      date_fin: 'Prévu',
+      description: 'Stage professionnel de fin d\'études prévu après la validation de la licence.',
+      tags: 'Professionnel, Fin d\'études, Emploi',
+      statut: 'prevu',
+      isStatique: true
+    },
+    {
+      id: 'static-exp-4',
+      titre: 'Développeur Web — Projets Personnels',
+      type_exp: 'Projet personnel',
+      entreprise: 'Indépendant',
+      lieu: 'Porto-Novo, Bénin',
+      date_debut: '2022',
+      date_fin: 'Présent',
+      description: 'Développement de plusieurs applications web en autonomie, dont une plateforme sociale sécurisée pour les témoignages de violences basées sur le genre, déployée en production sur Railway.',
+      tags: 'HTML/CSS, JavaScript, Node.js, Déploiement',
+      statut: 'en-cours',
+      isStatique: true
+    }
+  ];
+
+  async function chargerExperiences() {
+    const liste = document.getElementById('liste-experiences');
+    if (!liste) return;
+    liste.innerHTML = `<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>`;
+
+    try {
+      const d = await req('GET', '/api/admin/experiences');
+      const expDB = d.experiences || [];
+      const tous = [...EXPERIENCES_STATIQUES, ...expDB];
+
+      document.getElementById('nb-experiences').textContent = tous.length;
+
+      if (!tous.length) {
+        liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-briefcase"></i><p>Aucune expérience enregistrée</p></div>`;
+        return;
+      }
+      liste.innerHTML = tous.map(exp => renderExpElement(exp)).join('');
+
+      liste.querySelectorAll('.bouton-supprimer-element').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (btn.dataset.statique === '1') return toast('Expérience du portfolio HTML — modifiez index.html directement.', 'avert');
+          if (!confirm('Supprimer cette expérience ?')) return;
+          try {
+            await req('DELETE', `/api/admin/experiences/${btn.dataset.id}`);
+            toast('Expérience supprimée', 'succes');
+            chargerExperiences();
+          } catch { toast('Erreur', 'erreur'); }
+        });
+      });
+    } catch {
+      liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-exclamation-triangle"></i><p>Erreur de chargement</p></div>`;
+    }
+
+    const form = document.getElementById('form-ajout-experience');
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = '1';
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-ajouter-experience');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout…';
+        const body = {
+          titre:        document.getElementById('exp-titre').value,
+          type_exp:     document.getElementById('exp-type').value,
+          entreprise:   document.getElementById('exp-entreprise').value,
+          lieu:         document.getElementById('exp-lieu').value,
+          date_debut:   document.getElementById('exp-date-debut').value,
+          date_fin:     document.getElementById('exp-date-fin').value,
+          description:  document.getElementById('exp-description').value,
+          tags:         document.getElementById('exp-tags').value,
+          statut:       document.getElementById('exp-statut').value,
+          ordre:        parseInt(document.getElementById('exp-ordre').value) || 0
+        };
+        try {
+          const d = await req('POST', '/api/admin/experiences', body);
+          if (d.success) { toast('Expérience ajoutée !', 'succes'); form.reset(); chargerExperiences(); }
+          else toast(d.error, 'erreur');
+        } catch { toast('Erreur réseau', 'erreur'); }
+        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Ajouter l\'expérience'; }
+      });
+    }
+  }
+
+  function renderExpElement(exp) {
+    const isStatique = !!exp.isStatique;
+    const badgeClass = { 'termine': 'badge-termine', 'en-cours': 'badge-en-cours', 'prevu': 'badge-prevu', 'recherche': 'badge-recherche' };
+    const badges = { 'termine': 'Terminé', 'en-cours': 'En cours', 'prevu': 'Prévu', 'recherche': 'En recherche' };
+    const tags = exp.tags ? exp.tags.split(',').map(t => `<span class="tag-petit">${escHtml(t.trim())}</span>`).join('') : '';
+    return `
+      <div class="element-liste">
+        <div class="element-liste-info">
+          <div class="element-liste-titre">
+            ${escHtml(exp.titre)}
+            <span class="badge-element ${badgeClass[exp.statut] || ''}">${badges[exp.statut] || exp.statut}</span>
+            ${isStatique ? '<span class="badge-element" style="background:rgba(99,102,241,0.15);color:#818CF8">Portfolio HTML</span>' : '<span class="badge-element" style="background:rgba(16,185,129,0.15);color:#10B981">Base de données</span>'}
+          </div>
+          <div class="element-liste-meta">${escHtml(exp.entreprise || '')} ${exp.lieu ? '· ' + escHtml(exp.lieu) : ''} ${exp.date_debut ? '· ' + escHtml(exp.date_debut) : ''} ${exp.date_fin ? '→ ' + escHtml(exp.date_fin) : ''}</div>
+          ${tags ? `<div class="element-liste-tags">${tags}</div>` : ''}
+        </div>
+        <button class="bouton-supprimer-element" data-id="${exp.id}" data-statique="${isStatique ? 1 : 0}">
+          <i class="fas fa-trash"></i> ${isStatique ? 'Info' : 'Supprimer'}
+        </button>
+      </div>`;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     COMPÉTENCES
+  ══════════════════════════════════════════════════════════════ */
+
+  const COMPETENCES_STATIQUES = [
+    {
+      id: 'static-comp-1',
+      categorie: 'Développement Web',
+      icone: 'fas fa-code',
+      couleur: 'linear-gradient(135deg,#667eea,#764ba2)',
+      niveau: 75,
+      label_niveau: 'Avancé — 75%',
+      items: 'fab fa-python | Python\nfab fa-html5 | HTML5\nfab fa-css3-alt | CSS3\nfab fa-js | JavaScript\nfab fa-node-js | Node.js\nfas fa-database | Bases de données',
+      isStatique: true
+    },
+    {
+      id: 'static-comp-2',
+      categorie: 'Réseaux & Infrastructure',
+      icone: 'fas fa-network-wired',
+      couleur: 'linear-gradient(135deg,#f093fb,#f5576c)',
+      niveau: 60,
+      label_niveau: 'Intermédiaire — 60%',
+      items: 'fas fa-wifi | Configuration réseaux\nfas fa-server | Gestion de serveurs\nfas fa-shield-alt | Sécurité réseau',
+      isStatique: true
+    },
+    {
+      id: 'static-comp-3',
+      categorie: 'Maintenance & Support',
+      icone: 'fas fa-laptop-medical',
+      couleur: 'linear-gradient(135deg,#4facfe,#00f2fe)',
+      niveau: 80,
+      label_niveau: 'Avancé — 80%',
+      items: 'fas fa-search | Diagnostic hardware/software\nfas fa-cogs | Installation systèmes\nfas fa-headset | Support utilisateurs',
+      isStatique: true
+    }
+  ];
+
+  async function chargerCompetences() {
+    const liste = document.getElementById('liste-competences');
+    if (!liste) return;
+    liste.innerHTML = `<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>`;
+
+    try {
+      const d = await req('GET', '/api/admin/competences');
+      const compDB = d.competences || [];
+      const tous = [...COMPETENCES_STATIQUES, ...compDB];
+
+      document.getElementById('nb-competences').textContent = tous.length;
+
+      if (!tous.length) {
+        liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-star"></i><p>Aucune compétence enregistrée</p></div>`;
+        return;
+      }
+      liste.innerHTML = tous.map(c => renderCompElement(c)).join('');
+
+      liste.querySelectorAll('.bouton-supprimer-element').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (btn.dataset.statique === '1') return toast('Compétence du portfolio HTML — modifiez index.html directement.', 'avert');
+          if (!confirm('Supprimer cette catégorie de compétences ?')) return;
+          try {
+            await req('DELETE', `/api/admin/competences/${btn.dataset.id}`);
+            toast('Compétence supprimée', 'succes');
+            chargerCompetences();
+          } catch { toast('Erreur', 'erreur'); }
+        });
+      });
+    } catch {
+      liste.innerHTML = `<div class="etat-vide-liste"><i class="fas fa-exclamation-triangle"></i><p>Erreur de chargement</p></div>`;
+    }
+
+    const form = document.getElementById('form-ajout-competence');
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = '1';
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-ajouter-competence');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout…';
+        const body = {
+          categorie:    document.getElementById('comp-categorie').value,
+          icone:        document.getElementById('comp-icone').value,
+          couleur:      document.getElementById('comp-couleur').value,
+          niveau:       parseInt(document.getElementById('comp-niveau').value) || 70,
+          label_niveau: document.getElementById('comp-label-niveau').value,
+          items:        document.getElementById('comp-items').value,
+          ordre:        parseInt(document.getElementById('comp-ordre').value) || 0
+        };
+        try {
+          const d = await req('POST', '/api/admin/competences', body);
+          if (d.success) { toast('Catégorie ajoutée !', 'succes'); form.reset(); chargerCompetences(); }
+          else toast(d.error, 'erreur');
+        } catch { toast('Erreur réseau', 'erreur'); }
+        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Ajouter la catégorie'; }
+      });
+    }
+  }
+
+  function renderCompElement(c) {
+    const isStatique = !!c.isStatique;
+    return `
+      <div class="element-liste">
+        <div class="element-liste-info">
+          <div class="element-liste-titre">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:${c.couleur || 'var(--orange)'};flex-shrink:0">
+              <i class="${c.icone || 'fas fa-code'}" style="color:white;font-size:0.85rem"></i>
+            </span>
+            ${escHtml(c.categorie)}
+            ${isStatique ? '<span class="badge-element" style="background:rgba(99,102,241,0.15);color:#818CF8">Portfolio HTML</span>' : '<span class="badge-element" style="background:rgba(16,185,129,0.15);color:#10B981">Base de données</span>'}
+          </div>
+          <div class="barre-niveau-mini">
+            <div class="barre-fond"><div class="barre-rempli" style="width:${c.niveau || 0}%"></div></div>
+            <span>${escHtml(c.label_niveau || c.niveau + '%')}</span>
+          </div>
+          ${c.items ? `<div class="element-liste-tags">${c.items.split('\n').slice(0,4).map(it => { const p = it.split('|'); return `<span class="tag-petit">${escHtml((p[1]||it).trim())}</span>`; }).join('')}</div>` : ''}
+        </div>
+        <button class="bouton-supprimer-element" data-id="${c.id}" data-statique="${isStatique ? 1 : 0}">
+          <i class="fas fa-trash"></i> ${isStatique ? 'Info' : 'Supprimer'}
+        </button>
+      </div>`;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     STATISTIQUES
+  ══════════════════════════════════════════════════════════════ */
+  async function chargerStatistiques() {
+    try {
+      const d = await req('GET', '/api/admin/stats');
+      if (!d.success) return;
+      const s = d.stats;
+
+      // Infos détaillées
+      document.getElementById('date-premier-message').textContent = s.daily?.length ? formaterDateCourte(s.daily[0].date) : '—';
+      document.getElementById('date-dernier-message').textContent = s.daily?.length ? formaterDateCourte(s.daily[s.daily.length - 1].date) : '—';
+      const jours = s.daily?.length || 1;
+      document.getElementById('moyenne-par-jour').textContent = (s.total / jours).toFixed(1) + ' msg/jour';
+
+      // Graphique messages par jour
+      const ctxM = document.getElementById('graphique-messages')?.getContext('2d');
+      if (ctxM) {
+        if (graphiqueMessages) graphiqueMessages.destroy();
+        const labels = (s.daily || []).map(r => new Date(r.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }));
+        const values = (s.daily || []).map(r => r.count);
+        graphiqueMessages = new Chart(ctxM, {
           type: 'line',
-          data: { labels: etiquettes, datasets: [{ label: 'Messages reçus', data: valeurs, borderColor: '#FF6B35', backgroundColor: 'rgba(255,107,53,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#FF6B35', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 7 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#B4B8D4', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.1)' } } } }
+          data: {
+            labels,
+            datasets: [{ label: 'Messages', data: values, borderColor: '#FF6B35', backgroundColor: 'rgba(255,107,53,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#FF6B35', pointRadius: 4 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, scales: { x: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#B4B8D4' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } } }
         });
-      } catch (e) { console.error(e); }
-    }
-    var canvas2  = document.getElementById('graphique-statuts');
-    var nbLus    = parseInt(s.read   || 0, 10);
-    var nbNonLus = parseInt(s.unread || 0, 10);
-    if (canvas2) {
-      if (graphiqueStatuts) { graphiqueStatuts.destroy(); graphiqueStatuts = null; }
-      try {
-        graphiqueStatuts = new Chart(canvas2, {
+      }
+
+      // Graphique statuts
+      const ctxS = document.getElementById('graphique-statuts')?.getContext('2d');
+      if (ctxS) {
+        if (graphiqueStatuts) graphiqueStatuts.destroy();
+        graphiqueStatuts = new Chart(ctxS, {
           type: 'doughnut',
-          data: { labels: ['Lus', 'Non lus'], datasets: [{ data: [nbLus, nbNonLus], backgroundColor: ['#10B981', '#FF6B35'], borderWidth: 0 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } }, cutout: '60%' }
+          data: {
+            labels: ['Lus', 'Non lus', 'Répondus'],
+            datasets: [{ data: [s.read, s.unread, s.replied], backgroundColor: ['#10B981', '#EF4444', '#FF6B35'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#B4B8D4' } } } }
         });
-      } catch (e) { console.error(e); }
+      }
+    } catch {}
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     PARAMÈTRES
+  ══════════════════════════════════════════════════════════════ */
+  function bindParametres() {
+    const form = document.getElementById('formulaire-mdp');
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = '1';
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const current = document.getElementById('mdp-actuel').value;
+        const next    = document.getElementById('nouveau-mdp').value;
+        const confirm2 = document.getElementById('confirmer-mdp').value;
+        const msg = document.getElementById('message-mdp');
+
+        if (next !== confirm2) { msg.textContent = '❌ Les mots de passe ne correspondent pas.'; msg.style.color = '#EF4444'; return; }
+        if (next.length < 12) { msg.textContent = '❌ Minimum 12 caractères.'; msg.style.color = '#EF4444'; return; }
+
+        try {
+          const d = await req('POST', '/api/admin/change-password', { current, next });
+          if (d.success) {
+            msg.textContent = '✅ Mot de passe modifié. Reconnexion…';
+            msg.style.color = '#10B981';
+            setTimeout(() => { TOKEN = null; localStorage.removeItem('admin_token'); sessionStorage.removeItem('admin_token'); location.reload(); }, 2000);
+          } else { msg.textContent = '❌ ' + d.error; msg.style.color = '#EF4444'; }
+        } catch { msg.textContent = '❌ Erreur réseau'; msg.style.color = '#EF4444'; }
+      });
     }
   }
 
-  // ── PARAMÈTRES ───────────────────────────────────────────────────────────
-
-  var formulaireMdp = document.getElementById('formulaire-mdp');
-  if (formulaireMdp) {
-    formulaireMdp.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var actuel    = document.getElementById('mdp-actuel').value;
-      var nouveau   = document.getElementById('nouveau-mdp').value;
-      var confirmer = document.getElementById('confirmer-mdp').value;
-      var msgEl     = document.getElementById('message-mdp');
-      if (nouveau !== confirmer) { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
-      if (nouveau.length < 12)  { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Mot de passe trop court (12 caractères min).'; return; }
-      requeteApi('POST', '/api/admin/change-password', { current: actuel, next: nouveau })
-        .then(function (res) {
-          if (res.statut === 200) {
-            msgEl.style.color = '#10B981'; msgEl.textContent = 'Mot de passe modifié ! Reconnectez-vous.';
-            formulaireMdp.reset(); setTimeout(deconnecter, 2000);
-          } else { msgEl.style.color = '#EF4444'; msgEl.textContent = res.donnees.error || 'Erreur.'; }
-        }).catch(function () { msgEl.style.color = '#EF4444'; msgEl.textContent = 'Erreur réseau.'; });
-    });
-  }
-
-  var btnSupprimerTout = document.getElementById('btn-supprimer-tout');
-  if (btnSupprimerTout) {
-    btnSupprimerTout.addEventListener('click', function () {
-      if (!confirm('Supprimer TOUS les messages ?\n\nIrréversible.')) return;
-      if (!confirm('Êtes-vous absolument sûr ?')) return;
-      requeteApi('DELETE', '/api/admin/messages?type=all')
-        .then(function () { afficherNotification('Tous les messages supprimés', 'succes'); chargerDonneesAccueil(); chargerMessages(); })
-        .catch(console.error);
-    });
-  }
-
-  // ════════════════════════════════════════════════════════════════════════
-  //  PROJETS
-  // ════════════════════════════════════════════════════════════════════════
-
-  function chargerProjets() {
-    var conteneur = document.getElementById('liste-projets');
-    if (!conteneur) return;
-    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
-    requeteApi('GET', '/api/admin/projets')
-      .then(function (res) {
-        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
-        var projets = res.donnees.projets || [];
-        definirTexte('nb-projets', projets.length);
-        if (!projets.length) {
-          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-folder-open"></i><p>Aucun projet enregistré. Ajoutez votre premier projet !</p></div>';
-          return;
+  /* ══════════════════════════════════════════════════════════════
+     ACTIONS RAPIDES
+  ══════════════════════════════════════════════════════════════ */
+  function bindActions() {
+    document.querySelectorAll('.carte-action').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const action = btn.dataset.action;
+        if (action === 'exporter') exporterMessages();
+        else if (action === 'supprimer-lus') {
+          if (!confirm('Supprimer tous les messages lus ?')) return;
+          try { await req('DELETE', '/api/admin/messages?type=read'); toast('Messages lus supprimés', 'succes'); chargerVueEnsemble(); chargerStatsRapides(); }
+          catch { toast('Erreur', 'erreur'); }
+        } else if (action === 'tout-marquer-lu') {
+          try { await req('PATCH', '/api/admin/messages/read-all'); toast('Tous marqués comme lus', 'succes'); chargerVueEnsemble(); chargerStatsRapides(); }
+          catch { toast('Erreur', 'erreur'); }
         }
-        conteneur.innerHTML = projets.map(function (p) { return construireElementProjet(p); }).join('');
-        conteneur.querySelectorAll('[data-action="supprimer-projet"]').forEach(function (btn) {
-          btn.addEventListener('click', function () { supprimerProjet(parseInt(this.dataset.id, 10)); });
-        });
-      })
-      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
-  }
-
-  function construireElementProjet(p) {
-    var techs  = (p.technologies || '').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
-    var statut = p.statut || 'termine';
-    var badgeClass = statut === 'termine' ? 'badge-termine' : statut === 'en-cours' ? 'badge-en-cours' : 'badge-prevu';
-    var badgeTexte = statut === 'termine' ? 'Terminé' : statut === 'en-cours' ? 'En cours' : 'Prévu';
-    return (
-      '<div class="element-liste">' +
-        '<div class="element-liste-info">' +
-          '<div class="element-liste-titre">' +
-            echapper(p.titre || '') +
-            '<span class="badge-element ' + badgeClass + '">' + badgeTexte + '</span>' +
-            (p.etiquette ? '<span class="badge-element" style="background:rgba(255,255,255,0.06);color:#9CA3AF">' + echapper(p.etiquette) + '</span>' : '') +
-          '</div>' +
-          '<div class="element-liste-meta">' + echapper((p.description || '').slice(0, 120)) + (p.description && p.description.length > 120 ? '…' : '') + '</div>' +
-          (techs.length ? '<div class="element-liste-tags">' + techs.map(function(t){ return '<span class="tag-petit">' + echapper(t) + '</span>'; }).join('') + '</div>' : '') +
-          '<div class="element-liste-meta" style="margin-top:6px">' +
-            (p.lien_site ? '<a href="' + echapper(p.lien_site) + '" target="_blank" rel="noopener" style="color:#00D9FF;font-size:0.78rem;margin-right:12px"><i class="fas fa-external-link-alt"></i> Site</a>' : '') +
-            (p.lien_github ? '<a href="' + echapper(p.lien_github) + '" target="_blank" rel="noopener" style="color:#9CA3AF;font-size:0.78rem"><i class="fab fa-github"></i> GitHub</a>' : '') +
-          '</div>' +
-        '</div>' +
-        '<button class="bouton-supprimer-element" data-action="supprimer-projet" data-id="' + p.id + '">' +
-          '<i class="fas fa-trash"></i> Supprimer' +
-        '</button>' +
-      '</div>'
-    );
-  }
-
-  var formAjoutProjet = document.getElementById('form-ajout-projet');
-  if (formAjoutProjet) {
-    formAjoutProjet.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var titre       = (document.getElementById('projet-titre')        || {}).value || '';
-      var description = (document.getElementById('projet-description')  || {}).value || '';
-      var etiquette   = (document.getElementById('projet-etiquette')    || {}).value || '';
-      var technologies = (document.getElementById('projet-technologies') || {}).value || '';
-      var statut      = (document.getElementById('projet-statut')       || {}).value || 'termine';
-      var lienSite    = (document.getElementById('projet-lien-site')    || {}).value || '';
-      var lienGithub  = (document.getElementById('projet-lien-github')  || {}).value || '';
-      var image       = (document.getElementById('projet-image')        || {}).value || '';
-      var ordre       = parseInt((document.getElementById('projet-ordre') || {}).value || '0', 10);
-      var bouton      = document.getElementById('btn-ajouter-projet');
-
-      if (!titre.trim() || !description.trim()) { afficherNotification('Le titre et la description sont obligatoires.', 'erreur'); return; }
-
-      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
-
-      requeteApi('POST', '/api/admin/projets', {
-        titre: titre, description: description, etiquette: etiquette,
-        technologies: technologies, statut: statut, lien_site: lienSite,
-        lien_github: lienGithub, image_url: image, ordre: ordre
-      })
-      .then(function (res) {
-        if (res.statut === 201 && res.donnees.success) {
-          afficherNotification('Projet ajouté !', 'succes');
-          formAjoutProjet.reset();
-          chargerProjets();
-        } else {
-          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
-        }
-      })
-      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
-      .finally(function () {
-        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter le projet';
       });
     });
-  }
 
-  function supprimerProjet(id) {
-    confirmerAction('Supprimer ce projet définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
-      requeteApi('DELETE', '/api/admin/projets/' + id)
-        .then(function () { afficherNotification('Projet supprimé', 'succes'); chargerProjets(); })
-        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
+    document.getElementById('btn-supprimer-tout')?.addEventListener('click', async () => {
+      if (!confirm('ATTENTION : Supprimer TOUS les messages ? Cette action est irréversible.')) return;
+      try { await req('DELETE', '/api/admin/messages?type=all'); toast('Tous les messages supprimés', 'succes'); chargerVueEnsemble(); chargerStatsRapides(); }
+      catch { toast('Erreur', 'erreur'); }
     });
   }
 
-  // ════════════════════════════════════════════════════════════════════════
-  //  EXPÉRIENCES
-  // ════════════════════════════════════════════════════════════════════════
-
-  function chargerExperiences() {
-    var conteneur = document.getElementById('liste-experiences');
-    if (!conteneur) return;
-    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
-    requeteApi('GET', '/api/admin/experiences')
-      .then(function (res) {
-        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
-        var experiences = res.donnees.experiences || [];
-        definirTexte('nb-experiences', experiences.length);
-        if (!experiences.length) {
-          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-briefcase"></i><p>Aucune expérience enregistrée. Ajoutez votre première expérience !</p></div>';
-          return;
-        }
-        conteneur.innerHTML = experiences.map(function (ex) { return construireElementExperience(ex); }).join('');
-        conteneur.querySelectorAll('[data-action="supprimer-experience"]').forEach(function (btn) {
-          btn.addEventListener('click', function () { supprimerExperience(parseInt(this.dataset.id, 10)); });
-        });
-      })
-      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
+  async function exporterMessages() {
+    try {
+      const d = await req('GET', '/api/admin/messages?limit=200');
+      if (!d.messages?.length) return toast('Aucun message à exporter', 'avert');
+      const csv = ['ID,Nom,Email,Téléphone,Message,Lu,Date']
+        .concat(d.messages.map(m =>
+          `${m.id},"${(m.name||'').replace(/"/g,'""')}","${m.email}","${m.phone||''}","${(m.message||'').replace(/"/g,'""').replace(/\n/g,' ')}",${m.is_read ? 'Oui' : 'Non'},"${formaterDate(m.created_at)}"`
+        )).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'messages_' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      toast('Export CSV réussi', 'succes');
+    } catch { toast('Erreur export', 'erreur'); }
   }
 
-  function construireElementExperience(ex) {
-    var tags    = (ex.tags || '').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
-    var statut  = ex.statut || 'termine';
-    var badgeClass = statut === 'termine' ? 'badge-termine' : statut === 'en-cours' ? 'badge-en-cours' : statut === 'prevu' ? 'badge-prevu' : 'badge-recherche';
-    var badgeTexte = statut === 'termine' ? 'Terminé' : statut === 'en-cours' ? 'En cours' : statut === 'prevu' ? 'Prévu' : 'En recherche';
-    var periode = '';
-    if (ex.date_debut) periode += ex.date_debut;
-    if (ex.date_debut && ex.date_fin) periode += ' → ';
-    if (ex.date_fin) periode += ex.date_fin;
-    return (
-      '<div class="element-liste">' +
-        '<div class="element-liste-info">' +
-          '<div class="element-liste-titre">' +
-            echapper(ex.titre || '') +
-            '<span class="badge-element ' + badgeClass + '">' + badgeTexte + '</span>' +
-          '</div>' +
-          '<div class="element-liste-meta">' +
-            (ex.type_exp ? '<span style="margin-right:12px"><i class="fas fa-briefcase" style="color:#FF6B35;margin-right:4px"></i>' + echapper(ex.type_exp) + '</span>' : '') +
-            (ex.entreprise ? '<span style="margin-right:12px"><i class="fas fa-building" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(ex.entreprise) + '</span>' : '') +
-            (ex.lieu ? '<span style="margin-right:12px"><i class="fas fa-map-marker-alt" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(ex.lieu) + '</span>' : '') +
-            (periode ? '<span><i class="fas fa-calendar" style="color:#9CA3AF;margin-right:4px"></i>' + echapper(periode) + '</span>' : '') +
-          '</div>' +
-          (ex.description ? '<div class="element-liste-meta" style="margin-top:4px">' + echapper((ex.description || '').slice(0, 100)) + (ex.description.length > 100 ? '…' : '') + '</div>' : '') +
-          (tags.length ? '<div class="element-liste-tags">' + tags.map(function(t){ return '<span class="tag-petit">' + echapper(t) + '</span>'; }).join('') + '</div>' : '') +
-        '</div>' +
-        '<button class="bouton-supprimer-element" data-action="supprimer-experience" data-id="' + ex.id + '">' +
-          '<i class="fas fa-trash"></i> Supprimer' +
-        '</button>' +
-      '</div>'
-    );
+  /* ══════════════════════════════════════════════════════════════
+     UTILITAIRES
+  ══════════════════════════════════════════════════════════════ */
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  var formAjoutExperience = document.getElementById('form-ajout-experience');
-  if (formAjoutExperience) {
-    formAjoutExperience.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var titre       = (document.getElementById('exp-titre')       || {}).value || '';
-      var typeExp     = (document.getElementById('exp-type')        || {}).value || '';
-      var entreprise  = (document.getElementById('exp-entreprise')  || {}).value || '';
-      var lieu        = (document.getElementById('exp-lieu')        || {}).value || '';
-      var dateDebut   = (document.getElementById('exp-date-debut')  || {}).value || '';
-      var dateFin     = (document.getElementById('exp-date-fin')    || {}).value || '';
-      var description = (document.getElementById('exp-description') || {}).value || '';
-      var tags        = (document.getElementById('exp-tags')        || {}).value || '';
-      var statut      = (document.getElementById('exp-statut')      || {}).value || 'termine';
-      var ordre       = parseInt((document.getElementById('exp-ordre') || {}).value || '0', 10);
-      var bouton      = document.getElementById('btn-ajouter-experience');
+  /* ══════════════════════════════════════════════════════════════
+     STYLES INJECTÉS
+  ══════════════════════════════════════════════════════════════ */
+  function injecterStyles() {
+    if (document.getElementById('admin-js-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'admin-js-styles';
+    s.textContent = `
+      /* TOASTS */
+      .toast{position:fixed;top:-100px;right:20px;background:rgba(10,14,39,.97);color:#fff;padding:1rem 1.5rem;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:flex;align-items:center;gap:.75rem;z-index:10000;min-width:280px;max-width:480px;transition:transform .3s cubic-bezier(.4,0,.2,1);border:1px solid rgba(255,255,255,.1);font-size:.9rem}
+      .toast.visible{transform:translateY(120px)}
+      .toast-succes{border-left:4px solid #10B981}.toast-succes i{color:#10B981}
+      .toast-erreur{border-left:4px solid #EF4444}.toast-erreur i{color:#EF4444}
+      .toast-info{border-left:4px solid #00D9FF}.toast-info i{color:#00D9FF}
+      .toast-avert{border-left:4px solid #F59E0B}.toast-avert i{color:#F59E0B}
+      @media(max-width:768px){.toast{right:10px;left:10px;min-width:auto}}
 
-      if (!titre.trim()) { afficherNotification('Le titre est obligatoire.', 'erreur'); return; }
+      /* BADGE RÉPONDU */
+      .badge-repondu{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;background:rgba(16,185,129,.15);color:#10B981;padding:3px 8px;border-radius:20px;font-weight:600}
 
-      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
-
-      requeteApi('POST', '/api/admin/experiences', {
-        titre: titre, type_exp: typeExp, entreprise: entreprise,
-        lieu: lieu, date_debut: dateDebut, date_fin: dateFin,
-        description: description, tags: tags, statut: statut, ordre: ordre
-      })
-      .then(function (res) {
-        if (res.statut === 201 && res.donnees.success) {
-          afficherNotification('Expérience ajoutée !', 'succes');
-          formAjoutExperience.reset();
-          chargerExperiences();
-        } else {
-          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
-        }
-      })
-      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
-      .finally(function () {
-        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter l\'expérience';
-      });
-    });
+      /* UPLOAD PHOTO */
+      .upload-photo-zone{width:100%}
+      .upload-declencheur{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:1.5rem;background:rgba(255,255,255,.03);border:2px dashed rgba(255,255,255,.15);border-radius:12px;cursor:pointer;transition:all .2s;text-align:center}
+      .upload-declencheur:hover{border-color:#FF6B35;background:rgba(255,107,53,.05)}
+      .upload-declencheur i{font-size:1.75rem;color:#FF6B35}
+      .upload-declencheur span{font-size:.9rem;color:#fff;font-weight:600}
+      .upload-declencheur small{font-size:.75rem;color:#6B7280}
+      .upload-apercu{position:relative;display:inline-block;border-radius:12px;overflow:hidden;max-width:200px}
+      .upload-apercu img{width:100%;height:120px;object-fit:cover;border-radius:12px;display:block}
+      .suppr-apercu{position:absolute;top:6px;right:6px;background:rgba(239,68,68,.9);border:none;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:.8rem}
+      .suppr-apercu:hover{background:#EF4444}
+    `;
+    document.head.appendChild(s);
   }
 
-  function supprimerExperience(id) {
-    confirmerAction('Supprimer cette expérience définitivement ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
-      requeteApi('DELETE', '/api/admin/experiences/' + id)
-        .then(function () { afficherNotification('Expérience supprimée', 'succes'); chargerExperiences(); })
-        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
-    });
+  /* ══════════════════════════════════════════════════════════════
+     DÉMARRAGE
+  ══════════════════════════════════════════════════════════════ */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  // ════════════════════════════════════════════════════════════════════════
-  //  COMPÉTENCES
-  // ════════════════════════════════════════════════════════════════════════
-
-  function chargerCompetences() {
-    var conteneur = document.getElementById('liste-competences');
-    if (!conteneur) return;
-    conteneur.innerHTML = '<div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
-    requeteApi('GET', '/api/admin/competences')
-      .then(function (res) {
-        if (res.statut !== 200) { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement</p></div>'; return; }
-        var competences = res.donnees.competences || [];
-        definirTexte('nb-competences', competences.length);
-        if (!competences.length) {
-          conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-star"></i><p>Aucune compétence enregistrée. Ajoutez votre première catégorie !</p></div>';
-          return;
-        }
-        conteneur.innerHTML = competences.map(function (c) { return construireElementCompetence(c); }).join('');
-        conteneur.querySelectorAll('[data-action="supprimer-competence"]').forEach(function (btn) {
-          btn.addEventListener('click', function () { supprimerCompetence(parseInt(this.dataset.id, 10)); });
-        });
-      })
-      .catch(function () { conteneur.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-wifi-slash"></i><p>Erreur réseau</p></div>'; });
-  }
-
-  function construireElementCompetence(c) {
-    var items  = (c.items || '').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-    var niveau = parseInt(c.niveau || 0, 10);
-    return (
-      '<div class="element-liste">' +
-        '<div class="element-liste-info">' +
-          '<div class="element-liste-titre">' +
-            '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:' + echapper(c.couleur || '') + ';margin-right:8px;flex-shrink:0">' +
-              '<i class="' + echapper(c.icone || 'fas fa-code') + '" style="color:#fff;font-size:0.75rem"></i>' +
-            '</span>' +
-            echapper(c.categorie || '') +
-          '</div>' +
-          '<div class="barre-niveau-mini">' +
-            '<div class="barre-fond"><div class="barre-rempli" style="width:' + niveau + '%"></div></div>' +
-            '<span>' + echapper(c.label_niveau || niveau + '%') + '</span>' +
-          '</div>' +
-          (items.length ? '<div class="element-liste-tags" style="margin-top:8px">' +
-            items.slice(0, 6).map(function(item){
-              var parts = item.split('|');
-              var icone = parts[0] ? parts[0].trim() : '';
-              var nom   = parts[1] ? parts[1].trim() : item;
-              return '<span class="tag-petit">' + (icone ? '<i class="' + echapper(icone) + '" style="margin-right:4px"></i>' : '') + echapper(nom) + '</span>';
-            }).join('') +
-            (items.length > 6 ? '<span class="tag-petit">+' + (items.length - 6) + '</span>' : '') +
-          '</div>' : '') +
-        '</div>' +
-        '<button class="bouton-supprimer-element" data-action="supprimer-competence" data-id="' + c.id + '">' +
-          '<i class="fas fa-trash"></i> Supprimer' +
-        '</button>' +
-      '</div>'
-    );
-  }
-
-  var formAjoutCompetence = document.getElementById('form-ajout-competence');
-  if (formAjoutCompetence) {
-    formAjoutCompetence.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var categorie   = (document.getElementById('comp-categorie')    || {}).value || '';
-      var icone       = (document.getElementById('comp-icone')        || {}).value || 'fas fa-code';
-      var couleur     = (document.getElementById('comp-couleur')      || {}).value || 'linear-gradient(135deg,#667eea,#764ba2)';
-      var niveau      = parseInt((document.getElementById('comp-niveau') || {}).value || '70', 10);
-      var labelNiveau = (document.getElementById('comp-label-niveau') || {}).value || '';
-      var items       = (document.getElementById('comp-items')        || {}).value || '';
-      var ordre       = parseInt((document.getElementById('comp-ordre') || {}).value || '0', 10);
-      var bouton      = document.getElementById('btn-ajouter-competence');
-
-      if (!categorie.trim()) { afficherNotification('La catégorie est obligatoire.', 'erreur'); return; }
-      if (!labelNiveau.trim()) labelNiveau = 'Niveau : ' + niveau + '%';
-
-      bouton.disabled = true; bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout...';
-
-      requeteApi('POST', '/api/admin/competences', {
-        categorie: categorie, icone: icone, couleur: couleur,
-        niveau: niveau, label_niveau: labelNiveau, items: items, ordre: ordre
-      })
-      .then(function (res) {
-        if (res.statut === 201 && res.donnees.success) {
-          afficherNotification('Compétence ajoutée !', 'succes');
-          formAjoutCompetence.reset();
-          document.getElementById('comp-icone').value  = 'fas fa-code';
-          document.getElementById('comp-couleur').value = 'linear-gradient(135deg,#667eea,#764ba2)';
-          document.getElementById('comp-niveau').value  = '70';
-          chargerCompetences();
-        } else {
-          afficherNotification(res.donnees.error || 'Erreur lors de l\'ajout.', 'erreur');
-        }
-      })
-      .catch(function () { afficherNotification('Erreur réseau.', 'erreur'); })
-      .finally(function () {
-        bouton.disabled = false; bouton.innerHTML = '<i class="fas fa-plus"></i> Ajouter la catégorie';
-      });
-    });
-  }
-
-  function supprimerCompetence(id) {
-    confirmerAction('Supprimer cette catégorie de compétences ?<br><br><strong style="color:#EF4444">Cette action est irréversible.</strong>', function () {
-      requeteApi('DELETE', '/api/admin/competences/' + id)
-        .then(function () { afficherNotification('Compétence supprimée', 'succes'); chargerCompetences(); })
-        .catch(function () { afficherNotification('Erreur lors de la suppression.', 'erreur'); });
-    });
-  }
-
-  // ── UTILITAIRES ──────────────────────────────────────────────────────────
-
-  function definirTexte(id, valeur) { var el = document.getElementById(id); if (el) el.textContent = valeur; }
-
-  function deechapper(str) {
-    var div = document.createElement('div'); div.innerHTML = String(str || ''); return div.textContent;
-  }
-
-  function echapper(str) {
-    var div = document.createElement('div'); div.textContent = String(str || ''); return div.innerHTML;
-  }
-
-  function formaterDate(dateStr) {
-    if (!dateStr) return '-';
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) return String(dateStr);
-    var maintenant = new Date(), diff = maintenant - d;
-    if (diff < 60000)     return 'À l\'instant';
-    if (diff < 3600000)   return 'Il y a ' + Math.floor(diff / 60000) + ' min';
-    if (diff < 86400000)  return 'Il y a ' + Math.floor(diff / 3600000) + 'h';
-    if (diff < 604800000) return 'Il y a ' + Math.floor(diff / 86400000) + ' jour(s)';
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  function actualiserCompteur() {
-    requeteApi('GET', '/api/admin/stats')
-      .then(function (res) {
-        if (res.statut !== 200) return;
-        var nb = parseInt(res.donnees.stats.unread || 0, 10);
-        var compteur = document.getElementById('nb-messages');
-        if (compteur) { compteur.textContent = nb > 0 ? nb : ''; compteur.style.display = nb > 0 ? 'inline-flex' : 'none'; }
-      }).catch(console.error);
-  }
-
-  // Styles notifications
-  if (!document.getElementById('styles-notif')) {
-    var feuille = document.createElement('style');
-    feuille.id = 'styles-notif';
-    feuille.textContent = '.notif-flottante{position:fixed;top:-100px;right:20px;background:rgba(10,14,39,.97);color:#fff;padding:1rem 1.5rem;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:flex;align-items:center;gap:.75rem;z-index:10000;min-width:280px;max-width:450px;transition:transform .3s cubic-bezier(.4,0,.2,1);border:1px solid rgba(255,255,255,.1)}.notif-flottante.visible{transform:translateY(120px)}.notif-succes{border-left:4px solid #10B981}.notif-erreur{border-left:4px solid #EF4444}.notif-info{border-left:4px solid #00D9FF}.notif-flottante i{font-size:1.25rem}.notif-succes i{color:#10B981}.notif-erreur i{color:#EF4444}.notif-info i{color:#00D9FF}.notif-flottante span{flex:1;font-weight:500}@media(max-width:768px){.notif-flottante{right:10px;left:10px;min-width:auto}}';
-    document.head.appendChild(feuille);
-  }
-
-  function confirmerAction(message, auConfirmer) {
-    var fond = document.createElement('div');
-    fond.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,14,39,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;';
-    fond.innerHTML =
-      '<div style="background:#16192F;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.6);">' +
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;">' +
-          '<div style="width:44px;height:44px;background:rgba(239,68,68,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
-            '<i class="fas fa-exclamation-triangle" style="color:#EF4444;font-size:1.25rem;"></i>' +
-          '</div>' +
-          '<h3 style="margin:0;font-size:1.1rem;color:#fff;">Confirmation</h3>' +
-        '</div>' +
-        '<p style="color:#B4B8D4;margin:0 0 1.75rem 0;line-height:1.6;font-size:0.95rem;">' + message + '</p>' +
-        '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
-          '<button id="btn-annuler-confirm" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#B4B8D4;font-weight:600;cursor:pointer;font-size:0.9rem;">Annuler</button>' +
-          '<button id="btn-ok-confirm"     style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#EF4444,#DC2626);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">Supprimer</button>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(fond);
-    fond.querySelector('#btn-annuler-confirm').addEventListener('click', function () { document.body.removeChild(fond); });
-    fond.querySelector('#btn-ok-confirm').addEventListener('click',     function () { document.body.removeChild(fond); auConfirmer(); });
-    fond.addEventListener('click', function (e) { if (e.target === fond) document.body.removeChild(fond); });
-  }
-
-  if (window.innerWidth <= 992) { fermerBarreLaterale(); }
-  verifierSession();
 
 })();
