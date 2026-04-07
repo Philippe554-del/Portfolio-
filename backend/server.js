@@ -131,11 +131,7 @@ async function auth(req, res, next) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// TEMPLATE EMAIL HTML PROFESSIONNEL — VERSION 2
-// CORRECTIONS :
-//   1. escEmail() ne transforme PAS les apostrophes en &#x27;
-//   2. Le message de la personne apparaît EN PREMIER
-//   3. Design épuré, sobre et professionnel
+// TEMPLATE EMAIL HTML PROFESSIONNEL
 // ══════════════════════════════════════════════════════════════
 function genererEmailHTML(opts) {
   const nom     = opts.nomDestinataire  || 'visiteur(se)';
@@ -144,23 +140,16 @@ function genererEmailHTML(opts) {
   const date    = opts.dateMessage      || new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
   const annee   = new Date().getFullYear();
 
-  // ── CORRECTION BUG ──────────────────────────────────────────
-  // escEmail() N'échappe PAS les apostrophes (') en &#x27;
-  // car les apostrophes sont parfaitement sûres dans le HTML
-  // d'un email et doivent s'afficher normalement.
-  // On n'échappe que les caractères réellement dangereux.
-  function escEmail(s) {
+  function esc(s) {
     return String(s || '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
-    // PAS de remplacement des apostrophes → elles restent telles quelles
   }
 
-  // Convertit les sauts de ligne en <br> sans échapper les apostrophes
-  const reponseFmt = escEmail(reponse).replace(/\n/g, '<br>');
-  const msgOrigFmt = escEmail(msgOrig).replace(/\n/g, '<br>');
+  const reponseFmt = esc(reponse).replace(/\n/g, '<br>');
+  const msgOrigFmt = esc(msgOrig).replace(/\n/g, '<br>');
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -169,113 +158,107 @@ function genererEmailHTML(opts) {
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Réponse de Philippe Hountondji</title>
 </head>
-<body style="margin:0;padding:0;background:#f0f2f5;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#0a0e27;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f2f5;padding:40px 16px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0e27;padding:32px 16px;">
 <tr><td align="center">
-<table width="580" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;width:100%;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-  <!-- ══ EN-TÊTE SOBRE ══ -->
+  <!-- ══ EN-TÊTE ══ -->
   <tr>
-    <td style="background:#0f172a;border-radius:16px 16px 0 0;padding:36px 40px 28px;text-align:center;">
-      <!-- Avatar initiales -->
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 18px;">
+    <td style="background:linear-gradient(135deg,#FF6B35 0%,#F7931E 60%,#FF6B35 100%);border-radius:20px 20px 0 0;padding:44px 40px 36px;text-align:center;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;">
         <tr>
-          <td style="width:64px;height:64px;background:linear-gradient(135deg,#e85d04,#f48c06);border-radius:50%;text-align:center;vertical-align:middle;">
-            <span style="font-size:22px;font-weight:800;color:#ffffff;line-height:64px;letter-spacing:-1px;">PH</span>
+          <td style="width:80px;height:80px;background:rgba(255,255,255,0.22);border-radius:50%;text-align:center;vertical-align:middle;border:3px solid rgba(255,255,255,0.5);">
+            <span style="font-size:30px;font-weight:900;color:#ffffff;line-height:80px;">PH</span>
           </td>
         </tr>
       </table>
-      <h1 style="margin:0 0 6px;color:#f8fafc;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Philippe Hountondji</h1>
-      <p style="margin:0 0 4px;color:#94a3b8;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Développeur Web &amp; Administrateur Réseau</p>
-      <p style="margin:0;color:#64748b;font-size:12px;">Porto-Novo, Bénin 🇧🇯</p>
+      <h1 style="margin:0 0 8px;color:#ffffff;font-size:28px;font-weight:800;letter-spacing:-0.5px;">Philippe Hountondji</h1>
+      <p style="margin:0 0 6px;color:rgba(255,255,255,0.9);font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Développeur Web &amp; Administrateur Réseau</p>
+      <p style="margin:0;color:rgba(255,255,255,0.7);font-size:13px;">Porto-Novo, Bénin</p>
     </td>
   </tr>
 
   <!-- ══ BANDEAU TITRE ══ -->
   <tr>
-    <td style="background:#1e293b;padding:12px 40px;text-align:center;border-left:1px solid #1e293b;border-right:1px solid #1e293b;">
-      <p style="margin:0;color:#e85d04;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉ &nbsp;Réponse à votre message</p>
+    <td style="background:#1a1f3a;padding:16px 40px;text-align:center;border-left:1px solid rgba(255,107,53,0.2);border-right:1px solid rgba(255,107,53,0.2);">
+      <p style="margin:0;color:#FF6B35;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉️ &nbsp; Réponse personnelle à votre message</p>
     </td>
   </tr>
 
   <!-- ══ CORPS ══ -->
   <tr>
-    <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+    <td style="background:#16192f;padding:40px;border-left:1px solid rgba(255,107,53,0.15);border-right:1px solid rgba(255,107,53,0.15);">
 
       <!-- Salutation -->
-      <p style="margin:0 0 6px;color:#0f172a;font-size:18px;font-weight:700;">Bonjour ${escEmail(nom)},</p>
-      <p style="margin:0 0 28px;color:#64748b;font-size:14px;line-height:1.7;">
-        Merci pour votre message. Voici ma réponse personnelle à ce que vous m'avez écrit sur mon portfolio.
+      <h2 style="margin:0 0 20px;color:#ffffff;font-size:20px;font-weight:700;">Bonjour <span style="color:#FF6B35;">${esc(nom)}</span>,</h2>
+      <p style="margin:0 0 32px;color:#B4B8D4;font-size:15px;line-height:1.75;">
+        Merci d'avoir visité mon portfolio et de m'avoir contacté. Je vous réponds avec plaisir ci-dessous.
       </p>
 
-      <!-- ── SÉPARATEUR ── -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-        <tr><td style="height:1px;background:#e2e8f0;"></td></tr>
-      </table>
-
-      <!-- ══ 1. VOTRE MESSAGE EN PREMIER ══ -->
-      <p style="margin:0 0 10px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📩 Votre message du ${escEmail(date)}</p>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
-        <tr>
-          <td style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:0 8px 8px 0;padding:18px 20px;">
-            <p style="margin:0;color:#475569;font-size:14px;line-height:1.75;font-style:italic;">${msgOrigFmt}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- ══ 2. MA RÉPONSE EN SECOND ══ -->
-      <p style="margin:0 0 10px;color:#e85d04;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">💬 Ma réponse</p>
+      <!-- ── MA RÉPONSE ── -->
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
         <tr>
-          <td style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #e85d04;border-radius:0 8px 8px 0;padding:18px 20px;">
-            <p style="margin:0;color:#1e293b;font-size:15px;line-height:1.8;font-weight:500;">${reponseFmt}</p>
+          <td style="background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(247,147,30,0.06));border:1px solid rgba(255,107,53,0.35);border-left:5px solid #FF6B35;border-radius:0 14px 14px 0;padding:28px;">
+            <p style="margin:0 0 14px;color:#FF6B35;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;">💬 Ma réponse</p>
+            <p style="margin:0;color:#ffffff;font-size:15px;line-height:1.85;">${reponseFmt}</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── MESSAGE ORIGINAL ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:36px;">
+        <tr>
+          <td style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px;">
+            <p style="margin:0 0 14px;color:#6B7280;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">🗓 Votre message du ${esc(date)}</p>
+            <p style="margin:0;color:#9CA3AF;font-size:14px;line-height:1.75;font-style:italic;border-left:3px solid rgba(255,255,255,0.1);padding-left:14px;">${msgOrigFmt}</p>
           </td>
         </tr>
       </table>
 
       <!-- ── SÉPARATEUR ── -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
-        <tr><td style="height:1px;background:#e2e8f0;"></td></tr>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+        <tr><td style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,53,0.3),transparent);"></td></tr>
       </table>
 
       <!-- ── BOUTON CTA ── -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:36px;">
         <tr>
           <td align="center">
             <a href="https://philippe554-del.github.io/Portfolio-/" target="_blank"
-               style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">
-              Visiter mon Portfolio →
+               style="display:inline-block;background:linear-gradient(135deg,#FF6B35,#F7931E);color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:50px;font-size:15px;font-weight:700;letter-spacing:0.5px;">
+              🌐 &nbsp;Visiter mon Portfolio
             </a>
           </td>
         </tr>
       </table>
 
       <!-- ── CONTACTS ── -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="padding:20px 24px;">
-            <p style="margin:0 0 14px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Me contacter</p>
+          <td style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:24px;">
+            <p style="margin:0 0 18px;color:#B4B8D4;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📱 Me contacter</p>
             <table width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                  <span style="color:#64748b;font-size:13px;">📧</span>
+                <td style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-size:16px;">📧</span>
                   <a href="mailto:hountondjiphilippe58@gmail.com"
-                     style="color:#e85d04;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">hountondjiphilippe58@gmail.com</a>
+                     style="color:#FF6B35;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">hountondjiphilippe58@gmail.com</a>
                 </td>
               </tr>
               <tr>
-                <td style="padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                  <span style="color:#64748b;font-size:13px;">🌐</span>
+                <td style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-size:16px;">🌐</span>
                   <a href="https://philippe554-del.github.io/Portfolio-/"
-                     style="color:#0ea5e9;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">philippe554-del.github.io/Portfolio-/</a>
+                     style="color:#00D9FF;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">philippe554-del.github.io/Portfolio-/</a>
                 </td>
               </tr>
               <tr>
-                <td style="padding:6px 0;">
-                  <span style="color:#64748b;font-size:13px;">💻</span>
+                <td style="padding:7px 0;">
+                  <span style="font-size:16px;">💻</span>
                   <a href="https://github.com/Philippe554-del"
-                     style="color:#7c3aed;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">github.com/Philippe554-del</a>
+                     style="color:#A855F7;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">github.com/Philippe554-del</a>
                 </td>
               </tr>
             </table>
@@ -288,12 +271,18 @@ function genererEmailHTML(opts) {
 
   <!-- ══ FOOTER ══ -->
   <tr>
-    <td style="background:#f8fafc;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;border:1px solid #e2e8f0;border-top:none;">
-      <p style="margin:0 0 4px;color:#0f172a;font-size:14px;font-weight:700;">Philippe Hountondji</p>
-      <p style="margin:0 0 16px;color:#94a3b8;font-size:12px;">Développeur Web · Administrateur Réseau · Porto-Novo, Bénin</p>
-      <p style="margin:0;color:#cbd5e1;font-size:11px;line-height:1.7;">
-        Cet email est une réponse personnelle à votre message envoyé via
-        <a href="https://philippe554-del.github.io/Portfolio-/" style="color:#e85d04;text-decoration:none;">mon portfolio</a>.<br>
+    <td style="background:linear-gradient(135deg,#0a0e1f,#121630);border-radius:0 0 20px 20px;padding:32px 40px;text-align:center;border:1px solid rgba(255,107,53,0.15);border-top:2px solid rgba(255,107,53,0.25);">
+      <p style="margin:0 0 4px;color:#ffffff;font-size:17px;font-weight:800;">Philippe Hountondji</p>
+      <p style="margin:0 0 20px;color:#6B7280;font-size:13px;">Développeur Web · Administrateur Réseau · Porto-Novo, Bénin 🇧🇯</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;">
+        <tr>
+          <td style="width:80px;height:2px;background:linear-gradient(90deg,transparent,#FF6B35,transparent);border-radius:2px;"></td>
+        </tr>
+      </table>
+      <p style="margin:0;color:#4B5563;font-size:12px;line-height:1.7;">
+        Cet email a été envoyé depuis le formulaire de contact de
+        <a href="https://philippe554-del.github.io/Portfolio-/" style="color:#FF6B35;text-decoration:none;">mon portfolio</a>
+        en réponse à votre message.<br>
         &copy; ${annee} Philippe Hountondji — Tous droits réservés.
       </p>
     </td>
@@ -455,17 +444,15 @@ app.post('/api/admin/change-password', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[change-password]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// ── ENVOYER UNE RÉPONSE ───────────────────────────────────────────────────
+// ── ENVOYER UNE RÉPONSE — email HTML professionnel ───────────────────────
 app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
   try {
     const to              = sanitize(req.body.to,              254);
     const subject         = sanitize(req.body.subject,         200);
-    // NE PAS sanitize() le message et le message original car sanitize() échappe les apostrophes
-    // On les prend bruts et on laisse escEmail() dans genererEmailHTML gérer l'échappement
     const message         = String(req.body.message         || '').slice(0, 5000);
-    const nomDestinataire = String(req.body.nomDestinataire || 'visiteur(se)').slice(0, 100);
+    const nomDestinataire = sanitize(req.body.nomDestinataire || 'visiteur(se)', 100);
     const messageOriginal = String(req.body.messageOriginal  || '').slice(0, 5000);
-    const dateMessage     = String(req.body.dateMessage    || '').slice(0, 50);
+    const dateMessage     = sanitize(req.body.dateMessage    || '', 50);
     const msgId           = parseInt(req.body.messageId, 10);
 
     if (!validator.isEmail(to)) return res.status(400).json({ error: 'Email destinataire invalide.' });
