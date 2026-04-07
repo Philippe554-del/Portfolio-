@@ -408,14 +408,44 @@
     try { await req('DELETE', '/api/admin/messages/' + id); toast('Message supprimé', 'succes'); chargerMessages(); chargerStatsRapides(); }
     catch (err) { toast(err.message, 'erreur'); }
   };
+
+  /* ══════════════════════════════════════════════════════════════
+     ENVOYER RÉPONSE — VERSION CORRIGÉE
+     Envoie le nom, le message original et la date à server.js
+     pour générer l'email HTML professionnel complet
+  ══════════════════════════════════════════════════════════════ */
   window.envoyerReponse = async function (id, email) {
     const t = document.getElementById('texte-reponse');
-    if (!t || !t.value.trim()) return toast('Écrivez une réponse', 'avert');
+    if (!t || !t.value.trim()) return toast('Écrivez une réponse avant d\'envoyer', 'avert');
+    const btn = document.querySelector('#fenetre-message .bouton-principal');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi…'; }
     try {
-      const d = await req('POST', '/api/admin/send-reply', { to: email, subject: 'Réponse — Philippe Hountondji', message: t.value.trim(), messageId: id });
-      if (d.success) { toast('Réponse envoyée !', 'succes'); document.getElementById('fenetre-message').classList.remove('active'); chargerMessages(); }
-      else toast(d.error, 'erreur');
-    } catch (err) { toast(err.message, 'erreur'); }
+      const msg = messageActuel; // le message actuellement ouvert
+      const d = await req('POST', '/api/admin/send-reply', {
+        to:              email,
+        subject:         'Réponse à votre message — Philippe Hountondji',
+        message:         t.value.trim(),
+        nomDestinataire: msg ? msg.name    : '',          // prénom/nom de la personne
+        messageOriginal: msg ? msg.message : '',          // son message d'origine
+        dateMessage:     msg ? new Date(msg.created_at).toLocaleDateString('fr-FR', {
+                           day: '2-digit', month: 'long', year: 'numeric'
+                         }) : '',                         // date formatée en français
+        messageId:       id
+      });
+      if (d.success) {
+        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? msg.name : 'la personne') + ' !', 'succes');
+        document.getElementById('fenetre-message').classList.remove('active');
+        chargerMessages();
+        chargerStatsRapides();
+      } else {
+        toast(d.error || 'Erreur lors de l\'envoi', 'erreur');
+      }
+    } catch (err) {
+      toast(err.message, 'erreur');
+      afficherBanniere();
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer'; }
+    }
   };
 
   const btnFM = document.getElementById('btn-fermer-modale');
@@ -654,12 +684,9 @@
 
   /* ── MODALE MODIFIER ── */
   async function ouvrirModifier(id, type, estStatique) {
-    // Pour les éléments statiques, on récupère les données depuis les tableaux PS/ES/CS
-    // Pour les éléments en base, on les récupère depuis l'API
     let item = null;
 
     if (estStatique) {
-      // Chercher dans les données statiques
       const sourceStatique = { projet: PS, experience: ES, competence: CS };
       item = sourceStatique[type].find(function (el) { return String(el.id) === String(id); });
       if (!item) { toast('Élément introuvable', 'erreur'); return; }
@@ -745,7 +772,6 @@
 
       let d;
       if (estStatique) {
-        // Élément statique → créer une nouvelle entrée en base via POST
         d = await req('POST', ROUTES[type].replace(/\/$/, ''), body);
         if (d.success) {
           toast('✅ Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
@@ -753,7 +779,6 @@
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
       } else {
-        // Élément base de données → PATCH normal
         d = await req('PATCH', ROUTES[type] + id, body);
         if (d.success) {
           toast('✅ Modifications enregistrées !','succes');

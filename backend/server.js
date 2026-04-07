@@ -11,7 +11,6 @@ const validator  = require('validator');
 const path       = require('path');
 const crypto     = require('crypto');
 
-
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
@@ -94,96 +93,18 @@ async function connectDB() {
 }
 
 async function createTables() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS admin_users (
-      id         SERIAL PRIMARY KEY,
-      email      VARCHAR(254) NOT NULL UNIQUE,
-      password   VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id         SERIAL PRIMARY KEY,
-      name       VARCHAR(100) NOT NULL,
-      email      VARCHAR(254) NOT NULL,
-      phone      VARCHAR(20),
-      message    TEXT NOT NULL,
-      ip_address VARCHAR(45),
-      is_read    SMALLINT DEFAULT 0,
-      replied_at TIMESTAMP NULL DEFAULT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS revoked_tokens (
-      jti        VARCHAR(128) PRIMARY KEY,
-      revoked_at TIMESTAMP DEFAULT NOW(),
-      expires_at TIMESTAMP NOT NULL
-    )
-  `);
-
-  // Table projets
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS projets (
-      id          SERIAL PRIMARY KEY,
-      titre       VARCHAR(200) NOT NULL,
-      description TEXT NOT NULL,
-      technologies VARCHAR(500),
-      lien_site   VARCHAR(500),
-      lien_github VARCHAR(500),
-      image_url   VARCHAR(500),
-      etiquette   VARCHAR(100) DEFAULT 'Projet',
-      statut      VARCHAR(50)  DEFAULT 'termine',
-      ordre       INTEGER DEFAULT 0,
-      created_at  TIMESTAMP DEFAULT NOW(),
-      updated_at  TIMESTAMP DEFAULT NOW()
-    )
-  `);
-
-  // Table expériences
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS experiences (
-      id          SERIAL PRIMARY KEY,
-      titre       VARCHAR(200) NOT NULL,
-      type_exp    VARCHAR(100),
-      entreprise  VARCHAR(200),
-      lieu        VARCHAR(200),
-      date_debut  VARCHAR(100),
-      date_fin    VARCHAR(100),
-      description TEXT,
-      tags        VARCHAR(500),
-      statut      VARCHAR(50) DEFAULT 'termine',
-      ordre       INTEGER DEFAULT 0,
-      created_at  TIMESTAMP DEFAULT NOW(),
-      updated_at  TIMESTAMP DEFAULT NOW()
-    )
-  `);
-
-  // Table compétences
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS competences (
-      id          SERIAL PRIMARY KEY,
-      categorie   VARCHAR(200) NOT NULL,
-      icone       VARCHAR(100) DEFAULT 'fas fa-code',
-      couleur     VARCHAR(200) DEFAULT 'linear-gradient(135deg,#667eea,#764ba2)',
-      niveau      INTEGER DEFAULT 70,
-      label_niveau VARCHAR(100) DEFAULT 'Intermédiaire',
-      items       TEXT,
-      ordre       INTEGER DEFAULT 0,
-      created_at  TIMESTAMP DEFAULT NOW(),
-      updated_at  TIMESTAMP DEFAULT NOW()
-    )
-  `);
-
+  await pool.query(`CREATE TABLE IF NOT EXISTS admin_users (id SERIAL PRIMARY KEY, email VARCHAR(254) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(254) NOT NULL, phone VARCHAR(20), message TEXT NOT NULL, ip_address VARCHAR(45), is_read SMALLINT DEFAULT 0, replied_at TIMESTAMP NULL DEFAULT NULL, created_at TIMESTAMP DEFAULT NOW())`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS revoked_tokens (jti VARCHAR(128) PRIMARY KEY, revoked_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP NOT NULL)`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS projets (id SERIAL PRIMARY KEY, titre VARCHAR(200) NOT NULL, description TEXT NOT NULL, technologies VARCHAR(500), lien_site VARCHAR(500), lien_github VARCHAR(500), image_url VARCHAR(500), etiquette VARCHAR(100) DEFAULT 'Projet', statut VARCHAR(50) DEFAULT 'termine', ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS experiences (id SERIAL PRIMARY KEY, titre VARCHAR(200) NOT NULL, type_exp VARCHAR(100), entreprise VARCHAR(200), lieu VARCHAR(200), date_debut VARCHAR(100), date_fin VARCHAR(100), description TEXT, tags VARCHAR(500), statut VARCHAR(50) DEFAULT 'termine', ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS competences (id SERIAL PRIMARY KEY, categorie VARCHAR(200) NOT NULL, icone VARCHAR(100) DEFAULT 'fas fa-code', couleur VARCHAR(200) DEFAULT 'linear-gradient(135deg,#667eea,#764ba2)', niveau INTEGER DEFAULT 70, label_niveau VARCHAR(100) DEFAULT 'Intermédiaire', items TEXT, ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_created  ON messages (created_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_is_read  ON messages (is_read)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_revoked_expires   ON revoked_tokens (expires_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_projets_ordre     ON projets (ordre)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_experiences_ordre ON experiences (ordre)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_competences_ordre ON competences (ordre)`);
-
   await pool.query(`DELETE FROM revoked_tokens WHERE expires_at < NOW()`);
   const res = await pool.query('SELECT COUNT(*) AS n FROM admin_users');
   if (parseInt(res.rows[0].n) === 0) console.log('\n[SETUP] Aucun compte admin. Appelez /api/admin/init\n');
@@ -199,27 +120,186 @@ async function auth(req, res, next) {
   if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'Non autorisé.' });
   const token = header.slice(7);
   let payload;
-  try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (err) {
-    return res.status(401).json({ error: err.name === 'TokenExpiredError' ? 'Session expirée.' : 'Token invalide.' });
-  }
+  try { payload = jwt.verify(token, process.env.JWT_SECRET); }
+  catch (err) { return res.status(401).json({ error: err.name === 'TokenExpiredError' ? 'Session expirée.' : 'Token invalide.' }); }
   try {
     const r = await pool.query('SELECT 1 FROM revoked_tokens WHERE jti = $1 LIMIT 1', [payload.jti]);
     if (r.rows.length > 0) return res.status(401).json({ error: 'Session révoquée. Reconnectez-vous.' });
-  } catch (err) {
-    return res.status(500).json({ error: 'Erreur serveur.' });
-  }
+  } catch (err) { return res.status(500).json({ error: 'Erreur serveur.' }); }
   req.admin = payload;
   next();
 }
 
-// ── HEALTH ────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// TEMPLATE EMAIL HTML PROFESSIONNEL
+// ══════════════════════════════════════════════════════════════
+function genererEmailHTML(opts) {
+  const nom     = opts.nomDestinataire  || 'visiteur(se)';
+  const reponse = opts.reponse          || '';
+  const msgOrig = opts.messageOriginal  || '';
+  const date    = opts.dateMessage      || new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+  const annee   = new Date().getFullYear();
 
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  const reponseFmt = esc(reponse).replace(/\n/g, '<br>');
+  const msgOrigFmt = esc(msgOrig).replace(/\n/g, '<br>');
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Réponse de Philippe Hountondji</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0e27;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0e27;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+  <!-- ══ EN-TÊTE ══ -->
+  <tr>
+    <td style="background:linear-gradient(135deg,#FF6B35 0%,#F7931E 60%,#FF6B35 100%);border-radius:20px 20px 0 0;padding:44px 40px 36px;text-align:center;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;">
+        <tr>
+          <td style="width:80px;height:80px;background:rgba(255,255,255,0.22);border-radius:50%;text-align:center;vertical-align:middle;border:3px solid rgba(255,255,255,0.5);">
+            <span style="font-size:30px;font-weight:900;color:#ffffff;line-height:80px;">PH</span>
+          </td>
+        </tr>
+      </table>
+      <h1 style="margin:0 0 8px;color:#ffffff;font-size:28px;font-weight:800;letter-spacing:-0.5px;">Philippe Hountondji</h1>
+      <p style="margin:0 0 6px;color:rgba(255,255,255,0.9);font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Développeur Web &amp; Administrateur Réseau</p>
+      <p style="margin:0;color:rgba(255,255,255,0.7);font-size:13px;">Porto-Novo, Bénin</p>
+    </td>
+  </tr>
+
+  <!-- ══ BANDEAU TITRE ══ -->
+  <tr>
+    <td style="background:#1a1f3a;padding:16px 40px;text-align:center;border-left:1px solid rgba(255,107,53,0.2);border-right:1px solid rgba(255,107,53,0.2);">
+      <p style="margin:0;color:#FF6B35;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉️ &nbsp; Réponse personnelle à votre message</p>
+    </td>
+  </tr>
+
+  <!-- ══ CORPS ══ -->
+  <tr>
+    <td style="background:#16192f;padding:40px;border-left:1px solid rgba(255,107,53,0.15);border-right:1px solid rgba(255,107,53,0.15);">
+
+      <!-- Salutation -->
+      <h2 style="margin:0 0 20px;color:#ffffff;font-size:20px;font-weight:700;">Bonjour <span style="color:#FF6B35;">${esc(nom)}</span>,</h2>
+      <p style="margin:0 0 32px;color:#B4B8D4;font-size:15px;line-height:1.75;">
+        Merci d'avoir visité mon portfolio et de m'avoir contacté. Je vous réponds avec plaisir ci-dessous.
+      </p>
+
+      <!-- ── MA RÉPONSE ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+        <tr>
+          <td style="background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(247,147,30,0.06));border:1px solid rgba(255,107,53,0.35);border-left:5px solid #FF6B35;border-radius:0 14px 14px 0;padding:28px;">
+            <p style="margin:0 0 14px;color:#FF6B35;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;">💬 Ma réponse</p>
+            <p style="margin:0;color:#ffffff;font-size:15px;line-height:1.85;">${reponseFmt}</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── MESSAGE ORIGINAL ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:36px;">
+        <tr>
+          <td style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px;">
+            <p style="margin:0 0 14px;color:#6B7280;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">🗓 Votre message du ${esc(date)}</p>
+            <p style="margin:0;color:#9CA3AF;font-size:14px;line-height:1.75;font-style:italic;border-left:3px solid rgba(255,255,255,0.1);padding-left:14px;">${msgOrigFmt}</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── SÉPARATEUR ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+        <tr><td style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,53,0.3),transparent);"></td></tr>
+      </table>
+
+      <!-- ── BOUTON CTA ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:36px;">
+        <tr>
+          <td align="center">
+            <a href="https://philippe554-del.github.io/Portfolio-/" target="_blank"
+               style="display:inline-block;background:linear-gradient(135deg,#FF6B35,#F7931E);color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:50px;font-size:15px;font-weight:700;letter-spacing:0.5px;">
+              🌐 &nbsp;Visiter mon Portfolio
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── CONTACTS ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:24px;">
+            <p style="margin:0 0 18px;color:#B4B8D4;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📱 Me contacter</p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-size:16px;">📧</span>
+                  <a href="mailto:hountondjiphilippe58@gmail.com"
+                     style="color:#FF6B35;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">hountondjiphilippe58@gmail.com</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-size:16px;">🌐</span>
+                  <a href="https://philippe554-del.github.io/Portfolio-/"
+                     style="color:#00D9FF;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">philippe554-del.github.io/Portfolio-/</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:7px 0;">
+                  <span style="font-size:16px;">💻</span>
+                  <a href="https://github.com/Philippe554-del"
+                     style="color:#A855F7;text-decoration:none;font-size:14px;font-weight:600;margin-left:10px;">github.com/Philippe554-del</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+
+  <!-- ══ FOOTER ══ -->
+  <tr>
+    <td style="background:linear-gradient(135deg,#0a0e1f,#121630);border-radius:0 0 20px 20px;padding:32px 40px;text-align:center;border:1px solid rgba(255,107,53,0.15);border-top:2px solid rgba(255,107,53,0.25);">
+      <p style="margin:0 0 4px;color:#ffffff;font-size:17px;font-weight:800;">Philippe Hountondji</p>
+      <p style="margin:0 0 20px;color:#6B7280;font-size:13px;">Développeur Web · Administrateur Réseau · Porto-Novo, Bénin 🇧🇯</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;">
+        <tr>
+          <td style="width:80px;height:2px;background:linear-gradient(90deg,transparent,#FF6B35,transparent);border-radius:2px;"></td>
+        </tr>
+      </table>
+      <p style="margin:0;color:#4B5563;font-size:12px;line-height:1.7;">
+        Cet email a été envoyé depuis le formulaire de contact de
+        <a href="https://philippe554-del.github.io/Portfolio-/" style="color:#FF6B35;text-decoration:none;">mon portfolio</a>
+        en réponse à votre message.<br>
+        &copy; ${annee} Philippe Hountondji — Tous droits réservés.
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>`;
+}
+
+// ── HEALTH ────────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 
 // ── CONTACT ───────────────────────────────────────────────────────────────
-
 app.post('/api/contact', contactLimiter, async (req, res) => {
   try {
     const name    = sanitize(req.body.name,    100);
@@ -237,7 +317,6 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 });
 
 // ── AUTH ADMIN ────────────────────────────────────────────────────────────
-
 app.post('/api/admin/login', loginLimiter, async (req, res) => {
   try {
     const email    = sanitize(req.body.email, 254);
@@ -266,7 +345,6 @@ app.post('/api/admin/logout', auth, async (req, res) => {
 });
 
 // ── MESSAGES ──────────────────────────────────────────────────────────────
-
 app.get('/api/admin/messages', auth, adminLimiter, async (req, res) => {
   try {
     const page   = parsePositiveInt(req.query.page,  1,  1, 9999);
@@ -366,127 +444,113 @@ app.post('/api/admin/change-password', auth, adminLimiter, async (req, res) => {
   } catch (err) { console.error('[change-password]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
+// ── ENVOYER UNE RÉPONSE — email HTML professionnel ───────────────────────
 app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
   try {
-    const to      = sanitize(req.body.to,      254);
-    const subject = sanitize(req.body.subject, 200);
-    const message = String(req.body.message || '').slice(0, 5000);
-    const msgId   = parseInt(req.body.messageId, 10);
+    const to              = sanitize(req.body.to,              254);
+    const subject         = sanitize(req.body.subject,         200);
+    const message         = String(req.body.message         || '').slice(0, 5000);
+    const nomDestinataire = sanitize(req.body.nomDestinataire || 'visiteur(se)', 100);
+    const messageOriginal = String(req.body.messageOriginal  || '').slice(0, 5000);
+    const dateMessage     = sanitize(req.body.dateMessage    || '', 50);
+    const msgId           = parseInt(req.body.messageId, 10);
+
     if (!validator.isEmail(to)) return res.status(400).json({ error: 'Email destinataire invalide.' });
     if (!subject)               return res.status(400).json({ error: 'Sujet requis.' });
     if (message.length < 5)     return res.status(400).json({ error: 'Message trop court.' });
     if (!process.env.BREVO_API_KEY)
-      return res.status(500).json({ error: 'Configuration email manquante.' });
-    const safeMessage = validator.escape(message).replace(/\n/g, '<br>');
+      return res.status(500).json({ error: 'Configuration email manquante (BREVO_API_KEY).' });
+
+    const htmlContent = genererEmailHTML({
+      nomDestinataire,
+      reponse:         message,
+      messageOriginal,
+      dateMessage
+    });
+
     const emailResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
-        'accept': 'application/json',
-        'api-key': process.env.BREVO_API_KEY,
+        'accept':       'application/json',
+        'api-key':      process.env.BREVO_API_KEY,
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        sender: { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
-        to: [{ email: to }],
-        subject: subject,
-        htmlContent: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><p>' + safeMessage + '</p><hr><p style="color:#888;font-size:12px">Philippe Hountondji</p></div>'
+        sender:      { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
+        replyTo:     { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
+        to:          [{ email: to, name: nomDestinataire }],
+        subject,
+        htmlContent
       })
     });
+
     if (!emailResponse.ok) {
       const errData = await emailResponse.json();
       throw new Error(errData.message || 'Erreur Brevo');
     }
-    if (msgId > 0) await pool.query('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = $1', [msgId]);
+
+    if (msgId > 0) {
+      await pool.query('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = $1', [msgId]);
+    }
+
     res.json({ success: true });
-  } catch (err) { console.error('[send-reply]', err.message); res.status(500).json({ error: 'Erreur envoi email : ' + err.message }); }
+  } catch (err) {
+    console.error('[send-reply]', err.message);
+    res.status(500).json({ error: 'Erreur envoi email : ' + err.message });
+  }
 });
 
-// ── ROUTES PUBLIQUES : PROJETS / EXPÉRIENCES / COMPÉTENCES ───────────────
-
+// ── ROUTES PUBLIQUES ──────────────────────────────────────────────────────
 app.get('/api/projets', async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, projets: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, projets: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.get('/api/experiences', async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, experiences: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, experiences: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.get('/api/competences', async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, competences: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, competences: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
 // ── ROUTES ADMIN : PROJETS ────────────────────────────────────────────────
-
 app.get('/api/admin/projets', auth, adminLimiter, async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, projets: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, projets: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.post('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   try {
-    const titre        = sanitize(req.body.titre,        200);
-    const description  = sanitize(req.body.description,  1000);
-    const technologies = sanitize(req.body.technologies || '', 500);
-    const lien_site    = sanitize(req.body.lien_site    || '', 500);
-    const lien_github  = sanitize(req.body.lien_github  || '', 500);
-    const image_url    = sanitize(req.body.image_url    || '', 500);
-    const etiquette    = sanitize(req.body.etiquette    || 'Projet', 100);
-    const statut       = sanitize(req.body.statut       || 'termine', 50);
-    const ordre        = parseInt(req.body.ordre || 0, 10);
-
-    if (titre.length < 2)       return res.status(400).json({ error: 'Titre trop court.' });
+    const titre = sanitize(req.body.titre, 200), description = sanitize(req.body.description, 1000);
+    const technologies = sanitize(req.body.technologies || '', 500), lien_site = sanitize(req.body.lien_site || '', 500);
+    const lien_github = sanitize(req.body.lien_github || '', 500), image_url = sanitize(req.body.image_url || '', 500);
+    const etiquette = sanitize(req.body.etiquette || 'Projet', 100), statut = sanitize(req.body.statut || 'termine', 50);
+    const ordre = parseInt(req.body.ordre || 0, 10);
+    if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
     if (description.length < 5) return res.status(400).json({ error: 'Description trop courte.' });
-
-    const r = await pool.query(
-      `INSERT INTO projets (titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre]
-    );
+    const r = await pool.query(`INSERT INTO projets (titre,description,technologies,lien_site,lien_github,image_url,etiquette,statut,ordre) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+      [titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre]);
     res.status(201).json({ success: true, projet: r.rows[0] });
   } catch (err) { console.error('[projet-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
-// ── MODIFIER un projet ────────────────────────────────────────────────────
 app.patch('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
-
-    const titre        = sanitize(req.body.titre,        200);
-    const description  = sanitize(req.body.description,  1000);
-    const technologies = sanitize(req.body.technologies || '', 500);
-    const lien_site    = sanitize(req.body.lien_site    || '', 500);
-    const lien_github  = sanitize(req.body.lien_github  || '', 500);
-    const image_url    = req.body.image_url ? String(req.body.image_url).slice(0, 500000) : '';
-    const etiquette    = sanitize(req.body.etiquette    || 'Projet', 100);
-    const statut       = sanitize(req.body.statut       || 'termine', 50);
-    const ordre        = parseInt(req.body.ordre || 0, 10);
-
-    if (titre.length < 2)       return res.status(400).json({ error: 'Titre trop court.' });
+    const titre = sanitize(req.body.titre, 200), description = sanitize(req.body.description, 1000);
+    const technologies = sanitize(req.body.technologies || '', 500), lien_site = sanitize(req.body.lien_site || '', 500);
+    const lien_github = sanitize(req.body.lien_github || '', 500);
+    const image_url = req.body.image_url ? String(req.body.image_url).slice(0, 500000) : '';
+    const etiquette = sanitize(req.body.etiquette || 'Projet', 100), statut = sanitize(req.body.statut || 'termine', 50);
+    const ordre = parseInt(req.body.ordre || 0, 10);
+    if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
     if (description.length < 5) return res.status(400).json({ error: 'Description trop courte.' });
-
-    const r = await pool.query(
-      `UPDATE projets SET titre=$1, description=$2, technologies=$3, lien_site=$4, lien_github=$5,
-       image_url=$6, etiquette=$7, statut=$8, ordre=$9, updated_at=NOW()
-       WHERE id=$10 RETURNING *`,
-      [titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre, id]
-    );
+    const r = await pool.query(`UPDATE projets SET titre=$1,description=$2,technologies=$3,lien_site=$4,lien_github=$5,image_url=$6,etiquette=$7,statut=$8,ordre=$9,updated_at=NOW() WHERE id=$10 RETURNING *`,
+      [titre, description, technologies, lien_site, lien_github, image_url, etiquette, statut, ordre, id]);
     if (r.rowCount === 0) return res.status(404).json({ error: 'Projet introuvable.' });
     res.json({ success: true, projet: r.rows[0] });
   } catch (err) { console.error('[projet-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -498,68 +562,39 @@ app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
 });
 
 // ── ROUTES ADMIN : EXPÉRIENCES ────────────────────────────────────────────
-
 app.get('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, experiences: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, experiences: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.post('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   try {
-    const titre       = sanitize(req.body.titre,       200);
-    const type_exp    = sanitize(req.body.type_exp    || '', 100);
-    const entreprise  = sanitize(req.body.entreprise  || '', 200);
-    const lieu        = sanitize(req.body.lieu        || '', 200);
-    const date_debut  = sanitize(req.body.date_debut  || '', 100);
-    const date_fin    = sanitize(req.body.date_fin    || '', 100);
-    const description = sanitize(req.body.description || '', 1000);
-    const tags        = sanitize(req.body.tags        || '', 500);
-    const statut      = sanitize(req.body.statut      || 'termine', 50);
-    const ordre       = parseInt(req.body.ordre || 0, 10);
-
+    const titre = sanitize(req.body.titre, 200), type_exp = sanitize(req.body.type_exp || '', 100);
+    const entreprise = sanitize(req.body.entreprise || '', 200), lieu = sanitize(req.body.lieu || '', 200);
+    const date_debut = sanitize(req.body.date_debut || '', 100), date_fin = sanitize(req.body.date_fin || '', 100);
+    const description = sanitize(req.body.description || '', 1000), tags = sanitize(req.body.tags || '', 500);
+    const statut = sanitize(req.body.statut || 'termine', 50), ordre = parseInt(req.body.ordre || 0, 10);
     if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
-
-    const r = await pool.query(
-      `INSERT INTO experiences (titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre]
-    );
+    const r = await pool.query(`INSERT INTO experiences (titre,type_exp,entreprise,lieu,date_debut,date_fin,description,tags,statut,ordre) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre]);
     res.status(201).json({ success: true, experience: r.rows[0] });
   } catch (err) { console.error('[experience-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
-// ── MODIFIER une expérience ───────────────────────────────────────────────
 app.patch('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
-
-    const titre       = sanitize(req.body.titre,       200);
-    const type_exp    = sanitize(req.body.type_exp    || '', 100);
-    const entreprise  = sanitize(req.body.entreprise  || '', 200);
-    const lieu        = sanitize(req.body.lieu        || '', 200);
-    const date_debut  = sanitize(req.body.date_debut  || '', 100);
-    const date_fin    = sanitize(req.body.date_fin    || '', 100);
-    const description = sanitize(req.body.description || '', 1000);
-    const tags        = sanitize(req.body.tags        || '', 500);
-    const statut      = sanitize(req.body.statut      || 'termine', 50);
-    const ordre       = parseInt(req.body.ordre || 0, 10);
-
+    const titre = sanitize(req.body.titre, 200), type_exp = sanitize(req.body.type_exp || '', 100);
+    const entreprise = sanitize(req.body.entreprise || '', 200), lieu = sanitize(req.body.lieu || '', 200);
+    const date_debut = sanitize(req.body.date_debut || '', 100), date_fin = sanitize(req.body.date_fin || '', 100);
+    const description = sanitize(req.body.description || '', 1000), tags = sanitize(req.body.tags || '', 500);
+    const statut = sanitize(req.body.statut || 'termine', 50), ordre = parseInt(req.body.ordre || 0, 10);
     if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
-
-    const r = await pool.query(
-      `UPDATE experiences SET titre=$1, type_exp=$2, entreprise=$3, lieu=$4, date_debut=$5,
-       date_fin=$6, description=$7, tags=$8, statut=$9, ordre=$10, updated_at=NOW()
-       WHERE id=$11 RETURNING *`,
-      [titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre, id]
-    );
+    const r = await pool.query(`UPDATE experiences SET titre=$1,type_exp=$2,entreprise=$3,lieu=$4,date_debut=$5,date_fin=$6,description=$7,tags=$8,statut=$9,ordre=$10,updated_at=NOW() WHERE id=$11 RETURNING *`,
+      [titre, type_exp, entreprise, lieu, date_debut, date_fin, description, tags, statut, ordre, id]);
     if (r.rowCount === 0) return res.status(404).json({ error: 'Expérience introuvable.' });
     res.json({ success: true, experience: r.rows[0] });
   } catch (err) { console.error('[experience-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.delete('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -571,62 +606,39 @@ app.delete('/api/admin/experiences/:id', auth, adminLimiter, async (req, res) =>
 });
 
 // ── ROUTES ADMIN : COMPÉTENCES ────────────────────────────────────────────
-
 app.get('/api/admin/competences', auth, adminLimiter, async (req, res) => {
-  try {
-    const rows = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC');
-    res.json({ success: true, competences: rows.rows });
-  } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
+  try { const r = await pool.query('SELECT * FROM competences ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, competences: r.rows }); }
+  catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.post('/api/admin/competences', auth, adminLimiter, async (req, res) => {
   try {
-    const categorie    = sanitize(req.body.categorie,    200);
-    const icone        = sanitize(req.body.icone        || 'fas fa-code', 100);
-    const couleur      = sanitize(req.body.couleur      || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
-    const niveau       = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
+    const categorie = sanitize(req.body.categorie, 200), icone = sanitize(req.body.icone || 'fas fa-code', 100);
+    const couleur = sanitize(req.body.couleur || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
+    const niveau = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
     const label_niveau = sanitize(req.body.label_niveau || 'Intermédiaire', 100);
-    const items        = sanitize(req.body.items        || '', 1000);
-    const ordre        = parseInt(req.body.ordre || 0, 10);
-
+    const items = sanitize(req.body.items || '', 1000), ordre = parseInt(req.body.ordre || 0, 10);
     if (categorie.length < 2) return res.status(400).json({ error: 'Catégorie trop courte.' });
-
-    const r = await pool.query(
-      `INSERT INTO competences (categorie, icone, couleur, niveau, label_niveau, items, ordre)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [categorie, icone, couleur, niveau, label_niveau, items, ordre]
-    );
+    const r = await pool.query(`INSERT INTO competences (categorie,icone,couleur,niveau,label_niveau,items,ordre) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [categorie, icone, couleur, niveau, label_niveau, items, ordre]);
     res.status(201).json({ success: true, competence: r.rows[0] });
   } catch (err) { console.error('[competence-add]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
-// ── MODIFIER une compétence ───────────────────────────────────────────────
 app.patch('/api/admin/competences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
-
-    const categorie    = sanitize(req.body.categorie,    200);
-    const icone        = sanitize(req.body.icone        || 'fas fa-code', 100);
-    const couleur      = sanitize(req.body.couleur      || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
-    const niveau       = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
+    const categorie = sanitize(req.body.categorie, 200), icone = sanitize(req.body.icone || 'fas fa-code', 100);
+    const couleur = sanitize(req.body.couleur || 'linear-gradient(135deg,#667eea,#764ba2)', 200);
+    const niveau = Math.min(100, Math.max(0, parseInt(req.body.niveau || 70, 10)));
     const label_niveau = sanitize(req.body.label_niveau || 'Intermédiaire', 100);
-    const items        = sanitize(req.body.items        || '', 1000);
-    const ordre        = parseInt(req.body.ordre || 0, 10);
-
+    const items = sanitize(req.body.items || '', 1000), ordre = parseInt(req.body.ordre || 0, 10);
     if (categorie.length < 2) return res.status(400).json({ error: 'Catégorie trop courte.' });
-
-    const r = await pool.query(
-      `UPDATE competences SET categorie=$1, icone=$2, couleur=$3, niveau=$4,
-       label_niveau=$5, items=$6, ordre=$7, updated_at=NOW()
-       WHERE id=$8 RETURNING *`,
-      [categorie, icone, couleur, niveau, label_niveau, items, ordre, id]
-    );
+    const r = await pool.query(`UPDATE competences SET categorie=$1,icone=$2,couleur=$3,niveau=$4,label_niveau=$5,items=$6,ordre=$7,updated_at=NOW() WHERE id=$8 RETURNING *`,
+      [categorie, icone, couleur, niveau, label_niveau, items, ordre, id]);
     if (r.rowCount === 0) return res.status(404).json({ error: 'Compétence introuvable.' });
     res.json({ success: true, competence: r.rows[0] });
   } catch (err) { console.error('[competence-patch]', err.message); res.status(500).json({ error: 'Erreur serveur.' }); }
 });
-
 app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -638,7 +650,6 @@ app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) =>
 });
 
 // ── INIT ADMIN ────────────────────────────────────────────────────────────
-
 app.post('/api/admin/init', async (req, res) => {
   try {
     const hash = await bcrypt.hash('portfolio@jesuusede', 14);
@@ -649,8 +660,6 @@ app.post('/api/admin/init', async (req, res) => {
 });
 
 // ── STATIC & FALLBACK ─────────────────────────────────────────────────────
-// ⚠️ CORRECTION : 'frontend' remplacé par 'docs' (nom réel du dossier)
-
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin'), { etag: true, lastModified: true, dotfiles: 'deny' }));
 app.use(express.static(path.join(__dirname, '..', 'docs'), { etag: true, lastModified: true, dotfiles: 'deny' }));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'docs', 'index.html')));
@@ -659,7 +668,6 @@ app.use(function (req, res) {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Ressource introuvable.' });
   res.status(404).sendFile(path.join(__dirname, '..', 'docs', 'index.html'));
 });
-
 app.use(function (err, req, res, next) {
   console.error('[erreur]', err.message);
   res.status(500).json({ error: process.env.NODE_ENV === 'production' ? 'Erreur interne.' : err.message });
@@ -671,8 +679,7 @@ connectDB().then(function () {
   });
   function shutdown() {
     server.close(function () {
-      if (pool) pool.end(function () { process.exit(0); });
-      else process.exit(0);
+      if (pool) pool.end(function () { process.exit(0); }); else process.exit(0);
     });
     setTimeout(function () { process.exit(1); }, 10000);
   }
