@@ -60,6 +60,11 @@
   function escHtml(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
+  function unescHtml(s) {
+    const t = document.createElement('textarea');
+    t.innerHTML = String(s || '');
+    return t.value;
+  }
   function formaterDate(d) { return d ? new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
   function formaterDateCourte(d) { return d ? new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'; }
   function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
@@ -369,7 +374,7 @@
       '<div class="entete-message"><span class="nom-expediteur"><i class="fas fa-user-circle"></i>' + escHtml(m.name) + '</span>' +
       '<span class="date-message"><i class="fas fa-clock"></i>' + formaterDateCourte(m.created_at) + '</span></div>' +
       '<div class="email-expediteur"><i class="fas fa-envelope"></i>' + escHtml(m.email) + '</div>' +
-      '<div class="apercu-texte">' + escHtml(m.message) + '</div>' +
+      '<div class="apercu-texte">' + escHtml(unescHtml(m.message)) + '</div>' +
       '<div class="boutons-message">' +
         '<button class="bouton-petit" onclick="event.stopPropagation();toggleLu(' + m.id + ')"><i class="fas fa-' + (nl?'envelope-open':'envelope') + '"></i> ' + (nl?'Marquer lu':'Non lu') + '</button>' +
         '<button class="bouton-petit rouge" onclick="event.stopPropagation();supprimerMessage(' + m.id + ')"><i class="fas fa-trash"></i> Supprimer</button>' +
@@ -385,11 +390,11 @@
       messageActuel = msg;
       document.getElementById('corps-modale').innerHTML =
         '<div class="detail-message">' +
-        '<div class="champ-message"><label><i class="fas fa-user"></i> Expéditeur</label><div class="valeur">' + escHtml(msg.name) + '</div></div>' +
+        '<div class="champ-message"><label><i class="fas fa-user"></i> Expéditeur</label><div class="valeur">' + escHtml(unescHtml(msg.name)) + '</div></div>' +
         '<div class="champ-message"><label><i class="fas fa-envelope"></i> Email</label><div class="valeur"><a href="mailto:' + escHtml(msg.email) + '" style="color:var(--orange)">' + escHtml(msg.email) + '</a></div></div>' +
-        (msg.phone ? '<div class="champ-message"><label><i class="fas fa-phone"></i> Tél</label><div class="valeur">' + escHtml(msg.phone) + '</div></div>' : '') +
+        (msg.phone ? '<div class="champ-message"><label><i class="fas fa-phone"></i> Tél</label><div class="valeur">' + escHtml(unescHtml(msg.phone)) + '</div></div>' : '') +
         '<div class="champ-message"><label><i class="fas fa-calendar"></i> Date</label><div class="valeur">' + formaterDate(msg.created_at) + '</div></div>' +
-        '<div class="champ-message"><label><i class="fas fa-comment"></i> Message</label><div class="valeur" style="white-space:pre-wrap">' + escHtml(msg.message) + '</div></div>' +
+        '<div class="champ-message"><label><i class="fas fa-comment"></i> Message</label><div class="valeur" style="white-space:pre-wrap">' + escHtml(unescHtml(msg.message)) + '</div></div>' +
         '<div class="champ-message"><label><i class="fas fa-reply-all"></i> Répondre</label>' +
         '<textarea id="texte-reponse" placeholder="Votre réponse…" style="width:100%;min-height:90px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:.75rem;font-family:inherit;resize:vertical;margin-top:6px"></textarea>' +
         '<button class="bouton-principal" style="margin-top:8px" onclick="envoyerReponse(' + msg.id + ',\'' + escHtml(msg.email) + '\')"><i class="fas fa-paper-plane"></i> Envoyer</button></div>' +
@@ -408,14 +413,44 @@
     try { await req('DELETE', '/api/admin/messages/' + id); toast('Message supprimé', 'succes'); chargerMessages(); chargerStatsRapides(); }
     catch (err) { toast(err.message, 'erreur'); }
   };
+
+  /* ══════════════════════════════════════════════════════════════
+     ENVOYER RÉPONSE — VERSION CORRIGÉE
+     Envoie le nom, le message original et la date à server.js
+     pour générer l'email HTML professionnel complet
+  ══════════════════════════════════════════════════════════════ */
   window.envoyerReponse = async function (id, email) {
     const t = document.getElementById('texte-reponse');
-    if (!t || !t.value.trim()) return toast('Écrivez une réponse', 'avert');
+    if (!t || !t.value.trim()) return toast('Écrivez une réponse avant d\'envoyer', 'avert');
+    const btn = document.querySelector('#fenetre-message .bouton-principal');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi…'; }
     try {
-      const d = await req('POST', '/api/admin/send-reply', { to: email, subject: 'Réponse — Philippe Hountondji', message: t.value.trim(), messageId: id });
-      if (d.success) { toast('Réponse envoyée !', 'succes'); document.getElementById('fenetre-message').classList.remove('active'); chargerMessages(); }
-      else toast(d.error, 'erreur');
-    } catch (err) { toast(err.message, 'erreur'); }
+      const msg = messageActuel; // le message actuellement ouvert
+      const d = await req('POST', '/api/admin/send-reply', {
+        to:              email,
+        subject:         'Réponse à votre message — Philippe Hountondji',
+        message:         t.value.trim(),
+        nomDestinataire: msg ? unescHtml(msg.name)    : '',          // prénom/nom de la personne
+        messageOriginal: msg ? unescHtml(msg.message) : '',          // son message d'origine
+        dateMessage:     msg ? new Date(msg.created_at).toLocaleDateString('fr-FR', {
+                           day: '2-digit', month: 'long', year: 'numeric'
+                         }) : '',                         // date formatée en français
+        messageId:       id
+      });
+      if (d.success) {
+        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
+        document.getElementById('fenetre-message').classList.remove('active');
+        chargerMessages();
+        chargerStatsRapides();
+      } else {
+        toast(d.error || 'Erreur lors de l\'envoi', 'erreur');
+      }
+    } catch (err) {
+      toast(err.message, 'erreur');
+      afficherBanniere();
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer'; }
+    }
   };
 
   const btnFM = document.getElementById('btn-fermer-modale');
@@ -654,12 +689,9 @@
 
   /* ── MODALE MODIFIER ── */
   async function ouvrirModifier(id, type, estStatique) {
-    // Pour les éléments statiques, on récupère les données depuis les tableaux PS/ES/CS
-    // Pour les éléments en base, on les récupère depuis l'API
     let item = null;
 
     if (estStatique) {
-      // Chercher dans les données statiques
       const sourceStatique = { projet: PS, experience: ES, competence: CS };
       item = sourceStatique[type].find(function (el) { return String(el.id) === String(id); });
       if (!item) { toast('Élément introuvable', 'erreur'); return; }
@@ -745,7 +777,6 @@
 
       let d;
       if (estStatique) {
-        // Élément statique → créer une nouvelle entrée en base via POST
         d = await req('POST', ROUTES[type].replace(/\/$/, ''), body);
         if (d.success) {
           toast('✅ Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
@@ -753,7 +784,6 @@
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
       } else {
-        // Élément base de données → PATCH normal
         d = await req('PATCH', ROUTES[type] + id, body);
         if (d.success) {
           toast('✅ Modifications enregistrées !','succes');

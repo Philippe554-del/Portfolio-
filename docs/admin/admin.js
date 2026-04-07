@@ -60,6 +60,11 @@
   function escHtml(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
+  function unescHtml(s) {
+    const t = document.createElement('textarea');
+    t.innerHTML = String(s || '');
+    return t.value;
+  }
   function formaterDate(d) { return d ? new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
   function formaterDateCourte(d) { return d ? new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'; }
   function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
@@ -369,7 +374,7 @@
       '<div class="entete-message"><span class="nom-expediteur"><i class="fas fa-user-circle"></i>' + escHtml(m.name) + '</span>' +
       '<span class="date-message"><i class="fas fa-clock"></i>' + formaterDateCourte(m.created_at) + '</span></div>' +
       '<div class="email-expediteur"><i class="fas fa-envelope"></i>' + escHtml(m.email) + '</div>' +
-      '<div class="apercu-texte">' + escHtml(m.message) + '</div>' +
+      '<div class="apercu-texte">' + escHtml(unescHtml(m.message)) + '</div>' +
       '<div class="boutons-message">' +
         '<button class="bouton-petit" onclick="event.stopPropagation();toggleLu(' + m.id + ')"><i class="fas fa-' + (nl?'envelope-open':'envelope') + '"></i> ' + (nl?'Marquer lu':'Non lu') + '</button>' +
         '<button class="bouton-petit rouge" onclick="event.stopPropagation();supprimerMessage(' + m.id + ')"><i class="fas fa-trash"></i> Supprimer</button>' +
@@ -385,11 +390,11 @@
       messageActuel = msg;
       document.getElementById('corps-modale').innerHTML =
         '<div class="detail-message">' +
-        '<div class="champ-message"><label><i class="fas fa-user"></i> Expéditeur</label><div class="valeur">' + escHtml(msg.name) + '</div></div>' +
+        '<div class="champ-message"><label><i class="fas fa-user"></i> Expéditeur</label><div class="valeur">' + escHtml(unescHtml(msg.name)) + '</div></div>' +
         '<div class="champ-message"><label><i class="fas fa-envelope"></i> Email</label><div class="valeur"><a href="mailto:' + escHtml(msg.email) + '" style="color:var(--orange)">' + escHtml(msg.email) + '</a></div></div>' +
-        (msg.phone ? '<div class="champ-message"><label><i class="fas fa-phone"></i> Tél</label><div class="valeur">' + escHtml(msg.phone) + '</div></div>' : '') +
+        (msg.phone ? '<div class="champ-message"><label><i class="fas fa-phone"></i> Tél</label><div class="valeur">' + escHtml(unescHtml(msg.phone)) + '</div></div>' : '') +
         '<div class="champ-message"><label><i class="fas fa-calendar"></i> Date</label><div class="valeur">' + formaterDate(msg.created_at) + '</div></div>' +
-        '<div class="champ-message"><label><i class="fas fa-comment"></i> Message</label><div class="valeur" style="white-space:pre-wrap">' + escHtml(msg.message) + '</div></div>' +
+        '<div class="champ-message"><label><i class="fas fa-comment"></i> Message</label><div class="valeur" style="white-space:pre-wrap">' + escHtml(unescHtml(msg.message)) + '</div></div>' +
         '<div class="champ-message"><label><i class="fas fa-reply-all"></i> Répondre</label>' +
         '<textarea id="texte-reponse" placeholder="Votre réponse…" style="width:100%;min-height:90px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:.75rem;font-family:inherit;resize:vertical;margin-top:6px"></textarea>' +
         '<button class="bouton-principal" style="margin-top:8px" onclick="envoyerReponse(' + msg.id + ',\'' + escHtml(msg.email) + '\')"><i class="fas fa-paper-plane"></i> Envoyer</button></div>' +
@@ -425,15 +430,15 @@
         to:              email,
         subject:         'Réponse à votre message — Philippe Hountondji',
         message:         t.value.trim(),
-        nomDestinataire: msg ? msg.name    : '',          // prénom/nom de la personne
-        messageOriginal: msg ? msg.message : '',          // son message d'origine
+        nomDestinataire: msg ? unescHtml(msg.name)    : '',          // prénom/nom de la personne
+        messageOriginal: msg ? unescHtml(msg.message) : '',          // son message d'origine
         dateMessage:     msg ? new Date(msg.created_at).toLocaleDateString('fr-FR', {
                            day: '2-digit', month: 'long', year: 'numeric'
                          }) : '',                         // date formatée en français
         messageId:       id
       });
       if (d.success) {
-        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? msg.name : 'la personne') + ' !', 'succes');
+        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
         document.getElementById('fenetre-message').classList.remove('active');
         chargerMessages();
         chargerStatsRapides();
