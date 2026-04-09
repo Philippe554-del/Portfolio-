@@ -74,26 +74,78 @@
     </nav>
   </header>
 
+  <!-- ═══════════════════════════════════
+       HERO — PLEINE PAGE
+  ═══════════════════════════════════ -->
   <section id="accueil" class="section-accueil contenu">
-    <div class="photo-profil">
-      <img src="images/philippe.jpeg" alt="Philippe Hountondji - Développeur web et administrateur réseau" loading="eager" fetchpriority="high" width="450" height="280">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-deco-line"></div>
+
+    <!-- PHOTO -->
+    <div class="photo-profil hero-photo-wrapper">
+      <div class="hero-photo-ring"></div>
+      <div class="hero-tech-badge hero-tech-1"><i class="fab fa-node-js" style="color:#68A063"></i> Node.js</div>
+      <div class="hero-tech-badge hero-tech-2"><i class="fas fa-network-wired" style="color:#00D9FF"></i> Réseaux</div>
+      <div class="hero-tech-badge hero-tech-3"><i class="fab fa-python" style="color:#F7C948"></i> Python</div>
+      <img src="images/philippe.jpeg"
+           alt="Philippe Hountondji - Développeur web et administrateur réseau"
+           loading="eager" fetchpriority="high" width="450" height="280">
     </div>
+
+    <!-- TEXTE -->
     <div class="texte-accueil">
-      <h1>Philippe Hountondji</h1>
-      <h2>Étudiant en Informatique & Réseaux</h2>
-      <p>Passionné par le développement web et l'administration réseau, je transforme des idées en solutions digitales efficaces. Curieux et déterminé, j'explore chaque jour de nouvelles technologies pour élargir mes compétences.</p>
-      <div class="groupe-boutons">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Disponible pour stage 2025
+      </div>
+      <div class="hero-line-before">
+        <span></span>
+        <em>Basé au Bénin</em>
+      </div>
+      <h1 class="hero-nom" data-text="Philippe Hountondji">Philippe Hountondji</h1>
+      <div class="hero-role-wrapper">
+        <span class="hero-role-prefix">~/</span>
+        <span class="hero-typewriter" id="typewriter-text"></span><span class="hero-cursor"></span>
+      </div>
+      <p class="hero-desc">
+      Développeur web full-stack, je conçois des <strong>applications complètes</strong> — du frontend au backend — ainsi que des <strong>architectures réseau</strong> adaptées aux réalités africaines. Étudiant en L2 à l’ENEAM, je transforme chaque projet en une solution concrète à des besoins réels.
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-val">5+</span>
+          <span class="hero-stat-label">Projets livrés</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">2+</span>
+          <span class="hero-stat-label">Ans de pratique</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">8+</span>
+          <span class="hero-stat-label">Technologies</span>
+        </div>
+      </div>
+      <div class="groupe-boutons hero-boutons">
         <a href="#projets" class="bouton bouton-principal"><i class="fas fa-code"></i> Voir mes projets</a>
         <a href="#cv" class="bouton bouton-secondaire"><i class="fas fa-file-pdf"></i> Télécharger mon CV</a>
       </div>
-      <div class="reseaux-sociaux">
+      <div class="reseaux-sociaux hero-socials">
         <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
         <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
         <a href="https://github.com/Philippe554-del" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
       </div>
     </div>
+
+    <div class="hero-scroll-indicator" id="hero-scroll-btn">
+      <span>Découvrir</span>
+      <div class="hero-scroll-arrow"><i class="fas fa-chevron-down"></i></div>
+    </div>
+    <div class="hero-section-num">01 / HERO</div>
   </section>
+
+  <!-- ═══════════════════════════════════ -->
 
   <section id="apropos" class="section-apropos contenu">
     <h2>Qui suis-je ?</h2>
@@ -106,18 +158,9 @@
         <p>Je me spécialise dans le <strong>développement web full-stack</strong> et l'<strong>administration réseau</strong>. Pour moi, chaque projet est une opportunité d'apprendre et de repousser mes limites techniques.</p>
         <p>Mon approche allie rigueur technique et créativité pour concevoir des solutions à la fois performantes et esthétiques. Je crois fermement que la meilleure façon d'apprendre est de créer, c'est pourquoi je travaille constamment sur des projets personnels.</p>
         <div class="statistiques">
-          <div class="stat-item">
-            <span class="stat-chiffre">5+</span>
-            <span class="stat-texte">Projets réalisés</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-chiffre">8+</span>
-            <span class="stat-texte">Technologies</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-chiffre">2+</span>
-            <span class="stat-texte">Années de pratique</span>
-          </div>
+          <div class="stat-item"><span class="stat-chiffre">5+</span><span class="stat-texte">Projets réalisés</span></div>
+          <div class="stat-item"><span class="stat-chiffre">8+</span><span class="stat-texte">Technologies</span></div>
+          <div class="stat-item"><span class="stat-chiffre">2+</span><span class="stat-texte">Années de pratique</span></div>
         </div>
       </div>
     </div>
@@ -127,7 +170,6 @@
     <h2>Ma Formation</h2>
     <p class="sous-titre">Mon parcours académique et mes diplômes obtenus</p>
     <div class="timeline">
-
       <div class="timeline-element actif">
         <div class="timeline-icone"><i class="fas fa-university"></i></div>
         <div class="timeline-bloc">
@@ -138,14 +180,10 @@
           <span class="info-annee"><i class="fas fa-calendar-alt"></i> 2025 — Présent</span>
           <p>Deuxième année de licence en Informatique et Réseaux. Approfondissement des connaissances en développement web, administration système et réseau, sécurité informatique et gestion de bases de données.</p>
           <div class="liste-matieres">
-            <span>Développement Web</span>
-            <span>Réseaux</span>
-            <span>Administration Système</span>
-            <span>Base de données</span>
+            <span>Développement Web</span><span>Réseaux</span><span>Administration Système</span><span>Base de données</span>
           </div>
         </div>
       </div>
-
       <div class="timeline-element">
         <div class="timeline-icone"><i class="fas fa-graduation-cap"></i></div>
         <div class="timeline-bloc">
@@ -157,7 +195,6 @@
           <p>Première année de licence validée avec succès. Acquisition des bases solides en programmation, réseaux informatiques et systèmes d'exploitation.</p>
         </div>
       </div>
-
       <div class="timeline-element">
         <div class="timeline-icone"><i class="fas fa-graduation-cap"></i></div>
         <div class="timeline-bloc">
@@ -169,7 +206,6 @@
           <p>Diplôme national du baccalauréat obtenu au CEG DANTO de Porto-Novo, ouvrant la voie aux études supérieures en informatique.</p>
         </div>
       </div>
-
       <div class="timeline-element">
         <div class="timeline-icone"><i class="fas fa-certificate"></i></div>
         <div class="timeline-bloc">
@@ -181,7 +217,6 @@
           <p>Diplôme national du premier cycle de l'enseignement secondaire, première étape d'un parcours académique solide.</p>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -189,7 +224,6 @@
     <h2>Mes Compétences</h2>
     <p class="sous-titre">Un aperçu de mes compétences techniques à travers trois domaines clés</p>
     <div class="grille-competences">
-
       <div class="carte-competence">
         <div class="entete-competence">
           <div class="icone-competence" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-code"></i></div>
@@ -208,7 +242,6 @@
           <span>Niveau : Avancé — 75%</span>
         </div>
       </div>
-
       <div class="carte-competence">
         <div class="entete-competence">
           <div class="icone-competence" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-network-wired"></i></div>
@@ -227,7 +260,6 @@
           <span>Niveau : Intermédiaire — 60%</span>
         </div>
       </div>
-
       <div class="carte-competence">
         <div class="entete-competence">
           <div class="icone-competence" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-laptop-medical"></i></div>
@@ -246,7 +278,6 @@
           <span>Niveau : Avancé — 80%</span>
         </div>
       </div>
-
     </div>
     <div class="image-competences">
       <img src="images/competences.jpeg" alt="Infrastructure réseau et serveurs" loading="lazy">
@@ -257,7 +288,6 @@
     <h2>Expérience</h2>
     <p class="sous-titre">Mon parcours professionnel et mes expériences pratiques</p>
     <div class="grille-experience">
-
       <div class="carte-experience recherche">
         <div class="badge-recherche"><span class="point-vert"></span> En recherche active</div>
         <div class="icone-experience"><i class="fas fa-search"></i></div>
@@ -268,48 +298,11 @@
           <span class="date-experience"><i class="fas fa-calendar-alt"></i> En cours de recherche — 2025</span>
           <p>Je suis actuellement à la recherche d'un stage de deuxième année en développement web ou administration réseau. Disponible pour toute entreprise souhaitant accueillir un étudiant motivé et sérieux.</p>
           <div class="tags-competences">
-            <span>Développement Web</span>
-            <span>Administration Réseau</span>
-            <span>Support IT</span>
+            <span>Développement Web</span><span>Administration Réseau</span><span>Support IT</span>
           </div>
           <a href="#contact" class="bouton-stage"><i class="fas fa-paper-plane"></i> Me proposer un stage</a>
         </div>
       </div>
-<!-- 
-      <div class="carte-experience prevu">
-        <div class="badge-prevu"><span class="point-orange"></span> Prévu</div>
-        <div class="icone-experience icone-prevu"><i class="fas fa-clock"></i></div>
-        <div class="contenu-experience">
-          <h3>Stage de Licence 3</h3>
-          <span class="type-experience"><i class="fas fa-briefcase"></i> Stage académique — L3</span>
-          <span class="lieu-experience"><i class="fas fa-map-marker-alt"></i> Bénin</span>
-          <span class="date-experience"><i class="fas fa-calendar-alt"></i> Prévu — 2026</span>
-          <p>Stage prévu en troisième année de licence. Ce stage constituera une étape importante permettant de consolider les acquis théoriques par une expérience pratique en entreprise.</p>
-          <div class="tags-competences">
-            <span>Full-Stack</span>
-            <span>Réseaux</span>
-            <span>Gestion de projet</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="carte-experience prevu">
-        <div class="badge-prevu"><span class="point-orange"></span> Prévu</div>
-        <div class="icone-experience icone-prevu"><i class="fas fa-briefcase"></i></div>
-        <div class="contenu-experience">
-          <h3>Stage Professionnel</h3>
-          <span class="type-experience"><i class="fas fa-briefcase"></i> Stage de fin d'études</span>
-          <span class="lieu-experience"><i class="fas fa-map-marker-alt"></i> Bénin / International</span>
-          <span class="date-experience"><i class="fas fa-calendar-alt"></i> Prévu — 2027</span>
-          <p>Stage professionnel de fin d'études prévu après la validation de la licence. Ce stage marquera l'entrée dans la vie professionnelle en tant que développeur web ou administrateur réseau.</p>
-          <div class="tags-competences">
-            <span>Professionnel</span>
-            <span>Fin d'études</span>
-            <span>Emploi</span>
-          </div>
-        </div>
-      </div> -->
-
       <div class="carte-experience">
         <div class="icone-experience"><i class="fas fa-laptop-code"></i></div>
         <div class="contenu-experience">
@@ -318,14 +311,10 @@
           <span class="lieu-experience"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
           <p>Développement de plusieurs applications web en autonomie, dont une plateforme sociale sécurisée pour les témoignages de violences basées sur le genre, déployée en production sur Railway.</p>
           <div class="tags-competences">
-            <span>HTML/CSS</span>
-            <span>JavaScript</span>
-            <span>Node.js</span>
-            <span>Déploiement</span>
+            <span>HTML/CSS</span><span>JavaScript</span><span>Node.js</span><span>Déploiement</span>
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -350,7 +339,6 @@
           </div>
         </div>
       </div>
-
       <div class="carte-projet">
         <div class="etiquette-projet">Portfolio</div>
         <div class="image-projet">
@@ -368,7 +356,6 @@
           </div>
         </div>
       </div>
-
       <div class="carte-projet projet-en-cours">
         <div class="etiquette-projet etiquette-en-cours">En cours</div>
         <div class="image-projet">
@@ -387,7 +374,6 @@
           </div>
         </div>
       </div>
-
       <div class="carte-projet projet-en-cours">
         <div class="etiquette-projet etiquette-en-cours">En cours</div>
         <div class="image-projet">
@@ -406,7 +392,6 @@
           </div>
         </div>
       </div>
-
       <div class="carte-projet projet-en-cours">
         <div class="etiquette-projet etiquette-en-cours">En cours</div>
         <div class="image-projet">
@@ -425,7 +410,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -434,7 +418,7 @@
     <p class="sous-titre">Consultez ou téléchargez mon CV professionnel</p>
     <div class="bloc-cv">
       <h3><i class="fas fa-id-card"></i> Hountondji Philippe Jésussédè</h3>
-      <p>Développeur Web Full-Stack et Administrateur Réseau & Système passionné, basé à Porto-Novo, Bénin. Mon CV présente l'ensemble de mes compétences, formations, expériences et projets réalisés.</p>
+      <p>Développeur Web Full-Stack et Administrateur Réseau & Système passionné, basé à Porto-Novo, Bénin.</p>
       <div class="badges-cv">
         <span class="badge-info"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
         <span class="badge-info"><i class="fas fa-university"></i> ENEAM — Licence 2</span>
@@ -452,7 +436,6 @@
     <h2>Travaillons Ensemble</h2>
     <p class="sous-titre">Discutons de votre projet ou opportunité de collaboration</p>
     <div class="zone-contact">
-
       <div class="formulaire-wrapper">
         <div class="entete-formulaire">
           <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
@@ -488,7 +471,6 @@
           </div>
         </form>
       </div>
-
       <div class="infos-contact">
         <div class="carte-contact">
           <div class="entete-carte-contact">
@@ -538,7 +520,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
