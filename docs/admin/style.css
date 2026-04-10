@@ -907,3 +907,66 @@ body::before {
   .bouton-icone { width: 44px; height: 44px; }
   .carte-stat:hover, .carte-action:hover, .element-message:hover { transform: none; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   CORRECTIF MOBILE — Cartes stats vides sur téléphone
+   Cause : * { max-width: 100% } écrase les éléments flex
+           sur Samsung Internet / Chrome Android
+═══════════════════════════════════════════════════════════ */
+
+.icone-stat,
+.texte-stat,
+.chiffre-stat,
+.libelle-stat,
+.carte-stat {
+  max-width: none !important;
+}
+
+.icone-stat {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chiffre-stat {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+/* Fallback si -webkit-text-fill-color n'est pas supporté */
+@supports not (-webkit-text-fill-color: transparent) {
+  .chiffre-stat {
+    color: #FF6B35 !important;
+    background: none !important;
+  }
+}
+
+.carte-stat {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+}
+
+@media (max-width: 576px) {
+  .carte-stat {
+    flex-direction: column !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+  .icone-stat {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+  }
+}
