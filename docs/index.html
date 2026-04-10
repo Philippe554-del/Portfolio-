@@ -10,7 +10,7 @@
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
   <meta name="google-site-verification" content="google50f42750b1197bd4">
-  <title>Philippe Hountondji | Développeur Web & Administrateur Réseau et système - Portfolio</title>
+  <title>Philippe Hountondji | Développeur Web & Administrateur Réseau - Portfolio</title>
   <meta name="description" content="Philippe Hountondji - Étudiant en Licence 2 Informatique & Réseaux à l'ENEAM Cotonou. Développeur web full-stack et administrateur réseau basé au Bénin.">
   <meta name="keywords" content="Philippe Hountondji, développeur web Bénin, ENEAM, administration réseau, Python, JavaScript, Node.js, HTML, CSS">
   <meta name="author" content="Philippe Hountondji">
@@ -23,7 +23,6 @@
   <meta property="og:image" content="https://philippe554-del.github.io/Portfolio-/images/philippe.jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Philippe Hountondji - Portfolio">
   <meta property="og:site_name" content="Philippe Hountondji Portfolio">
   <meta property="og:locale" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
@@ -32,12 +31,10 @@
   <meta name="twitter:image" content="https://philippe554-del.github.io/Portfolio-/images/philippe.jpeg">
   <meta name="google-site-verification" content="3FJI1G97jTdgIeMxFafZcVbAyquOecfTUwxUoUEYBEY">
 
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Philippe Hountondji","url":"https://philippe554-del.github.io/Portfolio-/","image":"https://philippe554-del.github.io/Portfolio-/images/philippe.jpeg","jobTitle":"Étudiant en Informatique et Réseaux","email":"hountondjiphilippe58@gmail.com","telephone":"+2290158156930","address":{"@type":"PostalAddress","addressLocality":"Porto-Novo","addressCountry":"BJ"},"sameAs":["https://www.linkedin.com/in/philippe-hountondji-200ba73a6","https://github.com/Philippe554-del"],"knowsAbout":["Développement Web","Python","JavaScript","Node.js","HTML","CSS","Administration Réseau"],"alumniOf":{"@type":"EducationalOrganization","name":"ENEAM - Cotonou, Bénin"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Philippe Hountondji","url":"https://philippe554-del.github.io/Portfolio-/","image":"https://philippe554-del.github.io/Portfolio-/images/philippe.jpeg","jobTitle":"Étudiant en Informatique et Réseaux","email":"hountondjiphilippe58@gmail.com","telephone":"+2290158156930","address":{"@type":"PostalAddress","addressLocality":"Porto-Novo","addressCountry":"BJ"},"sameAs":["https://www.linkedin.com/in/philippe-hountondji-200ba73a6","https://github.com/Philippe554-del"],"alumniOf":{"@type":"EducationalOrganization","name":"ENEAM - Cotonou, Bénin"}}</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="css/style.css" as="style">
-  <link rel="preload" href="images/philippe.jpeg" as="image">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -53,498 +50,563 @@
 </head>
 <body>
 
-  <header id="entete">
-    <nav id="menu" class="contenu">
-      <a href="#accueil" class="logo">PHILIPPE HOUNTONDJI</a>
-      <ul class="liens-nav">
-        <li><a href="#accueil">Accueil</a></li>
-        <li><a href="#apropos">À propos</a></li>
-        <li><a href="#formation">Formation</a></li>
-        <li><a href="#competences">Compétences</a></li>
-        <li><a href="#experience">Expérience</a></li>
-        <li><a href="#projets">Projets</a></li>
-        <li><a href="#cv">Mon CV</a></li>
-        <li><a href="#contact">Contact</a></li>
+  <!-- Canvas particules — toute la page, position fixed -->
+  <canvas id="particules-bg"></canvas>
+
+  <!-- ═══════════════════════════
+       NAVIGATION
+  ═══════════════════════════ -->
+  <header id="barre-nav">
+    <nav class="nav-interieur limite-largeur">
+      <a href="#intro" class="nav-logo">PHILIPPE HOUNTONDJI</a>
+      <ul class="nav-liens">
+        <li><a href="#intro">Accueil</a></li>
+        <li><a href="#qui-suis-je">À propos</a></li>
+        <li><a href="#parcours">Formation</a></li>
+        <li><a href="#mes-competences">Compétences</a></li>
+        <li><a href="#mon-experience">Expérience</a></li>
+        <li><a href="#mes-projets">Projets</a></li>
+        <li><a href="#mon-cv">Mon CV</a></li>
+        <li><a href="#me-contacter">Contact</a></li>
       </ul>
-      <button class="bouton-menu" aria-label="Ouvrir le menu">
-        <span class="ligne-menu"></span>
-        <span class="ligne-menu"></span>
-        <span class="ligne-menu"></span>
+      <button class="btn-burger" aria-label="Ouvrir le menu">
+        <span></span><span></span><span></span>
       </button>
     </nav>
   </header>
 
-  <!-- ═══════════════════════════════════
-       HERO — PLEINE PAGE
-  ═══════════════════════════════════ -->
-  <section id="accueil" class="section-accueil contenu">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-deco-line"></div>
+  <!-- ═══════════════════════════
+       INTRO — pleine page
+  ═══════════════════════════ -->
+  <section id="intro">
+    <div class="intro-inner limite-largeur">
 
-    <!-- PHOTO -->
-    <div class="photo-profil hero-photo-wrapper">
-      <div class="hero-photo-ring"></div>
-      <div class="hero-tech-badge hero-tech-1"><i class="fab fa-node-js" style="color:#68A063"></i> Node.js</div>
-      <div class="hero-tech-badge hero-tech-2"><i class="fas fa-network-wired" style="color:#00D9FF"></i> Réseaux</div>
-      <div class="hero-tech-badge hero-tech-3"><i class="fab fa-python" style="color:#F7C948"></i> Python</div>
-      <img src="images/philippe.jpeg"
-           alt="Philippe Hountondji - Développeur web et administrateur réseau"
-           loading="eager" fetchpriority="high" width="450" height="280">
+      <div class="intro-photo">
+        <div class="photo-anneau"></div>
+        <div class="tech-badge badge-nodejs"><i class="fab fa-node-js"></i> Node.js</div>
+        <div class="tech-badge badge-reseau"><i class="fas fa-network-wired"></i> Réseaux</div>
+        <div class="tech-badge badge-python"><i class="fab fa-python"></i> Python</div>
+        <img src="images/philippe.jpeg"
+             alt="Philippe Hountondji, développeur web et administrateur réseau au Bénin"
+             loading="eager" fetchpriority="high">
+      </div>
+
+      <div class="intro-texte">
+        <div class="badge-disponible">
+          <span class="point-vert"></span>
+          Disponible pour stage 2025
+        </div>
+        <div class="intro-localisation">
+          <span class="trait-orange"></span>
+          <em>Basé au Bénin</em>
+        </div>
+        <h1 class="mon-nom" data-glitch="Philippe Hountondji">Philippe Hountondji</h1>
+        <div class="mon-role">
+          <span class="role-prefixe">~/</span>
+          <span id="typewriter"></span><span class="curseur-clignotant"></span>
+        </div>
+        <p class="intro-description">
+          Je construis des <strong>applications web complètes</strong> — du frontend au backend — et je conçois des <strong>architectures réseau</strong> adaptées aux réalités africaines. Étudiant en L2 à l'ENEAM, je transforme chaque projet en solution concrète.
+        </p>
+        <div class="intro-chiffres">
+          <div class="chiffre-item">
+            <span class="chiffre-val">5+</span>
+            <span class="chiffre-label">Projets livrés</span>
+          </div>
+          <div class="chiffre-sep"></div>
+          <div class="chiffre-item">
+            <span class="chiffre-val">2+</span>
+            <span class="chiffre-label">Ans de pratique</span>
+          </div>
+          <div class="chiffre-sep"></div>
+          <div class="chiffre-item">
+            <span class="chiffre-val">8+</span>
+            <span class="chiffre-label">Technologies</span>
+          </div>
+        </div>
+        <div class="intro-boutons">
+          <a href="#mes-projets" class="btn btn-orange"><i class="fas fa-code"></i> Voir mes projets</a>
+          <a href="#mon-cv" class="btn btn-contour"><i class="fas fa-file-pdf"></i> Télécharger mon CV</a>
+        </div>
+        <div class="reseaux-sociaux">
+          <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+          <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="https://github.com/Philippe554-del" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
     </div>
 
-    <!-- TEXTE -->
-    <div class="texte-accueil">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        Disponible pour stage 2025
-      </div>
-      <div class="hero-line-before">
-        <span></span>
-        <em>Basé au Bénin</em>
-      </div>
-      <h1 class="hero-nom" data-text="Philippe Hountondji">Philippe Hountondji</h1>
-      <div class="hero-role-wrapper">
-        <span class="hero-role-prefix">~/</span>
-        <span class="hero-typewriter" id="typewriter-text"></span><span class="hero-cursor"></span>
-      </div>
-      <p class="hero-desc">
-      Développeur web full-stack, je conçois des <strong>applications complètes</strong> — du frontend au backend — ainsi que des <strong>architectures réseau</strong> adaptées aux réalités africaines. Étudiant en L2 à l’ENEAM, je transforme chaque projet en une solution concrète à des besoins réels.
-      </p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <span class="hero-stat-val">5+</span>
-          <span class="hero-stat-label">Projets livrés</span>
-        </div>
-        <div class="hero-stat-sep"></div>
-        <div class="hero-stat">
-          <span class="hero-stat-val">2+</span>
-          <span class="hero-stat-label">Ans de pratique</span>
-        </div>
-        <div class="hero-stat-sep"></div>
-        <div class="hero-stat">
-          <span class="hero-stat-val">8+</span>
-          <span class="hero-stat-label">Technologies</span>
-        </div>
-      </div>
-      <div class="groupe-boutons hero-boutons">
-        <a href="#projets" class="bouton bouton-principal"><i class="fas fa-code"></i> Voir mes projets</a>
-        <a href="#cv" class="bouton bouton-secondaire"><i class="fas fa-file-pdf"></i> Télécharger mon CV</a>
-      </div>
-      <div class="reseaux-sociaux hero-socials">
-        <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-        <a href="https://github.com/Philippe554-del" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
-      </div>
-    </div>
-
-    <div class="hero-scroll-indicator" id="hero-scroll-btn">
+    <div class="scroll-bas" id="btn-scroll-bas">
       <span>Découvrir</span>
-      <div class="hero-scroll-arrow"><i class="fas fa-chevron-down"></i></div>
-    </div>
-    <div class="hero-section-num">01 / HERO</div>
-  </section>
-
-  <!-- ═══════════════════════════════════ -->
-
-  <section id="apropos" class="section-apropos contenu">
-    <h2>Qui suis-je ?</h2>
-    <div class="apropos-interieur">
-      <div class="apropos-image">
-        <img src="images/apropos.jpeg" alt="Philippe Hountondji - Développement et programmation" loading="lazy">
-      </div>
-      <div class="apropos-texte">
-        <p><strong>Bonjour !</strong> Je m'appelle Philippe Hountondji Jésussédè, étudiant passionné d'informatique et réseaux originaire du Bénin, actuellement en <strong>Licence 2 à l'ENEAM</strong> à Cotonou. Ma fascination pour la technologie a commencé dès mon plus jeune âge, et je n'ai cessé d'explorer ce domaine depuis.</p>
-        <p>Je me spécialise dans le <strong>développement web full-stack</strong> et l'<strong>administration réseau</strong>. Pour moi, chaque projet est une opportunité d'apprendre et de repousser mes limites techniques.</p>
-        <p>Mon approche allie rigueur technique et créativité pour concevoir des solutions à la fois performantes et esthétiques. Je crois fermement que la meilleure façon d'apprendre est de créer, c'est pourquoi je travaille constamment sur des projets personnels.</p>
-        <div class="statistiques">
-          <div class="stat-item"><span class="stat-chiffre">5+</span><span class="stat-texte">Projets réalisés</span></div>
-          <div class="stat-item"><span class="stat-chiffre">8+</span><span class="stat-texte">Technologies</span></div>
-          <div class="stat-item"><span class="stat-chiffre">2+</span><span class="stat-texte">Années de pratique</span></div>
-        </div>
-      </div>
+      <div class="scroll-fleche"><i class="fas fa-chevron-down"></i></div>
     </div>
   </section>
 
-  <section id="formation" class="section-formation contenu">
-    <h2>Ma Formation</h2>
-    <p class="sous-titre">Mon parcours académique et mes diplômes obtenus</p>
-    <div class="timeline">
-      <div class="timeline-element actif">
-        <div class="timeline-icone"><i class="fas fa-university"></i></div>
-        <div class="timeline-bloc">
-          <span class="badge-statut">En cours</span>
-          <h3>Licence 2 — Informatique & Réseaux</h3>
-          <span class="info-ecole"><i class="fas fa-building"></i> ENEAM — École Nationale d'Économie Appliquée et de Management</span>
-          <span class="info-lieu"><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</span>
-          <span class="info-annee"><i class="fas fa-calendar-alt"></i> 2025 — Présent</span>
-          <p>Deuxième année de licence en Informatique et Réseaux. Approfondissement des connaissances en développement web, administration système et réseau, sécurité informatique et gestion de bases de données.</p>
-          <div class="liste-matieres">
-            <span>Développement Web</span><span>Réseaux</span><span>Administration Système</span><span>Base de données</span>
-          </div>
+  <!-- ═══════════════════════════
+       QUI SUIS-JE
+  ═══════════════════════════ -->
+  <section id="qui-suis-je">
+    <div class="limite-largeur">
+      <h2>Qui suis-je ?</h2>
+      <div class="apropos-grille">
+        <div class="apropos-photo">
+          <img src="images/apropos.jpeg" alt="Philippe Hountondji au travail" loading="lazy">
         </div>
-      </div>
-      <div class="timeline-element">
-        <div class="timeline-icone"><i class="fas fa-graduation-cap"></i></div>
-        <div class="timeline-bloc">
-          <span class="badge-statut badge-obtenu">Obtenu</span>
-          <h3>Licence 1 — Informatique & Réseaux</h3>
-          <span class="info-ecole"><i class="fas fa-building"></i> ENEAM — École Nationale d'Économie Appliquée et de Management</span>
-          <span class="info-lieu"><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</span>
-          <span class="info-annee"><i class="fas fa-calendar-alt"></i> 2025 — Obtenu</span>
-          <p>Première année de licence validée avec succès. Acquisition des bases solides en programmation, réseaux informatiques et systèmes d'exploitation.</p>
-        </div>
-      </div>
-      <div class="timeline-element">
-        <div class="timeline-icone"><i class="fas fa-graduation-cap"></i></div>
-        <div class="timeline-bloc">
-          <span class="badge-statut badge-obtenu">Obtenu</span>
-          <h3>Baccalauréat</h3>
-          <span class="info-ecole"><i class="fas fa-school"></i> CEG DANTO</span>
-          <span class="info-lieu"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
-          <span class="info-annee"><i class="fas fa-calendar-alt"></i> 2024</span>
-          <p>Diplôme national du baccalauréat obtenu au CEG DANTO de Porto-Novo, ouvrant la voie aux études supérieures en informatique.</p>
-        </div>
-      </div>
-      <div class="timeline-element">
-        <div class="timeline-icone"><i class="fas fa-certificate"></i></div>
-        <div class="timeline-bloc">
-          <span class="badge-statut badge-obtenu">Obtenu</span>
-          <h3>BEPC — Brevet d'Études du Premier Cycle</h3>
-          <span class="info-ecole"><i class="fas fa-school"></i> CEG MALE</span>
-          <span class="info-lieu"><i class="fas fa-map-marker-alt"></i> Bénin</span>
-          <span class="info-annee"><i class="fas fa-calendar-alt"></i> 2021</span>
-          <p>Diplôme national du premier cycle de l'enseignement secondaire, première étape d'un parcours académique solide.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="competences" class="section-competences contenu">
-    <h2>Mes Compétences</h2>
-    <p class="sous-titre">Un aperçu de mes compétences techniques à travers trois domaines clés</p>
-    <div class="grille-competences">
-      <div class="carte-competence">
-        <div class="entete-competence">
-          <div class="icone-competence" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-code"></i></div>
-          <h3>Développement Web</h3>
-        </div>
-        <ul>
-          <li><i class="fab fa-python"></i> <strong>Python</strong></li>
-          <li><i class="fab fa-html5"></i> <strong>HTML5</strong></li>
-          <li><i class="fab fa-css3-alt"></i> <strong>CSS3</strong></li>
-          <li><i class="fab fa-js"></i> <strong>JavaScript</strong></li>
-          <li><i class="fab fa-node-js"></i> <strong>Node.js</strong></li>
-          <li><i class="fas fa-database"></i> <strong>Bases de données</strong></li>
-        </ul>
-        <div class="barre-niveau">
-          <div class="barre-progression" style="width:75%"></div>
-          <span>Niveau : Avancé — 75%</span>
-        </div>
-      </div>
-      <div class="carte-competence">
-        <div class="entete-competence">
-          <div class="icone-competence" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-network-wired"></i></div>
-          <h3>Réseaux & Infrastructure</h3>
-        </div>
-        <ul>
-          <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong></li>
-          <li><i class="fas fa-server"></i> <strong>Gestion de serveurs</strong></li>
-          <li><i class="fas fa-shield-alt"></i> <strong>Sécurité réseau</strong></li>
-          <li><i class="fas fa-chart-line"></i> <strong>Supervision</strong></li>
-          <li><i class="fas fa-tools"></i> <strong>Dépannage</strong></li>
-          <li><i class="fas fa-cloud"></i> <strong>Cloud</strong></li>
-        </ul>
-        <div class="barre-niveau">
-          <div class="barre-progression" style="width:60%"></div>
-          <span>Niveau : Intermédiaire — 60%</span>
-        </div>
-      </div>
-      <div class="carte-competence">
-        <div class="entete-competence">
-          <div class="icone-competence" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-laptop-medical"></i></div>
-          <h3>Maintenance & Support</h3>
-        </div>
-        <ul>
-          <li><i class="fas fa-search"></i> <strong>Diagnostic hardware/software</strong></li>
-          <li><i class="fas fa-cogs"></i> <strong>Installation systèmes</strong></li>
-          <li><i class="fas fa-tools"></i> <strong>Maintenance préventive</strong></li>
-          <li><i class="fas fa-sync-alt"></i> <strong>Mise à jour & patches</strong></li>
-          <li><i class="fas fa-headset"></i> <strong>Support utilisateurs</strong></li>
-          <li><i class="fas fa-bolt"></i> <strong>Optimisation performance</strong></li>
-        </ul>
-        <div class="barre-niveau">
-          <div class="barre-progression" style="width:80%"></div>
-          <span>Niveau : Avancé — 80%</span>
-        </div>
-      </div>
-    </div>
-    <div class="image-competences">
-      <img src="images/competences.jpeg" alt="Infrastructure réseau et serveurs" loading="lazy">
-    </div>
-  </section>
-
-  <section id="experience" class="section-experience contenu">
-    <h2>Expérience</h2>
-    <p class="sous-titre">Mon parcours professionnel et mes expériences pratiques</p>
-    <div class="grille-experience">
-      <div class="carte-experience recherche">
-        <div class="badge-recherche"><span class="point-vert"></span> En recherche active</div>
-        <div class="icone-experience"><i class="fas fa-search"></i></div>
-        <div class="contenu-experience">
-          <h3>Stage de Licence 2</h3>
-          <span class="type-experience"><i class="fas fa-briefcase"></i> Stage académique — L2</span>
-          <span class="lieu-experience"><i class="fas fa-map-marker-alt"></i> Bénin</span>
-          <span class="date-experience"><i class="fas fa-calendar-alt"></i> En cours de recherche — 2025</span>
-          <p>Je suis actuellement à la recherche d'un stage de deuxième année en développement web ou administration réseau. Disponible pour toute entreprise souhaitant accueillir un étudiant motivé et sérieux.</p>
-          <div class="tags-competences">
-            <span>Développement Web</span><span>Administration Réseau</span><span>Support IT</span>
-          </div>
-          <a href="#contact" class="bouton-stage"><i class="fas fa-paper-plane"></i> Me proposer un stage</a>
-        </div>
-      </div>
-      <div class="carte-experience">
-        <div class="icone-experience"><i class="fas fa-laptop-code"></i></div>
-        <div class="contenu-experience">
-          <h3>Développeur Web — Projets Personnels</h3>
-          <span class="type-experience"><i class="fas fa-calendar-alt"></i> 2024 — Présent</span>
-          <span class="lieu-experience"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
-          <p>Développement de plusieurs applications web en autonomie, dont une plateforme sociale sécurisée pour les témoignages de violences basées sur le genre, déployée en production sur Railway.</p>
-          <div class="tags-competences">
-            <span>HTML/CSS</span><span>JavaScript</span><span>Node.js</span><span>Déploiement</span>
+        <div class="apropos-texte">
+          <p><strong>Bonjour !</strong> Je m'appelle Philippe Hountondji Jésussédè, étudiant passionné d'informatique et réseaux originaire du Bénin, actuellement en <strong>Licence 2 à l'ENEAM</strong> à Cotonou.</p>
+          <p>Je me spécialise dans le <strong>développement web full-stack</strong> et l'<strong>administration réseau</strong>. Pour moi, chaque projet est une opportunité d'apprendre et de repousser mes limites.</p>
+          <p>Mon approche allie rigueur technique et créativité pour concevoir des solutions performantes et esthétiques. Je crois que la meilleure façon d'apprendre est de créer.</p>
+          <div class="apropos-stats">
+            <div class="stat-bloc">
+              <span class="stat-nb">5+</span>
+              <span class="stat-desc">Projets réalisés</span>
+            </div>
+            <div class="stat-bloc">
+              <span class="stat-nb">8+</span>
+              <span class="stat-desc">Technologies</span>
+            </div>
+            <div class="stat-bloc">
+              <span class="stat-nb">2+</span>
+              <span class="stat-desc">Années de pratique</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="projets" class="section-projets contenu">
-    <h2>Mes Projets</h2>
-    <p class="sous-titre">Découvrez une sélection de mes réalisations techniques</p>
-    <div class="grille-projets">
-      <div class="carte-projet">
-        <div class="etiquette-projet">Social</div>
-        <div class="image-projet">
-          <img src="images/VBG.png" onerror="this.src='images/projets-1.jpeg'" alt="Plateforme VBG" loading="lazy">
-        </div>
-        <div class="infos-projet">
-          <h3>Plateforme VBG</h3>
-          <p>Plateforme 100% anonyme et sécurisée permettant aux femmes de partager des témoignages sur les violences basées sur le genre. Aucune donnée personnelle collectée.</p>
-          <div class="technologies">
-            <span><i class="fab fa-html5"></i> HTML/CSS</span>
-            <span><i class="fab fa-node-js"></i> Node.js</span>
+  <!-- ═══════════════════════════
+       FORMATION
+  ═══════════════════════════ -->
+  <section id="parcours">
+    <div class="limite-largeur">
+      <h2>Ma Formation</h2>
+      <p class="sous-titre-section">Mon parcours académique et mes diplômes obtenus</p>
+      <div class="timeline-parcours">
+
+        <div class="etape-parcours actuelle">
+          <div class="etape-icone"><i class="fas fa-university"></i></div>
+          <div class="etape-contenu">
+            <span class="badge-etape">En cours</span>
+            <h3>Licence 2 — Informatique & Réseaux</h3>
+            <span class="etape-ecole"><i class="fas fa-building"></i> ENEAM — École Nationale d'Économie Appliquée et de Management</span>
+            <span class="etape-lieu"><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</span>
+            <span class="etape-annee"><i class="fas fa-calendar-alt"></i> 2025 — Présent</span>
+            <p>Deuxième année de licence en Informatique et Réseaux. Approfondissement en développement web, administration système, sécurité informatique et bases de données.</p>
+            <div class="matieres-tags">
+              <span>Développement Web</span><span>Réseaux</span><span>Administration Système</span><span>Base de données</span>
+            </div>
           </div>
-          <div class="liens-projet">
-            <a href="https://vbg-benin.netlify.app" target="_blank" rel="noopener noreferrer" class="lien-projet"><i class="fas fa-external-link-alt"></i> Visiter le site</a>
+        </div>
+
+        <div class="etape-parcours">
+          <div class="etape-icone"><i class="fas fa-graduation-cap"></i></div>
+          <div class="etape-contenu">
+            <span class="badge-etape badge-obtenu">Obtenu</span>
+            <h3>Licence 1 — Informatique & Réseaux</h3>
+            <span class="etape-ecole"><i class="fas fa-building"></i> ENEAM — École Nationale d'Économie Appliquée et de Management</span>
+            <span class="etape-lieu"><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</span>
+            <span class="etape-annee"><i class="fas fa-calendar-alt"></i> 2025 — Obtenu</span>
+            <p>Première année validée avec succès. Bases solides en programmation, réseaux et systèmes d'exploitation.</p>
           </div>
         </div>
+
+        <div class="etape-parcours">
+          <div class="etape-icone"><i class="fas fa-graduation-cap"></i></div>
+          <div class="etape-contenu">
+            <span class="badge-etape badge-obtenu">Obtenu</span>
+            <h3>Baccalauréat</h3>
+            <span class="etape-ecole"><i class="fas fa-school"></i> CEG DANTO</span>
+            <span class="etape-lieu"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
+            <span class="etape-annee"><i class="fas fa-calendar-alt"></i> 2024</span>
+            <p>Diplôme national du baccalauréat, ouvrant la voie aux études supérieures en informatique.</p>
+          </div>
+        </div>
+
+        <div class="etape-parcours">
+          <div class="etape-icone"><i class="fas fa-certificate"></i></div>
+          <div class="etape-contenu">
+            <span class="badge-etape badge-obtenu">Obtenu</span>
+            <h3>BEPC — Brevet d'Études du Premier Cycle</h3>
+            <span class="etape-ecole"><i class="fas fa-school"></i> CEG MALE</span>
+            <span class="etape-lieu"><i class="fas fa-map-marker-alt"></i> Bénin</span>
+            <span class="etape-annee"><i class="fas fa-calendar-alt"></i> 2021</span>
+            <p>Diplôme national du premier cycle, première étape d'un parcours académique solide.</p>
+          </div>
+        </div>
+
       </div>
-      <div class="carte-projet">
-        <div class="etiquette-projet">Portfolio</div>
-        <div class="image-projet">
-          <img src="images/image-9.jpg" alt="Portfolio Philippe Hountondji" loading="lazy">
-        </div>
-        <div class="infos-projet">
-          <h3>Mon Portfolio</h3>
-          <p>Portfolio professionnel interactif avec animations, formulaire de contact sécurisé, design responsive et SEO optimisé. Déployé sur GitHub Pages.</p>
-          <div class="technologies">
-            <span><i class="fab fa-html5"></i> HTML/CSS</span>
-            <span><i class="fab fa-js"></i> JavaScript</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════
+       COMPÉTENCES
+  ═══════════════════════════ -->
+  <section id="mes-competences">
+    <div class="limite-largeur">
+      <h2>Mes Compétences</h2>
+      <p class="sous-titre-section">Un aperçu de mes compétences à travers trois domaines clés</p>
+      <div class="grille-competences">
+
+        <div class="bloc-competence">
+          <div class="competence-header">
+            <div class="competence-icone" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-code"></i></div>
+            <h3>Développement Web</h3>
           </div>
-          <div class="liens-projet">
-            <a href="https://philippe554-del.github.io/Portfolio-/" target="_blank" rel="noopener noreferrer" class="lien-projet"><i class="fas fa-external-link-alt"></i> Visiter le site</a>
+          <ul class="competence-liste">
+            <li><i class="fab fa-python"></i> <strong>Python</strong></li>
+            <li><i class="fab fa-html5"></i> <strong>HTML5</strong></li>
+            <li><i class="fab fa-css3-alt"></i> <strong>CSS3</strong></li>
+            <li><i class="fab fa-js"></i> <strong>JavaScript</strong></li>
+            <li><i class="fab fa-node-js"></i> <strong>Node.js</strong></li>
+            <li><i class="fas fa-database"></i> <strong>Bases de données</strong></li>
+          </ul>
+          <div class="niveau-barre">
+            <div class="niveau-remplissage" style="width:75%"></div>
+            <span>Avancé — 75%</span>
           </div>
         </div>
+
+        <div class="bloc-competence">
+          <div class="competence-header">
+            <div class="competence-icone" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-network-wired"></i></div>
+            <h3>Réseaux & Infrastructure</h3>
+          </div>
+          <ul class="competence-liste">
+            <li><i class="fas fa-wifi"></i> <strong>Configuration réseaux</strong></li>
+            <li><i class="fas fa-server"></i> <strong>Gestion de serveurs</strong></li>
+            <li><i class="fas fa-shield-alt"></i> <strong>Sécurité réseau</strong></li>
+            <li><i class="fas fa-chart-line"></i> <strong>Supervision</strong></li>
+            <li><i class="fas fa-tools"></i> <strong>Dépannage</strong></li>
+            <li><i class="fas fa-cloud"></i> <strong>Cloud</strong></li>
+          </ul>
+          <div class="niveau-barre">
+            <div class="niveau-remplissage" style="width:60%"></div>
+            <span>Intermédiaire — 60%</span>
+          </div>
+        </div>
+
+        <div class="bloc-competence">
+          <div class="competence-header">
+            <div class="competence-icone" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-laptop-medical"></i></div>
+            <h3>Maintenance & Support</h3>
+          </div>
+          <ul class="competence-liste">
+            <li><i class="fas fa-search"></i> <strong>Diagnostic hardware/software</strong></li>
+            <li><i class="fas fa-cogs"></i> <strong>Installation systèmes</strong></li>
+            <li><i class="fas fa-tools"></i> <strong>Maintenance préventive</strong></li>
+            <li><i class="fas fa-sync-alt"></i> <strong>Mise à jour & patches</strong></li>
+            <li><i class="fas fa-headset"></i> <strong>Support utilisateurs</strong></li>
+            <li><i class="fas fa-bolt"></i> <strong>Optimisation performance</strong></li>
+          </ul>
+          <div class="niveau-barre">
+            <div class="niveau-remplissage" style="width:80%"></div>
+            <span>Avancé — 80%</span>
+          </div>
+        </div>
+
       </div>
-      <div class="carte-projet projet-en-cours">
-        <div class="etiquette-projet etiquette-en-cours">En cours</div>
-        <div class="image-projet">
-          <img src="images/projets-1.jpeg" alt="Dashboard Administratif" loading="lazy">
-        </div>
-        <div class="infos-projet">
-          <h3>Dashboard Administratif</h3>
-          <p>Plateforme de gestion complète avec visualisation de données en temps réel, authentification et tableau de bord responsive.</p>
-          <div class="technologies">
-            <span><i class="fab fa-react"></i> React</span>
-            <span><i class="fab fa-node-js"></i> Node.js</span>
-            <span><i class="fas fa-database"></i> MongoDB</span>
-          </div>
-          <div class="liens-projet">
-            <div class="mention-en-cours"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
-          </div>
-        </div>
+      <div class="competences-photo">
+        <img src="images/competences.jpeg" alt="Infrastructure réseau et serveurs" loading="lazy">
       </div>
-      <div class="carte-projet projet-en-cours">
-        <div class="etiquette-projet etiquette-en-cours">En cours</div>
-        <div class="image-projet">
-          <img src="images/projets-2.jpeg" alt="Simulation Réseau Entreprise" loading="lazy">
-        </div>
-        <div class="infos-projet">
-          <h3>Simulation Réseau Entreprise</h3>
-          <p>Modélisation complète d'un réseau d'entreprise avec routeurs, switches, VLANs et politiques de sécurité avancées.</p>
-          <div class="technologies">
-            <span><i class="fas fa-network-wired"></i> Cisco</span>
-            <span><i class="fas fa-shield-alt"></i> Sécurité</span>
-            <span><i class="fas fa-sitemap"></i> Topologie</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════
+       EXPÉRIENCE
+  ═══════════════════════════ -->
+  <section id="mon-experience">
+    <div class="limite-largeur">
+      <h2>Expérience</h2>
+      <p class="sous-titre-section">Mon parcours professionnel et mes expériences pratiques</p>
+      <div class="grille-experience">
+
+        <div class="carte-exp en-recherche">
+          <div class="badge-recherche-stage"><span class="point-vert"></span> En recherche active</div>
+          <div class="exp-icone"><i class="fas fa-search"></i></div>
+          <div class="exp-detail">
+            <h3>Stage de Licence 2</h3>
+            <span class="exp-type"><i class="fas fa-briefcase"></i> Stage académique — L2</span>
+            <span class="exp-lieu"><i class="fas fa-map-marker-alt"></i> Bénin</span>
+            <span class="exp-date"><i class="fas fa-calendar-alt"></i> En cours de recherche — 2025</span>
+            <p>Je recherche actuellement un stage en développement web ou administration réseau. Disponible pour toute entreprise souhaitant accueillir un étudiant motivé.</p>
+            <div class="exp-tags">
+              <span>Développement Web</span><span>Administration Réseau</span><span>Support IT</span>
+            </div>
+            <a href="#me-contacter" class="btn-proposer-stage"><i class="fas fa-paper-plane"></i> Me proposer un stage</a>
           </div>
-          <div class="liens-projet">
-            <div class="mention-en-cours"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
+        </div>
+
+        <div class="carte-exp">
+          <div class="exp-icone"><i class="fas fa-laptop-code"></i></div>
+          <div class="exp-detail">
+            <h3>Développeur Web — Projets Personnels</h3>
+            <span class="exp-type"><i class="fas fa-calendar-alt"></i> 2024 — Présent</span>
+            <span class="exp-lieu"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
+            <p>Développement de plusieurs applications web en autonomie, dont une plateforme sécurisée pour les témoignages de violences basées sur le genre, déployée en production.</p>
+            <div class="exp-tags">
+              <span>HTML/CSS</span><span>JavaScript</span><span>Node.js</span><span>Déploiement</span>
+            </div>
           </div>
         </div>
+
       </div>
-      <div class="carte-projet projet-en-cours">
-        <div class="etiquette-projet etiquette-en-cours">En cours</div>
-        <div class="image-projet">
-          <img src="images/projets-3.jpeg" alt="Système de Gestion API" loading="lazy">
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════
+       PROJETS
+  ═══════════════════════════ -->
+  <section id="mes-projets">
+    <div class="limite-largeur">
+      <h2>Mes Projets</h2>
+      <p class="sous-titre-section">Découvrez une sélection de mes réalisations techniques</p>
+      <div class="grille-projets">
+
+        <div class="carte-projet">
+          <div class="projet-label">Social</div>
+          <div class="projet-visuel">
+            <img src="images/VBG.png" onerror="this.src='images/projets-1.jpeg'" alt="Plateforme VBG" loading="lazy">
+          </div>
+          <div class="projet-info">
+            <h3>Plateforme VBG</h3>
+            <p>Plateforme 100% anonyme permettant aux femmes de partager des témoignages sur les violences basées sur le genre. Aucune donnée personnelle collectée.</p>
+            <div class="projet-stack">
+              <span><i class="fab fa-html5"></i> HTML/CSS</span>
+              <span><i class="fab fa-node-js"></i> Node.js</span>
+            </div>
+            <div class="projet-liens">
+              <a href="https://vbg-benin.netlify.app" target="_blank" rel="noopener noreferrer" class="lien-demo"><i class="fas fa-external-link-alt"></i> Visiter le site</a>
+            </div>
+          </div>
         </div>
-        <div class="infos-projet">
-          <h3>Système de Gestion API</h3>
-          <p>API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.</p>
-          <div class="technologies">
-            <span><i class="fab fa-python"></i> Python</span>
-            <span><i class="fas fa-bolt"></i> FastAPI</span>
-            <span><i class="fas fa-server"></i> PostgreSQL</span>
+
+        <div class="carte-projet">
+          <div class="projet-label">Portfolio</div>
+          <div class="projet-visuel">
+            <img src="images/image-9.jpg" alt="Portfolio Philippe Hountondji" loading="lazy">
           </div>
-          <div class="liens-projet">
-            <div class="mention-en-cours"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
+          <div class="projet-info">
+            <h3>Mon Portfolio</h3>
+            <p>Portfolio professionnel interactif avec animations, formulaire de contact sécurisé, design responsive et SEO optimisé. Déployé sur GitHub Pages.</p>
+            <div class="projet-stack">
+              <span><i class="fab fa-html5"></i> HTML/CSS</span>
+              <span><i class="fab fa-js"></i> JavaScript</span>
+            </div>
+            <div class="projet-liens">
+              <a href="https://philippe554-del.github.io/Portfolio-/" target="_blank" rel="noopener noreferrer" class="lien-demo"><i class="fas fa-external-link-alt"></i> Visiter le site</a>
+            </div>
           </div>
+        </div>
+
+        <div class="carte-projet projet-wip">
+          <div class="projet-label label-wip">En cours</div>
+          <div class="projet-visuel">
+            <img src="images/projets-1.jpeg" alt="Dashboard Administratif" loading="lazy">
+          </div>
+          <div class="projet-info">
+            <h3>Dashboard Administratif</h3>
+            <p>Plateforme de gestion avec visualisation de données en temps réel, authentification et tableau de bord responsive.</p>
+            <div class="projet-stack">
+              <span><i class="fab fa-react"></i> React</span>
+              <span><i class="fab fa-node-js"></i> Node.js</span>
+              <span><i class="fas fa-database"></i> MongoDB</span>
+            </div>
+            <div class="projet-liens">
+              <div class="wip-notice"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte-projet projet-wip">
+          <div class="projet-label label-wip">En cours</div>
+          <div class="projet-visuel">
+            <img src="images/projets-2.jpeg" alt="Simulation Réseau Entreprise" loading="lazy">
+          </div>
+          <div class="projet-info">
+            <h3>Simulation Réseau Entreprise</h3>
+            <p>Modélisation complète d'un réseau d'entreprise avec routeurs, switches, VLANs et politiques de sécurité avancées.</p>
+            <div class="projet-stack">
+              <span><i class="fas fa-network-wired"></i> Cisco</span>
+              <span><i class="fas fa-shield-alt"></i> Sécurité</span>
+              <span><i class="fas fa-sitemap"></i> Topologie</span>
+            </div>
+            <div class="projet-liens">
+              <div class="wip-notice"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte-projet projet-wip">
+          <div class="projet-label label-wip">En cours</div>
+          <div class="projet-visuel">
+            <img src="images/projets-3.jpeg" alt="Système de Gestion API" loading="lazy">
+          </div>
+          <div class="projet-info">
+            <h3>Système de Gestion API</h3>
+            <p>API RESTful complète avec documentation Swagger, authentification JWT, rate limiting et logs détaillés.</p>
+            <div class="projet-stack">
+              <span><i class="fab fa-python"></i> Python</span>
+              <span><i class="fas fa-bolt"></i> FastAPI</span>
+              <span><i class="fas fa-server"></i> PostgreSQL</span>
+            </div>
+            <div class="projet-liens">
+              <div class="wip-notice"><i class="fas fa-hammer"></i> En développement — bientôt disponible</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════
+       MON CV
+  ═══════════════════════════ -->
+  <section id="mon-cv">
+    <div class="limite-largeur">
+      <h2>Mon Curriculum Vitae</h2>
+      <p class="sous-titre-section">Consultez ou téléchargez mon CV professionnel</p>
+      <div class="cv-bloc">
+        <h3><i class="fas fa-id-card"></i> Hountondji Philippe Jésussédè</h3>
+        <p>Développeur Web Full-Stack et Administrateur Réseau & Système, basé à Porto-Novo, Bénin.</p>
+        <div class="cv-badges">
+          <span><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
+          <span><i class="fas fa-university"></i> ENEAM — Licence 2</span>
+          <span><i class="fas fa-graduation-cap"></i> Informatique & Réseaux</span>
+          <span><i class="fas fa-briefcase"></i> Disponible pour stage</span>
+        </div>
+        <div class="cv-actions">
+          <a href="/Portfolio-/cv/CV_philippe_hountondji.pdf" download="CV_Philippe_Hountondji.pdf" class="btn btn-orange"><i class="fas fa-download"></i> Télécharger mon CV (PDF)</a>
+          <a href="/Portfolio-/cv/CV_philippe_hountondji.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-contour btn-voir-cv"><i class="fas fa-eye"></i> Consulter en ligne</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="cv" class="section-cv contenu">
-    <h2>Mon Curriculum Vitae</h2>
-    <p class="sous-titre">Consultez ou téléchargez mon CV professionnel</p>
-    <div class="bloc-cv">
-      <h3><i class="fas fa-id-card"></i> Hountondji Philippe Jésussédè</h3>
-      <p>Développeur Web Full-Stack et Administrateur Réseau & Système passionné, basé à Porto-Novo, Bénin.</p>
-      <div class="badges-cv">
-        <span class="badge-info"><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</span>
-        <span class="badge-info"><i class="fas fa-university"></i> ENEAM — Licence 2</span>
-        <span class="badge-info"><i class="fas fa-graduation-cap"></i> Informatique & Réseaux</span>
-        <span class="badge-info"><i class="fas fa-briefcase"></i> Disponible pour stage</span>
-      </div>
-      <div class="boutons-cv">
-        <a href="/Portfolio-/cv/CV_philippe_hountondji.pdf" download="CV_Philippe_Hountondji.pdf" class="bouton-telecharger-cv"><i class="fas fa-download"></i> Télécharger mon CV (PDF)</a>
-        <a href="/Portfolio-/cv/CV_philippe_hountondji.pdf" target="_blank" rel="noopener noreferrer" class="bouton-voir-cv"><i class="fas fa-eye"></i> Consulter en ligne</a>
-      </div>
-    </div>
-  </section>
+  <!-- ═══════════════════════════
+       CONTACT
+  ═══════════════════════════ -->
+  <section id="me-contacter">
+    <div class="limite-largeur">
+      <h2>Travaillons Ensemble</h2>
+      <p class="sous-titre-section">Discutons de votre projet ou opportunité de collaboration</p>
+      <div class="contact-grille">
 
-  <section id="contact" class="section-contact contenu">
-    <h2>Travaillons Ensemble</h2>
-    <p class="sous-titre">Discutons de votre projet ou opportunité de collaboration</p>
-    <div class="zone-contact">
-      <div class="formulaire-wrapper">
-        <div class="entete-formulaire">
-          <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
-          <p>Je vous répondrai dans les plus brefs délais</p>
+        <div class="formulaire-bloc">
+          <div class="formulaire-entete">
+            <h3><i class="fas fa-paper-plane"></i> Envoyez un message</h3>
+            <p>Je vous répondrai dans les plus brefs délais</p>
+          </div>
+          <form id="form-contact" autocomplete="on" novalidate>
+            <div class="champ-groupe">
+              <label for="nom"><i class="fas fa-user"></i> Nom complet</label>
+              <input type="text" id="nom" name="name" placeholder="Votre nom" autocomplete="name" required minlength="2" maxlength="100">
+              <small class="msg-erreur" id="erreur-nom"></small>
+            </div>
+            <div class="champ-groupe">
+              <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
+              <input type="email" id="email" name="email" placeholder="votre@email.com" autocomplete="email" required maxlength="254">
+              <small class="msg-erreur" id="erreur-email"></small>
+            </div>
+            <div class="champ-groupe">
+              <label for="telephone"><i class="fas fa-phone"></i> Téléphone</label>
+              <input type="tel" id="telephone" name="phone" placeholder="+229XXXXXXXX" autocomplete="tel" maxlength="20">
+              <small class="msg-erreur" id="erreur-telephone"></small>
+            </div>
+            <div class="champ-groupe">
+              <label for="message"><i class="fas fa-comment"></i> Message</label>
+              <textarea id="message" name="message" rows="6" placeholder="Décrivez votre projet ou demande..." required minlength="10" maxlength="2000"></textarea>
+              <small class="msg-erreur" id="erreur-message"></small>
+            </div>
+            <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="website" id="champ-piege" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="form-action">
+              <button type="submit" class="btn btn-orange btn-envoyer"><i class="fas fa-paper-plane"></i> Envoyer le message</button>
+              <div id="retour-form"></div>
+            </div>
+          </form>
         </div>
-        <form class="formulaire-contact" id="formulaireContact" autocomplete="on" novalidate>
-          <div class="champ">
-            <label for="nom"><i class="fas fa-user"></i> Nom complet</label>
-            <input type="text" id="nom" name="name" placeholder="Votre nom" autocomplete="name" required minlength="2" maxlength="100">
-            <small class="erreur-champ" id="erreur-nom"></small>
-          </div>
-          <div class="champ">
-            <label for="email"><i class="fas fa-envelope"></i> Adresse email</label>
-            <input type="email" id="email" name="email" placeholder="votre@email.com" autocomplete="email" required maxlength="254">
-            <small class="erreur-champ" id="erreur-email"></small>
-          </div>
-          <div class="champ">
-            <label for="telephone"><i class="fas fa-phone"></i> Téléphone</label>
-            <input type="tel" id="telephone" name="phone" placeholder="+229XXXXXXXX" autocomplete="tel" maxlength="20">
-            <small class="erreur-champ" id="erreur-telephone"></small>
-          </div>
-          <div class="champ">
-            <label for="message"><i class="fas fa-comment"></i> Message</label>
-            <textarea id="message" name="message" rows="6" placeholder="Décrivez votre projet ou demande..." required minlength="10" maxlength="2000"></textarea>
-            <small class="erreur-champ" id="erreur-message"></small>
-          </div>
-          <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
-            <input type="text" name="website" id="champ-invisible" tabindex="-1" autocomplete="off">
-          </div>
-          <div class="actions-formulaire">
-            <button type="submit" class="bouton bouton-principal bouton-envoyer"><i class="fas fa-paper-plane"></i> Envoyer le message</button>
-            <div id="reponse-formulaire"></div>
-          </div>
-        </form>
-      </div>
-      <div class="infos-contact">
-        <div class="carte-contact">
-          <div class="entete-carte-contact">
+
+        <div class="coordonnees-bloc">
+          <div class="coordonnees-entete">
             <h3><i class="fas fa-address-card"></i> Mes Coordonnées</h3>
             <p>Plusieurs façons de me contacter</p>
           </div>
-          <div class="liste-contacts">
-            <div class="item-contact">
-              <div class="icone-contact"><i class="fab fa-whatsapp"></i></div>
-              <div class="detail-contact">
+          <div class="liste-coordonnees">
+            <div class="ligne-contact">
+              <div class="contact-icone"><i class="fab fa-whatsapp"></i></div>
+              <div class="contact-texte">
                 <h4>WhatsApp</h4>
                 <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer">+229 01 58 15 69 30</a>
                 <p>Réponse rapide</p>
               </div>
             </div>
-            <div class="item-contact">
-              <div class="icone-contact"><i class="fas fa-envelope"></i></div>
-              <div class="detail-contact">
+            <div class="ligne-contact">
+              <div class="contact-icone"><i class="fas fa-envelope"></i></div>
+              <div class="contact-texte">
                 <h4>Email</h4>
                 <a href="mailto:hountondjiphilippe58@gmail.com">hountondjiphilippe58@gmail.com</a>
                 <p>Pour les demandes détaillées</p>
               </div>
             </div>
-            <div class="item-contact">
-              <div class="icone-contact"><i class="fab fa-linkedin"></i></div>
-              <div class="detail-contact">
+            <div class="ligne-contact">
+              <div class="contact-icone"><i class="fab fa-linkedin"></i></div>
+              <div class="contact-texte">
                 <h4>LinkedIn</h4>
                 <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer">Profil LinkedIn</a>
                 <p>Connectons-nous professionnellement</p>
               </div>
             </div>
-            <div class="item-contact">
-              <div class="icone-contact icone-github"><i class="fab fa-github"></i></div>
-              <div class="detail-contact">
+            <div class="ligne-contact">
+              <div class="contact-icone icone-github"><i class="fab fa-github"></i></div>
+              <div class="contact-texte">
                 <h4>GitHub</h4>
                 <a href="https://github.com/Philippe554-del" target="_blank" rel="noopener noreferrer">github.com/Philippe554-del</a>
                 <p>Mes dépôts et projets</p>
               </div>
             </div>
           </div>
-          <div class="disponibilite">
-            <div class="indicateur-dispo">
-              <span class="point-dispo"></span>
+          <div class="statut-disponibilite">
+            <div class="dispo-ligne">
+              <span class="point-vert"></span>
               <span>Disponible pour stage & projets</span>
             </div>
             <p>Temps de réponse moyen : <strong>24h</strong></p>
           </div>
         </div>
+
       </div>
     </div>
   </section>
 
+  <!-- ═══════════════════════════
+       FOOTER
+  ═══════════════════════════ -->
   <footer id="pied-page">
-    <div class="contenu">
-      <div class="footer-interieur">
-        <div class="footer-logo">
-          <a href="#accueil">PHILIPPE</a>
+    <div class="limite-largeur">
+      <div class="footer-grille">
+        <div class="footer-identite">
+          <a href="#intro" class="footer-nom">PHILIPPE</a>
           <p>Étudiant en Informatique & Réseaux</p>
           <p>ENEAM — Licence 2 — Cotonou, Bénin</p>
         </div>
-        <div class="footer-navigation">
+        <div class="footer-nav-liens">
           <h4>Navigation</h4>
           <ul>
-            <li><a href="#accueil"><i class="fas fa-chevron-right"></i> Accueil</a></li>
-            <li><a href="#apropos"><i class="fas fa-chevron-right"></i> À propos</a></li>
-            <li><a href="#formation"><i class="fas fa-chevron-right"></i> Formation</a></li>
-            <li><a href="#competences"><i class="fas fa-chevron-right"></i> Compétences</a></li>
-            <li><a href="#experience"><i class="fas fa-chevron-right"></i> Expérience</a></li>
-            <li><a href="#projets"><i class="fas fa-chevron-right"></i> Projets</a></li>
-            <li><a href="#cv"><i class="fas fa-chevron-right"></i> Mon CV</a></li>
-            <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+            <li><a href="#intro"><i class="fas fa-chevron-right"></i> Accueil</a></li>
+            <li><a href="#qui-suis-je"><i class="fas fa-chevron-right"></i> À propos</a></li>
+            <li><a href="#parcours"><i class="fas fa-chevron-right"></i> Formation</a></li>
+            <li><a href="#mes-competences"><i class="fas fa-chevron-right"></i> Compétences</a></li>
+            <li><a href="#mon-experience"><i class="fas fa-chevron-right"></i> Expérience</a></li>
+            <li><a href="#mes-projets"><i class="fas fa-chevron-right"></i> Projets</a></li>
+            <li><a href="#mon-cv"><i class="fas fa-chevron-right"></i> Mon CV</a></li>
+            <li><a href="#me-contacter"><i class="fas fa-chevron-right"></i> Contact</a></li>
           </ul>
         </div>
-        <div class="footer-coordonnees">
+        <div class="footer-adresse">
           <h4>Coordonnées</h4>
           <p><i class="fas fa-map-marker-alt"></i> Porto-Novo, Bénin</p>
           <p><i class="fas fa-phone"></i> +229 01 58 15 69 30</p>
@@ -553,7 +615,7 @@
         </div>
         <div class="footer-reseaux">
           <h4>Suivez-moi</h4>
-          <div class="reseaux-sociaux">
+          <div class="footer-icones-reseaux">
             <a href="https://wa.me/22958156930" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
             <a href="mailto:hountondjiphilippe58@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
             <a href="https://www.linkedin.com/in/philippe-hountondji-200ba73a6" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
@@ -561,13 +623,13 @@
           </div>
         </div>
       </div>
-      <div class="footer-bas">
+      <div class="footer-copyright">
         <p>&copy; 2025 Philippe Hountondji &mdash; Tous droits réservés | ENEAM, Porto-Novo, Bénin</p>
       </div>
     </div>
   </footer>
 
-  <button class="retour-haut" aria-label="Retour en haut de page">
+  <button id="btn-haut" aria-label="Retour en haut de page">
     <i class="fas fa-chevron-up"></i>
   </button>
 
