@@ -100,7 +100,6 @@ async function createTables() {
   await pool.query(`CREATE TABLE IF NOT EXISTS experiences (id SERIAL PRIMARY KEY, titre VARCHAR(200) NOT NULL, type_exp VARCHAR(100), entreprise VARCHAR(200), lieu VARCHAR(200), date_debut VARCHAR(100), date_fin VARCHAR(100), description TEXT, tags VARCHAR(500), statut VARCHAR(50) DEFAULT 'termine', ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
   await pool.query(`CREATE TABLE IF NOT EXISTS competences (id SERIAL PRIMARY KEY, categorie VARCHAR(200) NOT NULL, icone VARCHAR(100) DEFAULT 'fas fa-code', couleur VARCHAR(200) DEFAULT 'linear-gradient(135deg,#667eea,#764ba2)', niveau INTEGER DEFAULT 70, label_niveau VARCHAR(100) DEFAULT 'Intermédiaire', items TEXT, ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
 
-  // ── TABLES ANALYTICS ───────────────────────────────────────────────────
   await pool.query(`
     CREATE TABLE IF NOT EXISTS visites (
       id          SERIAL PRIMARY KEY,
@@ -109,11 +108,16 @@ async function createTables() {
       referrer    TEXT,
       user_agent  TEXT,
       ip_hash     VARCHAR(64),
+      pays        VARCHAR(100),
+      ville       VARCHAR(100),
       duree_sec   INTEGER      DEFAULT 0,
       entree_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
       sortie_at   TIMESTAMPTZ
     )
   `);
+  await pool.query(`ALTER TABLE visites ADD COLUMN IF NOT EXISTS pays VARCHAR(100)`);
+  await pool.query(`ALTER TABLE visites ADD COLUMN IF NOT EXISTS ville VARCHAR(100)`);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS actions (
       id          SERIAL PRIMARY KEY,
@@ -132,15 +136,18 @@ async function createTables() {
       nb_pages     INTEGER     DEFAULT 1,
       nb_actions   INTEGER     DEFAULT 0,
       user_agent   TEXT,
-      ip_hash      VARCHAR(64)
+      ip_hash      VARCHAR(64),
+      pays         VARCHAR(100),
+      ville        VARCHAR(100)
     )
   `);
-  // Index analytics
+  await pool.query(`ALTER TABLE sessions_visiteurs ADD COLUMN IF NOT EXISTS pays VARCHAR(100)`);
+  await pool.query(`ALTER TABLE sessions_visiteurs ADD COLUMN IF NOT EXISTS ville VARCHAR(100)`);
+
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_visites_entree   ON visites(entree_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_visites_session  ON visites(session_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_actions_created  ON actions(created_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sessions_vue     ON sessions_visiteurs(derniere_vue)`);
-  // ── FIN TABLES ANALYTICS ───────────────────────────────────────────────
 
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_created  ON messages (created_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_is_read  ON messages (is_read)`);
@@ -158,16 +165,35 @@ function clientIP(req) { return (req.headers['x-forwarded-for'] || req.socket.re
 function parsePositiveInt(val, def, min, max) { const n = parseInt(val, 10); if (isNaN(n)) return def; return Math.min(max, Math.max(min, n)); }
 function generateJti() { return crypto.randomBytes(32).toString('hex'); }
 
-// ── Utilitaires analytics ─────────────────────────────────────────────────
 function hasherIP(ip) {
   if (!ip) return null;
   return crypto.createHash('sha256').update(ip + (process.env.IP_SALT || 'sel_secret_analytics')).digest('hex').slice(0, 32);
 }
+
 function genererSessionId(req) {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
   const ua = req.headers['user-agent'] || '';
   const jour = new Date().toISOString().slice(0, 10);
   return crypto.createHash('sha256').update(ip + ua + jour).digest('hex').slice(0, 32);
+}
+
+// ── GÉOLOCALISATION ───────────────────────────────────────────────────────
+async function geoLocaliser(ip) {
+  try {
+    if (!ip || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+      return { pays: 'Local', ville: 'Local' };
+    }
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city&lang=fr`, {
+      signal: AbortSignal.timeout(3000)
+    });
+    const data = await response.json();
+    if (data.status === 'success') {
+      return { pays: data.country || null, ville: data.city || null };
+    }
+    return { pays: null, ville: null };
+  } catch (err) {
+    return { pays: null, ville: null };
+  }
 }
 
 async function auth(req, res, next) {
@@ -193,11 +219,7 @@ function genererEmailHTML(opts) {
   const annee   = new Date().getFullYear();
 
   function escEmail(s) {
-    return String(s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   const reponseFmt = escEmail(reponse).replace(/\n/g, '<br>');
@@ -211,11 +233,9 @@ function genererEmailHTML(opts) {
 <title>Réponse de Philippe Hountondji</title>
 </head>
 <body style="margin:0;padding:0;background:#f0f2f5;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
-
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f2f5;padding:40px 16px;">
 <tr><td align="center">
 <table width="580" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;width:100%;">
-
   <tr>
     <td style="background:#0f172a;border-radius:16px 16px 0 0;padding:36px 40px 28px;text-align:center;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 18px;">
@@ -225,27 +245,20 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-      <h1 style="margin:0 0 6px;color:#f8fafc;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Philippe Hountondji</h1>
+      <h1 style="margin:0 0 6px;color:#f8fafc;font-size:22px;font-weight:700;">Philippe Hountondji</h1>
       <p style="margin:0 0 4px;color:#94a3b8;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Développeur Web &amp; Administrateur Réseau</p>
       <p style="margin:0;color:#64748b;font-size:12px;">Porto-Novo, Bénin 🇧🇯</p>
     </td>
   </tr>
-
   <tr>
-    <td style="background:#1e293b;padding:12px 40px;text-align:center;border-left:1px solid #1e293b;border-right:1px solid #1e293b;">
+    <td style="background:#1e293b;padding:12px 40px;text-align:center;">
       <p style="margin:0;color:#e85d04;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉ &nbsp;Réponse à votre message</p>
     </td>
   </tr>
-
   <tr>
     <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
       <p style="margin:0 0 6px;color:#0f172a;font-size:18px;font-weight:700;">Bonjour ${escEmail(nom)},</p>
-      <p style="margin:0 0 28px;color:#64748b;font-size:14px;line-height:1.7;">
-        Merci pour votre message. Voici ma réponse personnelle à ce que vous m'avez écrit sur mon portfolio.
-      </p>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-        <tr><td style="height:1px;background:#e2e8f0;"></td></tr>
-      </table>
+      <p style="margin:0 0 28px;color:#64748b;font-size:14px;line-height:1.7;">Merci pour votre message. Voici ma réponse personnelle.</p>
       <p style="margin:0 0 10px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📩 Votre message du ${escEmail(date)}</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
         <tr>
@@ -269,61 +282,24 @@ function genererEmailHTML(opts) {
         <tr>
           <td align="center">
             <a href="https://philippe554-del.github.io/Portfolio-/" target="_blank"
-               style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">
+               style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:14px;font-weight:600;">
               Visiter mon Portfolio →
             </a>
           </td>
         </tr>
       </table>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:0;">
-        <tr>
-          <td style="padding:20px 24px;">
-            <p style="margin:0 0 14px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Me contacter</p>
-            <table width="100%" cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                <td style="padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                  <span style="color:#64748b;font-size:13px;">📧</span>
-                  <a href="mailto:hountondjiphilippe58@gmail.com"
-                     style="color:#e85d04;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">hountondjiphilippe58@gmail.com</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                  <span style="color:#64748b;font-size:13px;">🌐</span>
-                  <a href="https://philippe554-del.github.io/Portfolio-/"
-                     style="color:#0ea5e9;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">philippe554-del.github.io/Portfolio-/</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:6px 0;">
-                  <span style="color:#64748b;font-size:13px;">💻</span>
-                  <a href="https://github.com/Philippe554-del"
-                     style="color:#7c3aed;text-decoration:none;font-size:13px;font-weight:600;margin-left:8px;">github.com/Philippe554-del</a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
     </td>
   </tr>
-
   <tr>
     <td style="background:#f8fafc;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;border:1px solid #e2e8f0;border-top:none;">
       <p style="margin:0 0 4px;color:#0f172a;font-size:14px;font-weight:700;">Philippe Hountondji</p>
       <p style="margin:0 0 16px;color:#94a3b8;font-size:12px;">Développeur Web · Administrateur Réseau · Porto-Novo, Bénin</p>
-      <p style="margin:0;color:#cbd5e1;font-size:11px;line-height:1.7;">
-        Cet email est une réponse personnelle à votre message envoyé via
-        <a href="https://philippe554-del.github.io/Portfolio-/" style="color:#e85d04;text-decoration:none;">mon portfolio</a>.<br>
-        &copy; ${annee} Philippe Hountondji — Tous droits réservés.
-      </p>
+      <p style="margin:0;color:#cbd5e1;font-size:11px;">&copy; ${annee} Philippe Hountondji</p>
     </td>
   </tr>
-
 </table>
 </td></tr>
 </table>
-
 </body>
 </html>`;
 }
@@ -332,7 +308,7 @@ function genererEmailHTML(opts) {
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 
 // ══════════════════════════════════════════════════════════════════════════
-// TRACKER — Routes publiques (appelées par client-tracker.js)
+// TRACKER — Routes publiques
 // ══════════════════════════════════════════════════════════════════════════
 
 // POST /api/tracker/visite
@@ -344,17 +320,23 @@ app.post('/api/tracker/visite', async (req, res) => {
     const ipHash    = hasherIP(ipBrut);
     const userAgent = (req.headers['user-agent'] || '').slice(0, 500);
 
+    // Géolocalisation en arrière-plan (non bloquante)
+    const geo = await geoLocaliser(ipBrut);
+
     await pool.query(
-      `INSERT INTO visites (session_id, page, referrer, user_agent, ip_hash)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [sessionId, page.slice(0, 255), referrer.slice(0, 500), userAgent, ipHash]
+      `INSERT INTO visites (session_id, page, referrer, user_agent, ip_hash, pays, ville)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [sessionId, page.slice(0, 255), referrer.slice(0, 500), userAgent, ipHash, geo.pays, geo.ville]
     );
     await pool.query(
-      `INSERT INTO sessions_visiteurs (session_id, user_agent, ip_hash, nb_pages)
-       VALUES ($1, $2, $3, 1)
+      `INSERT INTO sessions_visiteurs (session_id, user_agent, ip_hash, nb_pages, pays, ville)
+       VALUES ($1, $2, $3, 1, $4, $5)
        ON CONFLICT (session_id) DO UPDATE
-       SET derniere_vue = NOW(), nb_pages = sessions_visiteurs.nb_pages + 1`,
-      [sessionId, userAgent, ipHash]
+       SET derniere_vue = NOW(),
+           nb_pages = sessions_visiteurs.nb_pages + 1,
+           pays = COALESCE(sessions_visiteurs.pays, EXCLUDED.pays),
+           ville = COALESCE(sessions_visiteurs.ville, EXCLUDED.ville)`,
+      [sessionId, userAgent, ipHash, geo.pays, geo.ville]
     );
     res.json({ ok: true });
   } catch (err) {
@@ -406,23 +388,15 @@ app.post('/api/tracker/action', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════
-// ANALYTICS — Routes admin (protégées par JWT)
+// ANALYTICS — Routes admin
 // ══════════════════════════════════════════════════════════════════════════
 
 // GET /api/analytics/resume
 app.get('/api/analytics/resume', auth, adminLimiter, async (req, res) => {
   try {
     const [
-      totalVisiteurs,
-      visitesAujourd,
-      visitesHier,
-      visiteurs30j,
-      pagesPop,
-      actionsTop,
-      parHeure,
-      parJour,
-      dureesMoy,
-      enDirect
+      totalVisiteurs, visitesAujourd, visitesHier, visiteurs30j,
+      pagesPop, actionsTop, parHeure, parJour, dureesMoy, enDirect, parPays
     ] = await Promise.all([
       pool.query(`SELECT COUNT(*) AS total FROM sessions_visiteurs`),
       pool.query(`SELECT COUNT(DISTINCT session_id) AS total FROM visites WHERE entree_at >= CURRENT_DATE`),
@@ -460,6 +434,12 @@ app.get('/api/analytics/resume', auth, adminLimiter, async (req, res) => {
       pool.query(`
         SELECT COUNT(DISTINCT session_id) AS en_direct
         FROM sessions_visiteurs WHERE derniere_vue >= NOW() - INTERVAL '5 minutes'
+      `),
+      pool.query(`
+        SELECT pays, COUNT(*) AS nb
+        FROM sessions_visiteurs
+        WHERE pays IS NOT NULL
+        GROUP BY pays ORDER BY nb DESC LIMIT 10
       `)
     ]);
 
@@ -473,7 +453,8 @@ app.get('/api/analytics/resume', auth, adminLimiter, async (req, res) => {
       pages_populaires:  pagesPop.rows,
       actions_top:       actionsTop.rows,
       par_heure:         parHeure.rows,
-      par_jour:          parJour.rows
+      par_jour:          parJour.rows,
+      par_pays:          parPays.rows
     });
   } catch (err) {
     console.error('[analytics/resume]', err.message);
@@ -509,6 +490,7 @@ app.get('/api/analytics/sessions', auth, adminLimiter, async (req, res) => {
     const result = await pool.query(`
       SELECT s.session_id, s.premiere_vue, s.derniere_vue,
              s.nb_pages, s.nb_actions, s.user_agent,
+             s.pays, s.ville,
              (SELECT page FROM visites WHERE session_id = s.session_id ORDER BY entree_at ASC  LIMIT 1) AS page_entree,
              (SELECT page FROM visites WHERE session_id = s.session_id ORDER BY entree_at DESC LIMIT 1) AS derniere_page
       FROM sessions_visiteurs s

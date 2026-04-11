@@ -85,6 +85,16 @@
     .an-session-meta { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:2px; }
     .an-session-meta span { color:#6B7280; }
     .an-session-meta strong { color:#FF6B35; }
+    /* Bloc pays */
+    .bloc-pays { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; }
+    .ligne-pays { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ligne-pays:last-child { border-bottom: none; }
+    .pays-nom { flex: 1; font-size: 0.88rem; color: #fff; font-weight: 500; }
+    .pays-barre-fond { flex: 2; height: 6px; background: rgba(255,255,255,0.06); border-radius: 9999px; overflow: hidden; }
+    .pays-barre-rempli { height: 100%; background: linear-gradient(90deg, #00D9FF, #0099CC); border-radius: 9999px; transition: width 0.6s ease; }
+    .pays-nb { font-size: 0.8rem; color: #00D9FF; font-weight: 700; white-space: nowrap; }
+    /* Badge localisation dans sessions */
+    .badge-localisation { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; background: rgba(0,217,255,0.1); border: 1px solid rgba(0,217,255,0.2); border-radius: 6px; padding: 2px 7px; color: #00D9FF; white-space: nowrap; }
     @media (max-width: 768px) { .grille-champs, .grille-champs.trois-colonnes { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -333,6 +343,12 @@
             </div>
           </div>
 
+          <!-- BLOC PAYS — nouveau -->
+          <div class="bloc-messages-recents">
+            <div class="entete-section"><h3><i class="fas fa-globe-africa" style="color:#00D9FF;"></i> Visiteurs par pays</h3><span style="color:#6B7280;font-size:0.8rem;">Tous les temps</span></div>
+            <div id="an-par-pays"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
+          </div>
+
           <div class="bloc-messages-recents">
             <div class="entete-section"><h3><i class="fas fa-bolt" style="color:#F59E0B;"></i> Activité récente</h3><span style="color:#6B7280;font-size:0.8rem;" id="an-maj-live">—</span></div>
             <div id="an-flux-live"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
@@ -401,8 +417,8 @@
     let chartJours = null, chartHeures = null, liveTimer = null;
 
     function getToken() {
-  return localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token') || '';
-}
+      return localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token') || '';
+    }
 
     function anFetch(url) {
       return fetch(url, { headers: { 'Authorization': 'Bearer ' + getToken() } })
@@ -439,6 +455,7 @@
         anRenderChartHeures(data.par_heure || []);
         anRenderPages(data.pages_populaires || []);
         anRenderActions(data.actions_top || []);
+        anRenderPays(data.par_pays || []);
         analyticsChargerSessions(20);
         analyticsChargerLive();
       }).catch(function(e) { console.error('[analytics]', e); });
@@ -493,6 +510,47 @@
       }).join('');
     }
 
+    function anRenderPays(parPays) {
+      var el = document.getElementById('an-par-pays'); if (!el) return;
+      if (!parPays.length) {
+        el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-globe-africa"></i><p>Aucune donnée de localisation pour le moment</p></div>';
+        return;
+      }
+      var max = parseInt(parPays[0].nb) || 1;
+      var drapeaux = {
+        'Bénin': '🇧🇯', 'Benin': '🇧🇯',
+        'France': '🇫🇷',
+        "Côte d'Ivoire": '🇨🇮', "Cote d'Ivoire": '🇨🇮',
+        'Sénégal': '🇸🇳', 'Senegal': '🇸🇳',
+        'Togo': '🇹🇬',
+        'Mali': '🇲🇱',
+        'Cameroun': '🇨🇲', 'Cameroon': '🇨🇲',
+        'Nigeria': '🇳🇬',
+        'Ghana': '🇬🇭',
+        'Maroc': '🇲🇦', 'Morocco': '🇲🇦',
+        'Algérie': '🇩🇿', 'Algeria': '🇩🇿',
+        'Tunisie': '🇹🇳', 'Tunisia': '🇹🇳',
+        'Congo': '🇨🇬',
+        'Gabon': '🇬🇦',
+        'États-Unis': '🇺🇸', 'United States': '🇺🇸',
+        'Canada': '🇨🇦',
+        'Belgique': '🇧🇪', 'Belgium': '🇧🇪',
+        'Allemagne': '🇩🇪', 'Germany': '🇩🇪',
+        'Royaume-Uni': '🇬🇧', 'United Kingdom': '🇬🇧',
+        'Local': '🏠'
+      };
+      el.innerHTML = '<div class="bloc-pays">' + parPays.map(function(p) {
+        var pct = Math.round(parseInt(p.nb) / max * 100);
+        var drapeau = drapeaux[p.pays] || '🌍';
+        return '<div class="ligne-pays">'
+          + '<span style="font-size:1.2rem;flex-shrink:0;">' + drapeau + '</span>'
+          + '<span class="pays-nom">' + p.pays + '</span>'
+          + '<div class="pays-barre-fond"><div class="pays-barre-rempli" style="width:' + pct + '%"></div></div>'
+          + '<span class="pays-nb">' + p.nb + ' visiteur' + (parseInt(p.nb) > 1 ? 's' : '') + '</span>'
+          + '</div>';
+      }).join('') + '</div>';
+    }
+
     window.analyticsChargerLive = function () {
       anFetch(API_BASE + '/live').then(function(data) {
         var nbDirect = data.en_direct || 0;
@@ -521,7 +579,20 @@
           var ua = s.user_agent || '';
           var appareil = ua.includes('Mobile') ? '📱 Mobile' : ua.includes('Tablet') ? '📟 Tablette' : '🖥️ Desktop';
           var nav = ua.includes('Chrome') ? 'Chrome' : ua.includes('Firefox') ? 'Firefox' : ua.includes('Safari') ? 'Safari' : ua.includes('Edge') ? 'Edge' : 'Autre';
-          return '<div class="an-session-ligne"><span class="an-session-id">#' + s.session_id.slice(0, 8) + '</span><div style="flex:1;min-width:0;"><div class="an-session-meta"><span>' + appareil + ' · ' + nav + '</span><span>Entrée : <strong>' + (s.page_entree || '/') + '</strong></span><span>Dernière : <strong>' + (s.derniere_page || '—') + '</strong></span><span><strong>' + s.nb_pages + '</strong> page(s)</span><span><strong>' + s.nb_actions + '</strong> action(s)</span><span style="color:#4B5563;">' + anFormatDate(s.premiere_vue) + '</span></div></div></div>';
+          var localisation = (s.ville && s.pays)
+            ? '<span class="badge-localisation"><i class="fas fa-map-marker-alt"></i>' + s.ville + ', ' + s.pays + '</span>'
+            : (s.pays ? '<span class="badge-localisation"><i class="fas fa-map-marker-alt"></i>' + s.pays + '</span>' : '');
+          return '<div class="an-session-ligne"><span class="an-session-id">#' + s.session_id.slice(0, 8) + '</span>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div class="an-session-meta">'
+            + '<span>' + appareil + ' · ' + nav + '</span>'
+            + (localisation ? '<span>' + localisation + '</span>' : '')
+            + '<span>Entrée : <strong>' + (s.page_entree || '/') + '</strong></span>'
+            + '<span>Dernière : <strong>' + (s.derniere_page || '—') + '</strong></span>'
+            + '<span><strong>' + s.nb_pages + '</strong> page(s)</span>'
+            + '<span><strong>' + s.nb_actions + '</strong> action(s)</span>'
+            + '<span style="color:#4B5563;">' + anFormatDate(s.premiere_vue) + '</span>'
+            + '</div></div></div>';
         }).join('');
       }).catch(function() {});
     };
