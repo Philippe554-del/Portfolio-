@@ -99,6 +99,49 @@ async function createTables() {
   await pool.query(`CREATE TABLE IF NOT EXISTS projets (id SERIAL PRIMARY KEY, titre VARCHAR(200) NOT NULL, description TEXT NOT NULL, technologies VARCHAR(500), lien_site VARCHAR(500), lien_github VARCHAR(500), image_url VARCHAR(500), etiquette VARCHAR(100) DEFAULT 'Projet', statut VARCHAR(50) DEFAULT 'termine', ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
   await pool.query(`CREATE TABLE IF NOT EXISTS experiences (id SERIAL PRIMARY KEY, titre VARCHAR(200) NOT NULL, type_exp VARCHAR(100), entreprise VARCHAR(200), lieu VARCHAR(200), date_debut VARCHAR(100), date_fin VARCHAR(100), description TEXT, tags VARCHAR(500), statut VARCHAR(50) DEFAULT 'termine', ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
   await pool.query(`CREATE TABLE IF NOT EXISTS competences (id SERIAL PRIMARY KEY, categorie VARCHAR(200) NOT NULL, icone VARCHAR(100) DEFAULT 'fas fa-code', couleur VARCHAR(200) DEFAULT 'linear-gradient(135deg,#667eea,#764ba2)', niveau INTEGER DEFAULT 70, label_niveau VARCHAR(100) DEFAULT 'Intermédiaire', items TEXT, ordre INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+
+  // ── TABLES ANALYTICS ───────────────────────────────────────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS visites (
+      id          SERIAL PRIMARY KEY,
+      session_id  VARCHAR(64)  NOT NULL,
+      page        VARCHAR(255) NOT NULL,
+      referrer    TEXT,
+      user_agent  TEXT,
+      ip_hash     VARCHAR(64),
+      duree_sec   INTEGER      DEFAULT 0,
+      entree_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+      sortie_at   TIMESTAMPTZ
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS actions (
+      id          SERIAL PRIMARY KEY,
+      session_id  VARCHAR(64)  NOT NULL,
+      type_action VARCHAR(64)  NOT NULL,
+      cible       VARCHAR(255),
+      page        VARCHAR(255),
+      created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS sessions_visiteurs (
+      session_id   VARCHAR(64) PRIMARY KEY,
+      premiere_vue TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      derniere_vue TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      nb_pages     INTEGER     DEFAULT 1,
+      nb_actions   INTEGER     DEFAULT 0,
+      user_agent   TEXT,
+      ip_hash      VARCHAR(64)
+    )
+  `);
+  // Index analytics
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_visites_entree   ON visites(entree_at)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_visites_session  ON visites(session_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_actions_created  ON actions(created_at)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_sessions_vue     ON sessions_visiteurs(derniere_vue)`);
+  // ── FIN TABLES ANALYTICS ───────────────────────────────────────────────
+
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_created  ON messages (created_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_messages_is_read  ON messages (is_read)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_revoked_expires   ON revoked_tokens (expires_at)`);
@@ -115,6 +158,18 @@ function clientIP(req) { return (req.headers['x-forwarded-for'] || req.socket.re
 function parsePositiveInt(val, def, min, max) { const n = parseInt(val, 10); if (isNaN(n)) return def; return Math.min(max, Math.max(min, n)); }
 function generateJti() { return crypto.randomBytes(32).toString('hex'); }
 
+// ── Utilitaires analytics ─────────────────────────────────────────────────
+function hasherIP(ip) {
+  if (!ip) return null;
+  return crypto.createHash('sha256').update(ip + (process.env.IP_SALT || 'sel_secret_analytics')).digest('hex').slice(0, 32);
+}
+function genererSessionId(req) {
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
+  const ua = req.headers['user-agent'] || '';
+  const jour = new Date().toISOString().slice(0, 10);
+  return crypto.createHash('sha256').update(ip + ua + jour).digest('hex').slice(0, 32);
+}
+
 async function auth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'Non autorisé.' });
@@ -130,13 +185,6 @@ async function auth(req, res, next) {
   next();
 }
 
-// ══════════════════════════════════════════════════════════════
-// TEMPLATE EMAIL HTML PROFESSIONNEL — VERSION 2
-// CORRECTIONS :
-//   1. escEmail() ne transforme PAS les apostrophes en &#x27;
-//   2. Le message de la personne apparaît EN PREMIER
-//   3. Design épuré, sobre et professionnel
-// ══════════════════════════════════════════════════════════════
 function genererEmailHTML(opts) {
   const nom     = opts.nomDestinataire  || 'visiteur(se)';
   const reponse = opts.reponse          || '';
@@ -144,21 +192,14 @@ function genererEmailHTML(opts) {
   const date    = opts.dateMessage      || new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
   const annee   = new Date().getFullYear();
 
-  // ── CORRECTION BUG ──────────────────────────────────────────
-  // escEmail() N'échappe PAS les apostrophes (') en &#x27;
-  // car les apostrophes sont parfaitement sûres dans le HTML
-  // d'un email et doivent s'afficher normalement.
-  // On n'échappe que les caractères réellement dangereux.
   function escEmail(s) {
     return String(s || '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
-    // PAS de remplacement des apostrophes → elles restent telles quelles
   }
 
-  // Convertit les sauts de ligne en <br> sans échapper les apostrophes
   const reponseFmt = escEmail(reponse).replace(/\n/g, '<br>');
   const msgOrigFmt = escEmail(msgOrig).replace(/\n/g, '<br>');
 
@@ -175,10 +216,8 @@ function genererEmailHTML(opts) {
 <tr><td align="center">
 <table width="580" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;width:100%;">
 
-  <!-- ══ EN-TÊTE SOBRE ══ -->
   <tr>
     <td style="background:#0f172a;border-radius:16px 16px 0 0;padding:36px 40px 28px;text-align:center;">
-      <!-- Avatar initiales -->
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 18px;">
         <tr>
           <td style="width:64px;height:64px;background:linear-gradient(135deg,#e85d04,#f48c06);border-radius:50%;text-align:center;vertical-align:middle;">
@@ -192,29 +231,21 @@ function genererEmailHTML(opts) {
     </td>
   </tr>
 
-  <!-- ══ BANDEAU TITRE ══ -->
   <tr>
     <td style="background:#1e293b;padding:12px 40px;text-align:center;border-left:1px solid #1e293b;border-right:1px solid #1e293b;">
       <p style="margin:0;color:#e85d04;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉ &nbsp;Réponse à votre message</p>
     </td>
   </tr>
 
-  <!-- ══ CORPS ══ -->
   <tr>
     <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
-
-      <!-- Salutation -->
       <p style="margin:0 0 6px;color:#0f172a;font-size:18px;font-weight:700;">Bonjour ${escEmail(nom)},</p>
       <p style="margin:0 0 28px;color:#64748b;font-size:14px;line-height:1.7;">
         Merci pour votre message. Voici ma réponse personnelle à ce que vous m'avez écrit sur mon portfolio.
       </p>
-
-      <!-- ── SÉPARATEUR ── -->
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
         <tr><td style="height:1px;background:#e2e8f0;"></td></tr>
       </table>
-
-      <!-- ══ 1. VOTRE MESSAGE EN PREMIER ══ -->
       <p style="margin:0 0 10px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📩 Votre message du ${escEmail(date)}</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
         <tr>
@@ -223,8 +254,6 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-
-      <!-- ══ 2. MA RÉPONSE EN SECOND ══ -->
       <p style="margin:0 0 10px;color:#e85d04;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">💬 Ma réponse</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
         <tr>
@@ -233,13 +262,9 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-
-      <!-- ── SÉPARATEUR ── -->
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
         <tr><td style="height:1px;background:#e2e8f0;"></td></tr>
       </table>
-
-      <!-- ── BOUTON CTA ── -->
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
         <tr>
           <td align="center">
@@ -250,8 +275,6 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-
-      <!-- ── CONTACTS ── -->
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:0;">
         <tr>
           <td style="padding:20px 24px;">
@@ -282,11 +305,9 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-
     </td>
   </tr>
 
-  <!-- ══ FOOTER ══ -->
   <tr>
     <td style="background:#f8fafc;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;border:1px solid #e2e8f0;border-top:none;">
       <p style="margin:0 0 4px;color:#0f172a;font-size:14px;font-weight:700;">Philippe Hountondji</p>
@@ -309,6 +330,197 @@ function genererEmailHTML(opts) {
 
 // ── HEALTH ────────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
+
+// ══════════════════════════════════════════════════════════════════════════
+// TRACKER — Routes publiques (appelées par client-tracker.js)
+// ══════════════════════════════════════════════════════════════════════════
+
+// POST /api/tracker/visite
+app.post('/api/tracker/visite', async (req, res) => {
+  try {
+    const { page = '/', referrer = '' } = req.body;
+    const sessionId = genererSessionId(req);
+    const ipBrut    = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
+    const ipHash    = hasherIP(ipBrut);
+    const userAgent = (req.headers['user-agent'] || '').slice(0, 500);
+
+    await pool.query(
+      `INSERT INTO visites (session_id, page, referrer, user_agent, ip_hash)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [sessionId, page.slice(0, 255), referrer.slice(0, 500), userAgent, ipHash]
+    );
+    await pool.query(
+      `INSERT INTO sessions_visiteurs (session_id, user_agent, ip_hash, nb_pages)
+       VALUES ($1, $2, $3, 1)
+       ON CONFLICT (session_id) DO UPDATE
+       SET derniere_vue = NOW(), nb_pages = sessions_visiteurs.nb_pages + 1`,
+      [sessionId, userAgent, ipHash]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[tracker/visite]', err.message);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// POST /api/tracker/duree
+app.post('/api/tracker/duree', async (req, res) => {
+  try {
+    const { page, duree_sec } = req.body;
+    const sessionId = genererSessionId(req);
+    await pool.query(
+      `UPDATE visites SET duree_sec = $1, sortie_at = NOW()
+       WHERE session_id = $2 AND page = $3
+         AND sortie_at IS NULL
+         AND entree_at > NOW() - INTERVAL '2 hours'`,
+      [parseInt(duree_sec) || 0, sessionId, (page || '/').slice(0, 255)]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[tracker/duree]', err.message);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// POST /api/tracker/action
+app.post('/api/tracker/action', async (req, res) => {
+  try {
+    const { type_action, cible = '', page = '/' } = req.body;
+    if (!type_action) return res.json({ ok: false });
+    const sessionId = genererSessionId(req);
+    await pool.query(
+      `INSERT INTO actions (session_id, type_action, cible, page)
+       VALUES ($1, $2, $3, $4)`,
+      [sessionId, type_action.slice(0, 64), cible.slice(0, 255), page.slice(0, 255)]
+    );
+    await pool.query(
+      `UPDATE sessions_visiteurs SET nb_actions = nb_actions + 1, derniere_vue = NOW()
+       WHERE session_id = $1`,
+      [sessionId]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[tracker/action]', err.message);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// ANALYTICS — Routes admin (protégées par JWT)
+// ══════════════════════════════════════════════════════════════════════════
+
+// GET /api/analytics/resume
+app.get('/api/analytics/resume', auth, adminLimiter, async (req, res) => {
+  try {
+    const [
+      totalVisiteurs,
+      visitesAujourd,
+      visitesHier,
+      visiteurs30j,
+      pagesPop,
+      actionsTop,
+      parHeure,
+      parJour,
+      dureesMoy,
+      enDirect
+    ] = await Promise.all([
+      pool.query(`SELECT COUNT(*) AS total FROM sessions_visiteurs`),
+      pool.query(`SELECT COUNT(DISTINCT session_id) AS total FROM visites WHERE entree_at >= CURRENT_DATE`),
+      pool.query(`SELECT COUNT(DISTINCT session_id) AS total FROM visites WHERE entree_at >= CURRENT_DATE - INTERVAL '1 day' AND entree_at < CURRENT_DATE`),
+      pool.query(`SELECT COUNT(DISTINCT session_id) AS total FROM visites WHERE entree_at >= NOW() - INTERVAL '30 days'`),
+      pool.query(`
+        SELECT page, COUNT(*) AS vues, COUNT(DISTINCT session_id) AS visiteurs_uniques,
+               ROUND(AVG(duree_sec)) AS duree_moy
+        FROM visites WHERE entree_at >= NOW() - INTERVAL '30 days'
+        GROUP BY page ORDER BY vues DESC LIMIT 8
+      `),
+      pool.query(`
+        SELECT type_action, cible, COUNT(*) AS nb
+        FROM actions WHERE created_at >= NOW() - INTERVAL '30 days'
+        GROUP BY type_action, cible ORDER BY nb DESC LIMIT 8
+      `),
+      pool.query(`
+        SELECT EXTRACT(HOUR FROM entree_at)::int AS heure,
+               COUNT(DISTINCT session_id) AS visiteurs
+        FROM visites WHERE entree_at >= CURRENT_DATE
+        GROUP BY heure ORDER BY heure
+      `),
+      pool.query(`
+        SELECT DATE(entree_at) AS jour,
+               COUNT(DISTINCT session_id) AS visiteurs,
+               COUNT(*) AS pages_vues
+        FROM visites WHERE entree_at >= NOW() - INTERVAL '14 days'
+        GROUP BY jour ORDER BY jour
+      `),
+      pool.query(`
+        SELECT ROUND(AVG(duree_sec)) AS duree_moy_globale
+        FROM visites WHERE duree_sec > 0 AND duree_sec < 3600
+          AND entree_at >= NOW() - INTERVAL '30 days'
+      `),
+      pool.query(`
+        SELECT COUNT(DISTINCT session_id) AS en_direct
+        FROM sessions_visiteurs WHERE derniere_vue >= NOW() - INTERVAL '5 minutes'
+      `)
+    ]);
+
+    res.json({
+      total_visiteurs:   parseInt(totalVisiteurs.rows[0].total),
+      visiteurs_aujourd: parseInt(visitesAujourd.rows[0].total),
+      visiteurs_hier:    parseInt(visitesHier.rows[0].total),
+      visiteurs_30j:     parseInt(visiteurs30j.rows[0].total),
+      en_direct:         parseInt(enDirect.rows[0].en_direct),
+      duree_moy_sec:     parseInt(dureesMoy.rows[0]?.duree_moy_globale || 0),
+      pages_populaires:  pagesPop.rows,
+      actions_top:       actionsTop.rows,
+      par_heure:         parHeure.rows,
+      par_jour:          parJour.rows
+    });
+  } catch (err) {
+    console.error('[analytics/resume]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/analytics/live
+app.get('/api/analytics/live', auth, adminLimiter, async (req, res) => {
+  try {
+    const [enDirect, actionsRecentes] = await Promise.all([
+      pool.query(`SELECT COUNT(DISTINCT session_id) AS en_direct FROM sessions_visiteurs WHERE derniere_vue >= NOW() - INTERVAL '5 minutes'`),
+      pool.query(`
+        SELECT type_action, cible, page, created_at,
+               LEFT(session_id, 8) AS session_court
+        FROM actions ORDER BY created_at DESC LIMIT 15
+      `)
+    ]);
+    res.json({
+      en_direct:        parseInt(enDirect.rows[0].en_direct),
+      actions_recentes: actionsRecentes.rows
+    });
+  } catch (err) {
+    console.error('[analytics/live]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/analytics/sessions
+app.get('/api/analytics/sessions', auth, adminLimiter, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const result = await pool.query(`
+      SELECT s.session_id, s.premiere_vue, s.derniere_vue,
+             s.nb_pages, s.nb_actions, s.user_agent,
+             (SELECT page FROM visites WHERE session_id = s.session_id ORDER BY entree_at ASC  LIMIT 1) AS page_entree,
+             (SELECT page FROM visites WHERE session_id = s.session_id ORDER BY entree_at DESC LIMIT 1) AS derniere_page
+      FROM sessions_visiteurs s
+      ORDER BY s.derniere_vue DESC
+      LIMIT $1
+    `, [limit]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('[analytics/sessions]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ── CONTACT ───────────────────────────────────────────────────────────────
 app.post('/api/contact', contactLimiter, async (req, res) => {
@@ -460,8 +672,6 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
   try {
     const to              = sanitize(req.body.to,              254);
     const subject         = sanitize(req.body.subject,         200);
-    // NE PAS sanitize() le message et le message original car sanitize() échappe les apostrophes
-    // On les prend bruts et on laisse escEmail() dans genererEmailHTML gérer l'échappement
     const message         = String(req.body.message         || '').slice(0, 5000);
     const nomDestinataire = String(req.body.nomDestinataire || 'visiteur(se)').slice(0, 100);
     const messageOriginal = String(req.body.messageOriginal  || '').slice(0, 5000);
@@ -474,26 +684,16 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
     if (!process.env.BREVO_API_KEY)
       return res.status(500).json({ error: 'Configuration email manquante (BREVO_API_KEY).' });
 
-    const htmlContent = genererEmailHTML({
-      nomDestinataire,
-      reponse:         message,
-      messageOriginal,
-      dateMessage
-    });
+    const htmlContent = genererEmailHTML({ nomDestinataire, reponse: message, messageOriginal, dateMessage });
 
     const emailResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
-      headers: {
-        'accept':       'application/json',
-        'api-key':      process.env.BREVO_API_KEY,
-        'content-type': 'application/json'
-      },
+      headers: { 'accept': 'application/json', 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
       body: JSON.stringify({
-        sender:      { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
-        replyTo:     { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
-        to:          [{ email: to, name: nomDestinataire }],
-        subject,
-        htmlContent
+        sender:  { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
+        replyTo: { name: 'Philippe Hountondji', email: 'hountondjiphilippe58@gmail.com' },
+        to:      [{ email: to, name: nomDestinataire }],
+        subject, htmlContent
       })
     });
 
@@ -505,7 +705,6 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
     if (msgId > 0) {
       await pool.query('UPDATE messages SET replied_at = NOW(), is_read = 1 WHERE id = $1', [msgId]);
     }
-
     res.json({ success: true });
   } catch (err) {
     console.error('[send-reply]', err.message);
@@ -514,7 +713,7 @@ app.post('/api/admin/send-reply', auth, adminLimiter, async (req, res) => {
 });
 
 // ── ROUTES PUBLIQUES ──────────────────────────────────────────────────────
-app.get('/api/projets', async (req, res) => {
+app.get('/api/projets',     async (req, res) => {
   try { const r = await pool.query('SELECT * FROM projets ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, projets: r.rows }); }
   catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
