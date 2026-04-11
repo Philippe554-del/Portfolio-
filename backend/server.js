@@ -23,6 +23,9 @@ if (process.env.JWT_SECRET.length < 32) {
 
 app.set('trust proxy', 1);
 
+// ── SÉCURITÉ : suppression des headers qui révèlent la techno ─────────────
+app.disable('x-powered-by');
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -78,6 +81,9 @@ app.use(rateLimit({ windowMs: 60000, max: isDev ? 2000 : 120, standardHeaders: t
 const contactLimiter = rateLimit({ windowMs: 600000, max: isDev ? 100 : 5,   standardHeaders: true, legacyHeaders: false, message: { error: 'Trop de tentatives.' } });
 const loginLimiter   = rateLimit({ windowMs: 900000, max: isDev ? 100 : 10,  skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false, message: { error: 'Trop de tentatives.' } });
 const adminLimiter   = rateLimit({ windowMs: 900000, max: isDev ? 2000 : 200, standardHeaders: true, legacyHeaders: false });
+
+// ── SÉCURITÉ : rate limit strict sur le tracker public ────────────────────
+const trackerLimiter = rateLimit({ windowMs: 60000, max: isDev ? 1000 : 60, standardHeaders: true, legacyHeaders: false, message: { error: 'Trop de requêtes.' } });
 
 let pool;
 
@@ -160,6 +166,7 @@ async function createTables() {
   if (parseInt(res.rows[0].n) === 0) console.log('\n[SETUP] Aucun compte admin. Appelez /api/admin/init\n');
 }
 
+// ── UTILITAIRES ───────────────────────────────────────────────────────────
 function sanitize(val, max) { return validator.escape(String(val || '').trim()).slice(0, max); }
 function clientIP(req) { return (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim().slice(0, 45); }
 function parsePositiveInt(val, def, min, max) { const n = parseInt(val, 10); if (isNaN(n)) return def; return Math.min(max, Math.max(min, n)); }
@@ -177,18 +184,28 @@ function genererSessionId(req) {
   return crypto.createHash('sha256').update(ip + ua + jour).digest('hex').slice(0, 32);
 }
 
-// ── GÉOLOCALISATION ───────────────────────────────────────────────────────
+// ── SÉCURITÉ : validation URL stricte ────────────────────────────────────
+function isURLSafe(val) {
+  if (!val) return true;
+  const s = String(val).trim().toLowerCase();
+  // Bloque javascript:, data:, vbscript: et autres protocoles dangereux
+  if (/^(javascript|data|vbscript|file|blob):/i.test(s)) return false;
+  return true;
+}
+
+// ── GÉOLOCALISATION — ipapi.co (plus fiable que ip-api.com sur Render) ───
 async function geoLocaliser(ip) {
   try {
     if (!ip || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.')) {
       return { pays: 'Local', ville: 'Local' };
     }
-    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city&lang=fr`, {
-      signal: AbortSignal.timeout(3000)
+    const response = await fetch(`https://ipapi.co/${ip}/json/`, {
+      signal: AbortSignal.timeout(3000),
+      headers: { 'User-Agent': 'portfolio-tracker/1.0' }
     });
     const data = await response.json();
-    if (data.status === 'success') {
-      return { pays: data.country || null, ville: data.city || null };
+    if (data && !data.error) {
+      return { pays: data.country_name || null, ville: data.city || null };
     }
     return { pays: null, ville: null };
   } catch (err) {
@@ -196,10 +213,13 @@ async function geoLocaliser(ip) {
   }
 }
 
+// ── MIDDLEWARE AUTH ───────────────────────────────────────────────────────
 async function auth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'Non autorisé.' });
   const token = header.slice(7);
+  // SÉCURITÉ : longueur max token pour éviter les attaques par payload énorme
+  if (token.length > 1024) return res.status(401).json({ error: 'Token invalide.' });
   let payload;
   try { payload = jwt.verify(token, process.env.JWT_SECRET); }
   catch (err) { return res.status(401).json({ error: err.name === 'TokenExpiredError' ? 'Session expirée.' : 'Token invalide.' }); }
@@ -312,21 +332,25 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }))
 // ══════════════════════════════════════════════════════════════════════════
 
 // POST /api/tracker/visite
-app.post('/api/tracker/visite', async (req, res) => {
+app.post('/api/tracker/visite', trackerLimiter, async (req, res) => {
   try {
     const { page = '/', referrer = '' } = req.body;
+
+    // SÉCURITÉ : validation des champs entrants
+    const pageSafe     = String(page).slice(0, 255).replace(/[<>"']/g, '');
+    const referrerSafe = String(referrer).slice(0, 500).replace(/[<>"']/g, '');
+
     const sessionId = genererSessionId(req);
     const ipBrut    = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
     const ipHash    = hasherIP(ipBrut);
     const userAgent = (req.headers['user-agent'] || '').slice(0, 500);
 
-    // Géolocalisation en arrière-plan (non bloquante)
     const geo = await geoLocaliser(ipBrut);
 
     await pool.query(
       `INSERT INTO visites (session_id, page, referrer, user_agent, ip_hash, pays, ville)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [sessionId, page.slice(0, 255), referrer.slice(0, 500), userAgent, ipHash, geo.pays, geo.ville]
+      [sessionId, pageSafe, referrerSafe, userAgent, ipHash, geo.pays, geo.ville]
     );
     await pool.query(
       `INSERT INTO sessions_visiteurs (session_id, user_agent, ip_hash, nb_pages, pays, ville)
@@ -346,16 +370,18 @@ app.post('/api/tracker/visite', async (req, res) => {
 });
 
 // POST /api/tracker/duree
-app.post('/api/tracker/duree', async (req, res) => {
+app.post('/api/tracker/duree', trackerLimiter, async (req, res) => {
   try {
     const { page, duree_sec } = req.body;
+    // SÉCURITÉ : durée max 1h pour éviter les valeurs aberrantes
+    const duree = Math.min(Math.max(parseInt(duree_sec) || 0, 0), 3600);
     const sessionId = genererSessionId(req);
     await pool.query(
       `UPDATE visites SET duree_sec = $1, sortie_at = NOW()
        WHERE session_id = $2 AND page = $3
          AND sortie_at IS NULL
          AND entree_at > NOW() - INTERVAL '2 hours'`,
-      [parseInt(duree_sec) || 0, sessionId, (page || '/').slice(0, 255)]
+      [duree, sessionId, String(page || '/').slice(0, 255)]
     );
     res.json({ ok: true });
   } catch (err) {
@@ -365,15 +391,20 @@ app.post('/api/tracker/duree', async (req, res) => {
 });
 
 // POST /api/tracker/action
-app.post('/api/tracker/action', async (req, res) => {
+app.post('/api/tracker/action', trackerLimiter, async (req, res) => {
   try {
     const { type_action, cible = '', page = '/' } = req.body;
     if (!type_action) return res.json({ ok: false });
+
+    // SÉCURITÉ : whitelist des type_action autorisés
+    const actionsAutorisees = ['scroll_bas', 'clic_contact', 'clic_projet', 'clic_cv', 'clic_github', 'clic_linkedin', 'clic_whatsapp'];
+    const typeValide = actionsAutorisees.includes(String(type_action)) ? String(type_action) : 'autre';
+
     const sessionId = genererSessionId(req);
     await pool.query(
       `INSERT INTO actions (session_id, type_action, cible, page)
        VALUES ($1, $2, $3, $4)`,
-      [sessionId, type_action.slice(0, 64), cible.slice(0, 255), page.slice(0, 255)]
+      [sessionId, typeValide, String(cible).slice(0, 255).replace(/[<>"']/g, ''), String(page).slice(0, 255)]
     );
     await pool.query(
       `UPDATE sessions_visiteurs SET nb_actions = nb_actions + 1, derniere_vue = NOW()
@@ -716,8 +747,13 @@ app.get('/api/admin/projets', auth, adminLimiter, async (req, res) => {
 app.post('/api/admin/projets', auth, adminLimiter, async (req, res) => {
   try {
     const titre = sanitize(req.body.titre, 200), description = sanitize(req.body.description, 1000);
-    const technologies = sanitize(req.body.technologies || '', 500), lien_site = sanitize(req.body.lien_site || '', 500);
-    const lien_github = sanitize(req.body.lien_github || '', 500), image_url = sanitize(req.body.image_url || '', 500);
+    const technologies = sanitize(req.body.technologies || '', 500);
+    const lien_site   = sanitize(req.body.lien_site || '', 500);
+    const lien_github = sanitize(req.body.lien_github || '', 500);
+    const image_url   = sanitize(req.body.image_url || '', 500);
+    // SÉCURITÉ : validation des URLs
+    if (!isURLSafe(lien_site) || !isURLSafe(lien_github) || !isURLSafe(image_url))
+      return res.status(400).json({ error: 'URL invalide détectée.' });
     const etiquette = sanitize(req.body.etiquette || 'Projet', 100), statut = sanitize(req.body.statut || 'termine', 50);
     const ordre = parseInt(req.body.ordre || 0, 10);
     if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
@@ -732,9 +768,12 @@ app.patch('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (!id || id < 1) return res.status(400).json({ error: 'ID invalide.' });
     const titre = sanitize(req.body.titre, 200), description = sanitize(req.body.description, 1000);
-    const technologies = sanitize(req.body.technologies || '', 500), lien_site = sanitize(req.body.lien_site || '', 500);
+    const technologies = sanitize(req.body.technologies || '', 500);
+    const lien_site   = sanitize(req.body.lien_site || '', 500);
     const lien_github = sanitize(req.body.lien_github || '', 500);
-    const image_url = req.body.image_url ? String(req.body.image_url).slice(0, 500000) : '';
+    const image_url   = req.body.image_url ? String(req.body.image_url).slice(0, 500000) : '';
+    if (!isURLSafe(lien_site) || !isURLSafe(lien_github))
+      return res.status(400).json({ error: 'URL invalide détectée.' });
     const etiquette = sanitize(req.body.etiquette || 'Projet', 100), statut = sanitize(req.body.statut || 'termine', 50);
     const ordre = parseInt(req.body.ordre || 0, 10);
     if (titre.length < 2) return res.status(400).json({ error: 'Titre trop court.' });
@@ -843,8 +882,11 @@ app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) =>
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// ── INIT ADMIN ────────────────────────────────────────────────────────────
+// ── INIT ADMIN — SÉCURITÉ : désactivé en production ──────────────────────
 app.post('/api/admin/init', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Route désactivée en production.' });
+  }
   try {
     const hash = await bcrypt.hash('portfolio@jesuusede', 14);
     await pool.query('DELETE FROM admin_users WHERE email = $1', ['hountondjiphilippe58@gmail.com']);
@@ -863,8 +905,9 @@ app.use(function (req, res) {
   res.status(404).sendFile(path.join(__dirname, '..', 'docs', 'index.html'));
 });
 app.use(function (err, req, res, next) {
+  // SÉCURITÉ : ne jamais exposer les détails d'erreur en production
   console.error('[erreur]', err.message);
-  res.status(500).json({ error: process.env.NODE_ENV === 'production' ? 'Erreur interne.' : err.message });
+  res.status(500).json({ error: 'Erreur interne.' });
 });
 
 connectDB().then(function () {
