@@ -401,8 +401,8 @@
     let chartJours = null, chartHeures = null, liveTimer = null;
 
     function getToken() {
-      return localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken') || '';
-    }
+  return localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token') || '';
+}
 
     function anFetch(url) {
       return fetch(url, { headers: { 'Authorization': 'Bearer ' + getToken() } })
