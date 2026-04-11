@@ -17,58 +17,30 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-    
   <style>
     #tableau-bord.masque { display: none !important; }
-
     .section-gestion { margin-bottom: 2rem; }
-
-    .entete-gestion {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem; padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
+    .entete-gestion { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .entete-gestion h3 { font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 10px; margin: 0; }
     .entete-gestion h3 i { color: #FF6B35; }
-
-    .formulaire-ajout {
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;
-    }
+    .formulaire-ajout { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
     .formulaire-ajout h4 { font-size: 0.95rem; color: #FF6B35; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 8px; }
-
     .grille-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .grille-champs.trois-colonnes { grid-template-columns: 1fr 1fr 1fr; }
     .grille-champs.une-colonne { grid-template-columns: 1fr; }
-
     .champ-form { display: flex; flex-direction: column; gap: 6px; }
     .champ-form.pleine-largeur { grid-column: 1 / -1; }
     .champ-form label { font-size: 0.8rem; color: #B4B8D4; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .champ-form input, .champ-form textarea, .champ-form select {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; color: #fff; font-size: 0.9rem; padding: 0.65rem 0.85rem;
-      outline: none; transition: border-color 0.2s; font-family: inherit; width: 100%; box-sizing: border-box;
-    }
+    .champ-form input, .champ-form textarea, .champ-form select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9rem; padding: 0.65rem 0.85rem; outline: none; transition: border-color 0.2s; font-family: inherit; width: 100%; box-sizing: border-box; }
     .champ-form input:focus, .champ-form textarea:focus, .champ-form select:focus { border-color: #FF6B35; }
     .champ-form textarea { resize: vertical; min-height: 80px; }
     .champ-form select option { background: #16192F; }
-
     .pied-formulaire { margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; }
-
-    .bouton-ajouter {
-      padding: 0.7rem 1.5rem; background: linear-gradient(135deg, #FF6B35, #F7931E);
-      border: none; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: opacity 0.2s, transform 0.15s;
-    }
+    .bouton-ajouter { padding: 0.7rem 1.5rem; background: linear-gradient(135deg, #FF6B35, #F7931E); border: none; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: opacity 0.2s, transform 0.15s; }
     .bouton-ajouter:hover { opacity: 0.9; transform: translateY(-1px); }
     .bouton-ajouter:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
     .liste-elements { display: flex; flex-direction: column; gap: 0.75rem; }
-    .element-liste {
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px; padding: 1rem 1.25rem; display: flex;
-      align-items: flex-start; justify-content: space-between; gap: 1rem; transition: border-color 0.2s;
-    }
+    .element-liste { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; transition: border-color 0.2s; }
     .element-liste:hover { border-color: rgba(255,107,53,0.3); }
     .element-liste-info { flex: 1; min-width: 0; }
     .element-liste-titre { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -80,79 +52,44 @@
     .element-liste-meta { font-size: 0.8rem; color: #6B7280; margin-top: 4px; }
     .element-liste-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
     .tag-petit { font-size: 0.72rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 6px; color: #9CA3AF; }
-
-    .bouton-supprimer-element {
-      padding: 0.45rem 0.75rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 8px; color: #EF4444; cursor: pointer; font-size: 0.82rem;
-      display: flex; align-items: center; gap: 5px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0;
-    }
+    .bouton-supprimer-element { padding: 0.45rem 0.75rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; color: #EF4444; cursor: pointer; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; }
     .bouton-supprimer-element:hover { background: rgba(239,68,68,0.2); }
-
     .etat-vide-liste { text-align: center; padding: 2.5rem 1rem; color: #6B7280; }
     .etat-vide-liste i { font-size: 2rem; display: block; margin-bottom: 0.75rem; opacity: 0.5; }
     .etat-vide-liste p { font-size: 0.9rem; }
-
     .barre-niveau-mini { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .barre-fond { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
     .barre-rempli { height: 100%; background: linear-gradient(90deg, #FF6B35, #F7931E); border-radius: 2px; }
     .barre-niveau-mini span { font-size: 0.75rem; color: #9CA3AF; white-space: nowrap; }
-
     .compteur-section { font-size: 0.78rem; background: rgba(255,107,53,0.15); color: #FF6B35; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
     .separateur-page { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 2.5rem 0; }
     .chargement-liste { text-align: center; padding: 2rem; color: #6B7280; font-size: 0.9rem; }
     .chargement-liste i { margin-right: 8px; color: #FF6B35; }
-
-    /* ── ANALYTICS ─────────────────────────────────────────────────── */
     @keyframes clignoter { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-    .an-barre-page {
-      display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
-      border-radius:8px; margin-bottom:0.5rem;
-    }
+    .an-barre-page { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; margin-bottom:0.5rem; }
     .an-page-nom { font-size:0.85rem; color:#fff; font-weight:500; min-width:80px; flex-shrink:0; }
     .an-barre-fond { flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:9999px; overflow:hidden; }
     .an-barre-rempli { height:100%; background:linear-gradient(135deg,#FF6B35,#F7931E); border-radius:9999px; transition:width 0.6s ease; }
     .an-vues { font-size:0.8rem; color:#FF6B35; font-weight:600; white-space:nowrap; flex-shrink:0; }
-
-    .an-action-ligne {
-      display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1rem;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
-      border-radius:8px; margin-bottom:0.5rem;
-    }
+    .an-action-ligne { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; margin-bottom:0.5rem; }
     .an-action-badge { font-size:0.72rem; padding:2px 8px; border-radius:9999px; font-weight:600; background:rgba(255,107,53,0.15); color:#FF6B35; white-space:nowrap; flex-shrink:0; }
     .an-action-cible { flex:1; font-size:0.85rem; color:#B4B8D4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .an-action-nb { font-size:0.82rem; color:#10B981; font-weight:700; flex-shrink:0; }
-
-    .an-live-ligne {
-      display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1rem;
-      background:rgba(255,255,255,0.02); border-left:3px solid #FF6B35;
-      border-radius:0 8px 8px 0; margin-bottom:0.4rem; font-size:0.83rem;
-    }
+    .an-live-ligne { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1rem; background:rgba(255,255,255,0.02); border-left:3px solid #FF6B35; border-radius:0 8px 8px 0; margin-bottom:0.4rem; font-size:0.83rem; }
     .an-live-heure { color:#6B7280; flex-shrink:0; font-size:0.75rem; }
     .an-live-session { color:#00D9FF; flex-shrink:0; font-weight:600; }
     .an-live-action { color:#fff; flex:1; }
     .an-live-page { color:#6B7280; flex-shrink:0; font-size:0.78rem; }
-
-    .an-session-ligne {
-      display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; padding:0.75rem 1rem;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
-      border-radius:8px; margin-bottom:0.5rem; font-size:0.82rem;
-    }
+    .an-session-ligne { display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; padding:0.75rem 1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; margin-bottom:0.5rem; font-size:0.82rem; }
     .an-session-id { color:#00D9FF; font-weight:600; flex-shrink:0; }
     .an-session-meta { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:2px; }
     .an-session-meta span { color:#6B7280; }
     .an-session-meta strong { color:#FF6B35; }
-
-    @media (max-width: 768px) {
-      .grille-champs, .grille-champs.trois-colonnes { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .grille-champs, .grille-champs.trois-colonnes { grid-template-columns: 1fr; } }
   </style>
-  <script src="/client-tracker.js"></script>
 </head>
 <body>
 
-  <!-- ── PAGE CONNEXION ──────────────────────────────────────────────────── -->
   <div id="page-connexion" class="zone-connexion">
     <div class="carte-connexion">
       <div class="titre-connexion">
@@ -160,7 +97,6 @@
         <h1>Administration</h1>
         <p>Accès réservé aux administrateurs</p>
       </div>
-
       <form id="formulaire-connexion" class="formulaire-login" novalidate>
         <div class="groupe-champ">
           <label for="champ-email"><i class="fas fa-envelope"></i> Email</label>
@@ -174,10 +110,7 @@
           </div>
         </div>
         <div class="options-login">
-          <label class="case-souvenir">
-            <input type="checkbox" id="se-souvenir">
-            <span>Se souvenir de moi</span>
-          </label>
+          <label class="case-souvenir"><input type="checkbox" id="se-souvenir"><span>Se souvenir de moi</span></label>
         </div>
         <button type="submit" class="bouton-connexion"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
         <button type="button" class="bouton-retour-site" onclick="window.location.href='https://philippe554-del.github.io/Portfolio-/'">
@@ -187,60 +120,31 @@
           <i class="fas fa-exclamation-circle"></i><span>Identifiants incorrects</span>
         </div>
       </form>
-
-      <div class="pied-connexion">
-        <p><i class="fas fa-info-circle"></i> Connexion sécurisée</p>
-      </div>
+      <div class="pied-connexion"><p><i class="fas fa-info-circle"></i> Connexion sécurisée</p></div>
     </div>
   </div>
 
-  <!-- ── TABLEAU DE BORD ─────────────────────────────────────────────────── -->
   <div id="tableau-bord" class="tableau-bord masque">
-
     <aside class="barre-laterale">
       <div class="entete-barre">
         <div class="logo-admin"><i class="fas fa-chart-line"></i><span>Admin Panel</span></div>
       </div>
-
       <nav class="navigation-admin">
-        <a href="#" class="element-nav actif" data-page="vue-ensemble">
-          <i class="fas fa-home"></i><span>Vue d'ensemble</span>
-        </a>
-        <a href="#" class="element-nav" data-page="messages">
-          <i class="fas fa-envelope"></i><span>Messages</span>
-          <span class="compteur-messages" id="nb-messages">0</span>
-        </a>
-        <a href="#" class="element-nav" data-page="projets">
-          <i class="fas fa-folder-open"></i><span>Projets</span>
-        </a>
-        <a href="#" class="element-nav" data-page="experiences">
-          <i class="fas fa-briefcase"></i><span>Expériences</span>
-        </a>
-        <a href="#" class="element-nav" data-page="competences">
-          <i class="fas fa-star"></i><span>Compétences</span>
-        </a>
-        <a href="#" class="element-nav" data-page="statistiques">
-          <i class="fas fa-chart-bar"></i><span>Statistiques</span>
-        </a>
-        <!-- ── LIEN ANALYTICS ── -->
-        <a href="#" class="element-nav" data-page="analytics">
-          <i class="fas fa-users"></i><span>Visiteurs</span>
-          <span class="compteur-messages" id="an-badge-direct" style="background:#10B981;display:none;">0</span>
-        </a>
-        <a href="#" class="element-nav" data-page="parametres">
-          <i class="fas fa-cog"></i><span>Paramètres</span>
-        </a>
+        <a href="#" class="element-nav actif" data-page="vue-ensemble"><i class="fas fa-home"></i><span>Vue d'ensemble</span></a>
+        <a href="#" class="element-nav" data-page="messages"><i class="fas fa-envelope"></i><span>Messages</span><span class="compteur-messages" id="nb-messages">0</span></a>
+        <a href="#" class="element-nav" data-page="projets"><i class="fas fa-folder-open"></i><span>Projets</span></a>
+        <a href="#" class="element-nav" data-page="experiences"><i class="fas fa-briefcase"></i><span>Expériences</span></a>
+        <a href="#" class="element-nav" data-page="competences"><i class="fas fa-star"></i><span>Compétences</span></a>
+        <a href="#" class="element-nav" data-page="statistiques"><i class="fas fa-chart-bar"></i><span>Statistiques</span></a>
+        <a href="#" class="element-nav" data-page="analytics"><i class="fas fa-users"></i><span>Visiteurs</span><span class="compteur-messages" id="an-badge-direct" style="background:#10B981;display:none;">0</span></a>
+        <a href="#" class="element-nav" data-page="parametres"><i class="fas fa-cog"></i><span>Paramètres</span></a>
       </nav>
-
       <div class="pied-barre">
-        <button class="bouton-deconnexion" id="btn-deconnexion">
-          <i class="fas fa-sign-out-alt"></i><span>Déconnexion</span>
-        </button>
+        <button class="bouton-deconnexion" id="btn-deconnexion"><i class="fas fa-sign-out-alt"></i><span>Déconnexion</span></button>
       </div>
     </aside>
 
     <main class="contenu-principal">
-
       <header class="entete-tableau">
         <div class="gauche-entete">
           <button class="bouton-hamburger" id="btn-menu"><i class="fas fa-bars"></i></button>
@@ -248,48 +152,25 @@
         </div>
         <div class="droite-entete">
           <button class="bouton-icone" id="btn-actualiser" title="Actualiser"><i class="fas fa-sync-alt"></i></button>
-          <div class="zone-cloche">
-            <button class="bouton-icone" id="btn-notifications"><i class="fas fa-bell"></i><span class="point-notif"></span></button>
-          </div>
+          <div class="zone-cloche"><button class="bouton-icone" id="btn-notifications"><i class="fas fa-bell"></i><span class="point-notif"></span></button></div>
           <div class="profil-admin">
             <img src="https://ui-avatars.com/api/?name=Admin&background=FF6B35&color=fff" alt="Admin">
-            <div class="infos-profil">
-              <span class="nom-profil">Administrateur</span>
-              <span class="role-profil">Super Admin</span>
-            </div>
+            <div class="infos-profil"><span class="nom-profil">Administrateur</span><span class="role-profil">Super Admin</span></div>
           </div>
         </div>
       </header>
 
-      <!-- ── PAGE : VUE D'ENSEMBLE ──────────────────────────────────────── -->
       <div id="page-vue-ensemble" class="page active">
         <div class="contenu-page">
           <div class="grille-stats">
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-envelope"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Total Messages</span><span class="chiffre-stat" id="total-messages">0</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-envelope-open"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Messages lus</span><span class="chiffre-stat" id="messages-lus">0</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-clock"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Non lus</span><span class="chiffre-stat" id="messages-non-lus">0</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#fa709a,#fee140)"><i class="fas fa-calendar-day"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Aujourd'hui</span><span class="chiffre-stat" id="messages-aujourd-hui">0</span></div>
-            </div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fas fa-envelope"></i></div><div class="texte-stat"><span class="libelle-stat">Total Messages</span><span class="chiffre-stat" id="total-messages">0</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-envelope-open"></i></div><div class="texte-stat"><span class="libelle-stat">Messages lus</span><span class="chiffre-stat" id="messages-lus">0</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fas fa-clock"></i></div><div class="texte-stat"><span class="libelle-stat">Non lus</span><span class="chiffre-stat" id="messages-non-lus">0</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#fa709a,#fee140)"><i class="fas fa-calendar-day"></i></div><div class="texte-stat"><span class="libelle-stat">Aujourd'hui</span><span class="chiffre-stat" id="messages-aujourd-hui">0</span></div></div>
           </div>
           <div class="bloc-messages-recents">
-            <div class="entete-section">
-              <h3><i class="fas fa-history"></i> Messages récents</h3>
-              <a href="#" class="lien-voir-tout" data-page="messages">Voir tout</a>
-            </div>
-            <div id="liste-messages-recents" class="apercu-messages">
-              <div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div>
-            </div>
+            <div class="entete-section"><h3><i class="fas fa-history"></i> Messages récents</h3><a href="#" class="lien-voir-tout" data-page="messages">Voir tout</a></div>
+            <div id="liste-messages-recents" class="apercu-messages"><div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div></div>
           </div>
           <div class="bloc-actions-rapides">
             <h3><i class="fas fa-bolt"></i> Actions rapides</h3>
@@ -302,32 +183,19 @@
         </div>
       </div>
 
-      <!-- ── PAGE : MESSAGES ────────────────────────────────────────────── -->
       <div id="page-messages" class="page">
         <div class="contenu-page">
           <div class="barre-outils">
-            <div class="gauche-barre">
-              <div class="champ-recherche"><i class="fas fa-search"></i><input type="text" id="recherche-messages" placeholder="Rechercher un message..."></div>
-            </div>
+            <div class="gauche-barre"><div class="champ-recherche"><i class="fas fa-search"></i><input type="text" id="recherche-messages" placeholder="Rechercher un message..."></div></div>
             <div class="droite-barre">
-              <select id="filtre-messages" class="selecteur">
-                <option value="all">Tous les messages</option>
-                <option value="unread">Non lus</option>
-                <option value="read">Lus</option>
-              </select>
-              <select id="tri-messages" class="selecteur">
-                <option value="newest">Plus récents</option>
-                <option value="oldest">Plus anciens</option>
-              </select>
+              <select id="filtre-messages" class="selecteur"><option value="all">Tous les messages</option><option value="unread">Non lus</option><option value="read">Lus</option></select>
+              <select id="tri-messages" class="selecteur"><option value="newest">Plus récents</option><option value="oldest">Plus anciens</option></select>
             </div>
           </div>
-          <div id="liste-messages" class="liste-messages">
-            <div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div>
-          </div>
+          <div id="liste-messages" class="liste-messages"><div class="etat-vide"><i class="fas fa-inbox"></i><h3>Aucun message</h3><p>Les messages du formulaire apparaîtront ici</p></div></div>
         </div>
       </div>
 
-      <!-- ── PAGE : PROJETS ─────────────────────────────────────────────── -->
       <div id="page-projets" class="page">
         <div class="contenu-page">
           <div class="section-gestion">
@@ -338,7 +206,7 @@
                   <div class="champ-form"><label>Titre du projet *</label><input type="text" id="projet-titre" placeholder="Ex: Plateforme VBG" maxlength="200" required></div>
                   <div class="champ-form"><label>Étiquette</label><input type="text" id="projet-etiquette" placeholder="Ex: Social, Portfolio, API..." maxlength="100"></div>
                   <div class="champ-form pleine-largeur"><label>Description *</label><textarea id="projet-description" placeholder="Décrivez le projet en quelques phrases..." rows="3" maxlength="1000" required></textarea></div>
-                  <div class="champ-form"><label>Technologies (séparées par des virgules)</label><input type="text" id="projet-technologies" placeholder="Ex: HTML/CSS, Node.js, PostgreSQL" maxlength="500"></div>
+                  <div class="champ-form"><label>Technologies</label><input type="text" id="projet-technologies" placeholder="Ex: HTML/CSS, Node.js, PostgreSQL" maxlength="500"></div>
                   <div class="champ-form"><label>Statut</label><select id="projet-statut"><option value="termine">Terminé</option><option value="en-cours">En cours</option><option value="prevu">Prévu</option></select></div>
                   <div class="champ-form"><label>Lien du site</label><input type="url" id="projet-lien-site" placeholder="https://..." maxlength="500"></div>
                   <div class="champ-form"><label>Lien GitHub</label><input type="url" id="projet-lien-github" placeholder="https://github.com/..." maxlength="500"></div>
@@ -354,7 +222,6 @@
         </div>
       </div>
 
-      <!-- ── PAGE : EXPÉRIENCES ─────────────────────────────────────────── -->
       <div id="page-experiences" class="page">
         <div class="contenu-page">
           <div class="section-gestion">
@@ -362,16 +229,16 @@
               <h4><i class="fas fa-plus-circle"></i> Ajouter une nouvelle expérience</h4>
               <form id="form-ajout-experience" novalidate>
                 <div class="grille-champs">
-                  <div class="champ-form"><label>Titre de l'expérience *</label><input type="text" id="exp-titre" placeholder="Ex: Stage de Licence 2" maxlength="200" required></div>
-                  <div class="champ-form"><label>Type</label><input type="text" id="exp-type" placeholder="Ex: Stage académique, Projet personnel" maxlength="100"></div>
-                  <div class="champ-form"><label>Entreprise / Organisation</label><input type="text" id="exp-entreprise" placeholder="Ex: ENEAM, Nom de la société..." maxlength="200"></div>
+                  <div class="champ-form"><label>Titre *</label><input type="text" id="exp-titre" placeholder="Ex: Stage de Licence 2" maxlength="200" required></div>
+                  <div class="champ-form"><label>Type</label><input type="text" id="exp-type" placeholder="Ex: Stage académique" maxlength="100"></div>
+                  <div class="champ-form"><label>Entreprise / Organisation</label><input type="text" id="exp-entreprise" placeholder="Ex: ENEAM" maxlength="200"></div>
                   <div class="champ-form"><label>Lieu</label><input type="text" id="exp-lieu" placeholder="Ex: Cotonou, Bénin" maxlength="200"></div>
                   <div class="champ-form"><label>Date de début</label><input type="text" id="exp-date-debut" placeholder="Ex: Janvier 2025" maxlength="100"></div>
                   <div class="champ-form"><label>Date de fin</label><input type="text" id="exp-date-fin" placeholder="Ex: Juin 2025 ou Présent" maxlength="100"></div>
-                  <div class="champ-form pleine-largeur"><label>Description</label><textarea id="exp-description" placeholder="Décrivez les missions et responsabilités..." rows="3" maxlength="1000"></textarea></div>
-                  <div class="champ-form"><label>Tags (séparés par des virgules)</label><input type="text" id="exp-tags" placeholder="Ex: Développement Web, Node.js, React" maxlength="500"></div>
+                  <div class="champ-form pleine-largeur"><label>Description</label><textarea id="exp-description" placeholder="Décrivez les missions..." rows="3" maxlength="1000"></textarea></div>
+                  <div class="champ-form"><label>Tags</label><input type="text" id="exp-tags" placeholder="Ex: Développement Web, Node.js" maxlength="500"></div>
                   <div class="champ-form"><label>Statut</label><select id="exp-statut"><option value="termine">Terminé</option><option value="en-cours">En cours</option><option value="prevu">Prévu</option><option value="recherche">En recherche</option></select></div>
-                  <div class="champ-form"><label>Ordre d'affichage</label><input type="number" id="exp-ordre" placeholder="0" min="0" max="999" value="0"></div>
+                  <div class="champ-form"><label>Ordre</label><input type="number" id="exp-ordre" placeholder="0" min="0" max="999" value="0"></div>
                 </div>
                 <div class="pied-formulaire"><button type="submit" class="bouton-ajouter" id="btn-ajouter-experience"><i class="fas fa-plus"></i> Ajouter l'expérience</button></div>
               </form>
@@ -382,23 +249,22 @@
         </div>
       </div>
 
-      <!-- ── PAGE : COMPÉTENCES ─────────────────────────────────────────── -->
       <div id="page-competences" class="page">
         <div class="contenu-page">
           <div class="section-gestion">
             <div class="formulaire-ajout">
-              <h4><i class="fas fa-plus-circle"></i> Ajouter une nouvelle catégorie de compétences</h4>
+              <h4><i class="fas fa-plus-circle"></i> Ajouter une catégorie de compétences</h4>
               <form id="form-ajout-competence" novalidate>
                 <div class="grille-champs">
-                  <div class="champ-form"><label>Catégorie *</label><input type="text" id="comp-categorie" placeholder="Ex: Développement Web, Réseaux..." maxlength="200" required></div>
+                  <div class="champ-form"><label>Catégorie *</label><input type="text" id="comp-categorie" placeholder="Ex: Développement Web" maxlength="200" required></div>
                   <div class="champ-form"><label>Icône Font Awesome</label><input type="text" id="comp-icone" placeholder="Ex: fas fa-code" maxlength="100" value="fas fa-code"></div>
-                  <div class="champ-form"><label>Couleur du gradient (CSS)</label><input type="text" id="comp-couleur" placeholder="Ex: linear-gradient(135deg,#667eea,#764ba2)" maxlength="200" value="linear-gradient(135deg,#667eea,#764ba2)"></div>
-                  <div class="champ-form"><label>Niveau (0 – 100)</label><input type="number" id="comp-niveau" placeholder="Ex: 75" min="0" max="100" value="70"></div>
+                  <div class="champ-form"><label>Couleur du gradient</label><input type="text" id="comp-couleur" placeholder="Ex: linear-gradient(135deg,#667eea,#764ba2)" maxlength="200" value="linear-gradient(135deg,#667eea,#764ba2)"></div>
+                  <div class="champ-form"><label>Niveau (0–100)</label><input type="number" id="comp-niveau" placeholder="Ex: 75" min="0" max="100" value="70"></div>
                   <div class="champ-form"><label>Libellé du niveau</label><input type="text" id="comp-label-niveau" placeholder="Ex: Avancé — 75%" maxlength="100"></div>
-                  <div class="champ-form"><label>Ordre d'affichage</label><input type="number" id="comp-ordre" placeholder="0" min="0" max="999" value="0"></div>
+                  <div class="champ-form"><label>Ordre</label><input type="number" id="comp-ordre" placeholder="0" min="0" max="999" value="0"></div>
                   <div class="champ-form pleine-largeur">
-                    <label>Compétences (une par ligne : "icone_fa | Nom de la compétence")</label>
-                    <textarea id="comp-items" placeholder="fab fa-python | Python&#10;fab fa-html5 | HTML5&#10;fab fa-css3-alt | CSS3&#10;fab fa-js | JavaScript" rows="5" maxlength="1000"></textarea>
+                    <label>Compétences (une par ligne : "icone_fa | Nom")</label>
+                    <textarea id="comp-items" placeholder="fab fa-python | Python&#10;fab fa-html5 | HTML5" rows="5" maxlength="1000"></textarea>
                   </div>
                 </div>
                 <div class="pied-formulaire"><button type="submit" class="bouton-ajouter" id="btn-ajouter-competence"><i class="fas fa-plus"></i> Ajouter la catégorie</button></div>
@@ -410,7 +276,6 @@
         </div>
       </div>
 
-      <!-- ── PAGE : STATISTIQUES ────────────────────────────────────────── -->
       <div id="page-statistiques" class="page">
         <div class="contenu-page">
           <div class="grille-graphiques">
@@ -428,18 +293,11 @@
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════════════════════════════════
-           PAGE : ANALYTICS VISITEURS
-      ══════════════════════════════════════════════════════════════════ -->
       <div id="page-analytics" class="page">
         <div class="contenu-page">
-
-          <!-- En-tête analytics -->
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
             <div>
-              <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:0.25rem;">
-                <i class="fas fa-users" style="color:#FF6B35;margin-right:0.5rem;"></i>Visiteurs du site
-              </h2>
+              <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:0.25rem;"><i class="fas fa-users" style="color:#FF6B35;margin-right:0.5rem;"></i>Visiteurs du site</h2>
               <p style="color:#6B7280;font-size:0.9rem;">Suivi en temps réel des visites et actions</p>
             </div>
             <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
@@ -448,93 +306,45 @@
                 <span id="an-nb-direct" style="font-weight:700;color:#10B981;">—</span>
                 <span style="color:#6B7280;">en direct</span>
               </div>
-              <button onclick="analyticsCharger()" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-sync-alt"></i> Actualiser
-              </button>
+              <button onclick="analyticsCharger()" style="padding:0.5rem 1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;"><i class="fas fa-sync-alt"></i> Actualiser</button>
             </div>
           </div>
 
-          <!-- Cartes stats visiteurs -->
           <div class="grille-stats">
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#FF6B35,#F7931E);"><i class="fas fa-users"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Total visiteurs uniques</span><span class="chiffre-stat" id="an-total">—</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#00D9FF,#0099CC);"><i class="fas fa-calendar-day"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Aujourd'hui</span><span class="chiffre-stat" id="an-aujourd" style="background:linear-gradient(135deg,#00D9FF,#0099CC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#10B981,#059669);"><i class="fas fa-calendar-week"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">30 derniers jours</span><span class="chiffre-stat" id="an-30j" style="background:linear-gradient(135deg,#10B981,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div>
-            </div>
-            <div class="carte-stat">
-              <div class="icone-stat" style="background:linear-gradient(135deg,#A855F7,#7C3AED);"><i class="fas fa-clock"></i></div>
-              <div class="texte-stat"><span class="libelle-stat">Durée moy. sur le site</span><span class="chiffre-stat" id="an-duree" style="background:linear-gradient(135deg,#A855F7,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div>
-            </div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#FF6B35,#F7931E);"><i class="fas fa-users"></i></div><div class="texte-stat"><span class="libelle-stat">Total visiteurs uniques</span><span class="chiffre-stat" id="an-total">—</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#00D9FF,#0099CC);"><i class="fas fa-calendar-day"></i></div><div class="texte-stat"><span class="libelle-stat">Aujourd'hui</span><span class="chiffre-stat" id="an-aujourd" style="background:linear-gradient(135deg,#00D9FF,#0099CC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#10B981,#059669);"><i class="fas fa-calendar-week"></i></div><div class="texte-stat"><span class="libelle-stat">30 derniers jours</span><span class="chiffre-stat" id="an-30j" style="background:linear-gradient(135deg,#10B981,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div></div>
+            <div class="carte-stat"><div class="icone-stat" style="background:linear-gradient(135deg,#A855F7,#7C3AED);"><i class="fas fa-clock"></i></div><div class="texte-stat"><span class="libelle-stat">Durée moy. sur le site</span><span class="chiffre-stat" id="an-duree" style="background:linear-gradient(135deg,#A855F7,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</span></div></div>
           </div>
 
-          <!-- Graphiques -->
           <div class="grille-graphiques">
-            <div class="carte-graphique">
-              <h3><i class="fas fa-chart-bar" style="color:#FF6B35;"></i> Visites — 14 derniers jours</h3>
-              <canvas id="an-chart-jours"></canvas>
-            </div>
-            <div class="carte-graphique">
-              <h3><i class="fas fa-chart-area" style="color:#00D9FF;"></i> Trafic d'aujourd'hui (par heure)</h3>
-              <canvas id="an-chart-heures"></canvas>
-            </div>
+            <div class="carte-graphique"><h3><i class="fas fa-chart-bar" style="color:#FF6B35;"></i> Visites — 14 derniers jours</h3><canvas id="an-chart-jours"></canvas></div>
+            <div class="carte-graphique"><h3><i class="fas fa-chart-area" style="color:#00D9FF;"></i> Trafic d'aujourd'hui (par heure)</h3><canvas id="an-chart-heures"></canvas></div>
           </div>
 
-          <!-- Pages populaires + Actions -->
           <div class="grille-graphiques">
             <div class="bloc-messages-recents">
-              <div class="entete-section">
-                <h3><i class="fas fa-file-alt" style="color:#FF6B35;"></i> Pages les plus visitées</h3>
-                <span style="color:#6B7280;font-size:0.8rem;">30 derniers jours</span>
-              </div>
-              <div id="an-pages-pop">
-                <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
-              </div>
+              <div class="entete-section"><h3><i class="fas fa-file-alt" style="color:#FF6B35;"></i> Pages les plus visitées</h3><span style="color:#6B7280;font-size:0.8rem;">30 derniers jours</span></div>
+              <div id="an-pages-pop"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
             </div>
             <div class="bloc-messages-recents">
-              <div class="entete-section">
-                <h3><i class="fas fa-mouse-pointer" style="color:#10B981;"></i> Actions les plus fréquentes</h3>
-                <span style="color:#6B7280;font-size:0.8rem;">30 derniers jours</span>
-              </div>
-              <div id="an-actions-top">
-                <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
-              </div>
+              <div class="entete-section"><h3><i class="fas fa-mouse-pointer" style="color:#10B981;"></i> Actions les plus fréquentes</h3><span style="color:#6B7280;font-size:0.8rem;">30 derniers jours</span></div>
+              <div id="an-actions-top"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
             </div>
           </div>
 
-          <!-- Flux temps réel -->
           <div class="bloc-messages-recents">
-            <div class="entete-section">
-              <h3><i class="fas fa-bolt" style="color:#F59E0B;"></i> Activité récente</h3>
-              <span style="color:#6B7280;font-size:0.8rem;" id="an-maj-live">—</span>
-            </div>
-            <div id="an-flux-live">
-              <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
-            </div>
+            <div class="entete-section"><h3><i class="fas fa-bolt" style="color:#F59E0B;"></i> Activité récente</h3><span style="color:#6B7280;font-size:0.8rem;" id="an-maj-live">—</span></div>
+            <div id="an-flux-live"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
           </div>
 
-          <!-- Dernières sessions -->
           <div class="bloc-messages-recents">
-            <div class="entete-section">
-              <h3><i class="fas fa-user-clock" style="color:#A855F7;"></i> Dernières sessions</h3>
-              <a class="lien-voir-tout" style="cursor:pointer;" onclick="analyticsChargerSessions(50)">Voir 50</a>
-            </div>
-            <div id="an-sessions">
-              <div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
-            </div>
+            <div class="entete-section"><h3><i class="fas fa-user-clock" style="color:#A855F7;"></i> Dernières sessions</h3><a class="lien-voir-tout" style="cursor:pointer;" onclick="analyticsChargerSessions(50)">Voir 50</a></div>
+            <div id="an-sessions"><div class="chargement-liste"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
           </div>
-
         </div>
       </div>
-      <!-- ══ FIN PAGE ANALYTICS ══ -->
 
-      <!-- ── PAGE : PARAMÈTRES ──────────────────────────────────────────── -->
       <div id="page-parametres" class="page">
         <div class="contenu-page">
           <div class="bloc-parametres">
@@ -565,7 +375,6 @@
     </main>
   </div>
 
-  <!-- ── MODALE MESSAGE ──────────────────────────────────────────────────── -->
   <div id="fenetre-message" class="fenetre-modale">
     <div class="contenu-modale">
       <div class="entete-modale">
@@ -583,33 +392,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <script src="admin.js"></script>
 
-  <!-- ══════════════════════════════════════════════════════════════════════
-       SCRIPT ANALYTICS — Doit être après admin.js et Chart.js
-  ══════════════════════════════════════════════════════════════════════════ -->
   <script>
   (function () {
     'use strict';
 
-    // ── Config ──────────────────────────────────────────────────────────
-    const API_BASE    = '/api/analytics';
-    const LIVE_DELAY  = 30000; // polling toutes les 30s
+    const API_BASE = 'https://portfolio-backend-uaf9.onrender.com/api/analytics';
+    const LIVE_DELAY = 30000;
+    let chartJours = null, chartHeures = null, liveTimer = null;
 
-    let chartJours  = null;
-    let chartHeures = null;
-    let liveTimer   = null;
-
-    // ── Récupère le token JWT stocké par admin.js ────────────────────────
     function getToken() {
       return localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken') || '';
     }
 
     function anFetch(url) {
-      return fetch(url, {
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-      }).then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      });
+      return fetch(url, { headers: { 'Authorization': 'Bearer ' + getToken() } })
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
     }
 
     function anFormatDuree(sec) {
@@ -620,46 +417,35 @@
     }
 
     function anFormatHeure(dateStr) {
-      var d = new Date(dateStr);
-      return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
 
     function anFormatDate(dateStr) {
       var d = new Date(dateStr);
-      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) +
-             ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // ── Charger le résumé complet ────────────────────────────────────────
     window.analyticsCharger = function () {
       anFetch(API_BASE + '/resume').then(function(data) {
-        // Cartes
         document.getElementById('an-total').textContent   = (data.total_visiteurs || 0).toLocaleString('fr-FR');
         document.getElementById('an-aujourd').textContent = (data.visiteurs_aujourd || 0).toLocaleString('fr-FR');
         document.getElementById('an-30j').textContent     = (data.visiteurs_30j || 0).toLocaleString('fr-FR');
         document.getElementById('an-duree').textContent   = anFormatDuree(data.duree_moy_sec);
-
         var nbDirect = data.en_direct || 0;
         document.getElementById('an-nb-direct').textContent = nbDirect;
         var badge = document.getElementById('an-badge-direct');
-        if (nbDirect > 0) { badge.textContent = nbDirect; badge.style.display = ''; }
-        else { badge.style.display = 'none'; }
-
+        if (nbDirect > 0) { badge.textContent = nbDirect; badge.style.display = ''; } else { badge.style.display = 'none'; }
         anRenderChartJours(data.par_jour || []);
         anRenderChartHeures(data.par_heure || []);
         anRenderPages(data.pages_populaires || []);
         anRenderActions(data.actions_top || []);
         analyticsChargerSessions(20);
         analyticsChargerLive();
-      }).catch(function(e) {
-        console.error('[analytics]', e);
-      });
+      }).catch(function(e) { console.error('[analytics]', e); });
     };
 
-    // ── Graphique : visites par jour ─────────────────────────────────────
     function anRenderChartJours(parJour) {
-      var ctx = document.getElementById('an-chart-jours');
-      if (!ctx) return;
+      var ctx = document.getElementById('an-chart-jours'); if (!ctx) return;
       var jours = [], visiteurs = [];
       for (var i = 13; i >= 0; i--) {
         var d = new Date(); d.setDate(d.getDate() - i);
@@ -671,105 +457,55 @@
       if (chartJours) chartJours.destroy();
       chartJours = new Chart(ctx.getContext('2d'), {
         type: 'bar',
-        data: {
-          labels: jours,
-          datasets: [{ label: 'Visiteurs', data: visiteurs, backgroundColor: 'rgba(255,107,53,0.5)', borderColor: '#FF6B35', borderWidth: 2, borderRadius: 6, borderSkipped: false }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', font: { size: 11 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', precision: 0 }, beginAtZero: true }
-          }
-        }
+        data: { labels: jours, datasets: [{ label: 'Visiteurs', data: visiteurs, backgroundColor: 'rgba(255,107,53,0.5)', borderColor: '#FF6B35', borderWidth: 2, borderRadius: 6, borderSkipped: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', font: { size: 11 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', precision: 0 }, beginAtZero: true } } }
       });
     }
 
-    // ── Graphique : trafic par heure ─────────────────────────────────────
     function anRenderChartHeures(parHeure) {
-      var ctx = document.getElementById('an-chart-heures');
-      if (!ctx) return;
+      var ctx = document.getElementById('an-chart-heures'); if (!ctx) return;
       var heures = [], vals = [];
       for (var i = 0; i < 24; i++) { heures.push(i + 'h'); vals.push(0); }
       parHeure.forEach(function(r) { vals[r.heure] = parseInt(r.visiteurs); });
       if (chartHeures) chartHeures.destroy();
       chartHeures = new Chart(ctx.getContext('2d'), {
         type: 'line',
-        data: {
-          labels: heures,
-          datasets: [{ label: 'Visiteurs', data: vals, borderColor: '#00D9FF', backgroundColor: 'rgba(0,217,255,0.1)', borderWidth: 2, fill: true, tension: 0.4, pointBackgroundColor: '#00D9FF', pointRadius: 3 }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', precision: 0 }, beginAtZero: true }
-          }
-        }
+        data: { labels: heures, datasets: [{ label: 'Visiteurs', data: vals, borderColor: '#00D9FF', backgroundColor: 'rgba(0,217,255,0.1)', borderWidth: 2, fill: true, tension: 0.4, pointBackgroundColor: '#00D9FF', pointRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', font: { size: 10 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#B4B8D4', precision: 0 }, beginAtZero: true } } }
       });
     }
 
-    // ── Pages populaires ─────────────────────────────────────────────────
     function anRenderPages(pages) {
-      var el = document.getElementById('an-pages-pop');
-      if (!el) return;
-      if (!pages.length) {
-        el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-chart-bar"></i><p>Aucune donnée pour le moment</p></div>';
-        return;
-      }
+      var el = document.getElementById('an-pages-pop'); if (!el) return;
+      if (!pages.length) { el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-chart-bar"></i><p>Aucune donnée pour le moment</p></div>'; return; }
       var max = parseInt(pages[0].vues) || 1;
       el.innerHTML = pages.map(function(p) {
         var pct = Math.round(parseInt(p.vues) / max * 100);
-        return '<div class="an-barre-page">' +
-          '<span class="an-page-nom">' + (p.page || '/') + '</span>' +
-          '<div class="an-barre-fond"><div class="an-barre-rempli" style="width:' + pct + '%"></div></div>' +
-          '<span class="an-vues">' + p.vues + ' vues</span>' +
-          '<span style="font-size:0.75rem;color:#6B7280;">' + anFormatDuree(parseInt(p.duree_moy || 0)) + ' moy.</span>' +
-          '</div>';
+        return '<div class="an-barre-page"><span class="an-page-nom">' + (p.page || '/') + '</span><div class="an-barre-fond"><div class="an-barre-rempli" style="width:' + pct + '%"></div></div><span class="an-vues">' + p.vues + ' vues</span><span style="font-size:0.75rem;color:#6B7280;">' + anFormatDuree(parseInt(p.duree_moy || 0)) + ' moy.</span></div>';
       }).join('');
     }
 
-    // ── Actions top ──────────────────────────────────────────────────────
     function anRenderActions(actions) {
-      var el = document.getElementById('an-actions-top');
-      if (!el) return;
-      if (!actions.length) {
-        el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-mouse-pointer"></i><p>Aucune action enregistrée</p></div>';
-        return;
-      }
+      var el = document.getElementById('an-actions-top'); if (!el) return;
+      if (!actions.length) { el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-mouse-pointer"></i><p>Aucune action enregistrée</p></div>'; return; }
       el.innerHTML = actions.map(function(a) {
-        return '<div class="an-action-ligne">' +
-          '<span class="an-action-badge">' + a.type_action + '</span>' +
-          '<span class="an-action-cible">' + (a.cible || '—') + '</span>' +
-          '<span class="an-action-nb">' + a.nb + '×</span>' +
-          '</div>';
+        return '<div class="an-action-ligne"><span class="an-action-badge">' + a.type_action + '</span><span class="an-action-cible">' + (a.cible || '—') + '</span><span class="an-action-nb">' + a.nb + '×</span></div>';
       }).join('');
     }
 
-    // ── Flux temps réel ──────────────────────────────────────────────────
     window.analyticsChargerLive = function () {
       anFetch(API_BASE + '/live').then(function(data) {
         var nbDirect = data.en_direct || 0;
         document.getElementById('an-nb-direct').textContent = nbDirect;
         var badge = document.getElementById('an-badge-direct');
-        if (nbDirect > 0) { badge.textContent = nbDirect; badge.style.display = ''; }
-        else { badge.style.display = 'none'; }
-
-        var el = document.getElementById('an-flux-live');
-        if (!el) return;
+        if (nbDirect > 0) { badge.textContent = nbDirect; badge.style.display = ''; } else { badge.style.display = 'none'; }
+        var el = document.getElementById('an-flux-live'); if (!el) return;
         var actions = data.actions_recentes || [];
         if (!actions.length) {
           el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-bolt"></i><p>Aucune activité récente</p></div>';
         } else {
           el.innerHTML = actions.map(function(a) {
-            return '<div class="an-live-ligne">' +
-              '<span class="an-live-heure">' + anFormatHeure(a.created_at) + '</span>' +
-              '<span class="an-live-session">#' + a.session_court + '</span>' +
-              '<span class="an-live-action">' + a.type_action + (a.cible ? ' → ' + a.cible : '') + '</span>' +
-              '<span class="an-live-page">' + (a.page || '') + '</span>' +
-              '</div>';
+            return '<div class="an-live-ligne"><span class="an-live-heure">' + anFormatHeure(a.created_at) + '</span><span class="an-live-session">#' + a.session_court + '</span><span class="an-live-action">' + a.type_action + (a.cible ? ' → ' + a.cible : '') + '</span><span class="an-live-page">' + (a.page || '') + '</span></div>';
           }).join('');
         }
         var maj = document.getElementById('an-maj-live');
@@ -777,59 +513,27 @@
       }).catch(function() {});
     };
 
-    // ── Dernières sessions ───────────────────────────────────────────────
     window.analyticsChargerSessions = function (limit) {
       anFetch(API_BASE + '/sessions?limit=' + (limit || 20)).then(function(sessions) {
-        var el = document.getElementById('an-sessions');
-        if (!el) return;
-        if (!sessions.length) {
-          el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-user-clock"></i><p>Aucune session</p></div>';
-          return;
-        }
+        var el = document.getElementById('an-sessions'); if (!el) return;
+        if (!sessions.length) { el.innerHTML = '<div class="etat-vide-liste"><i class="fas fa-user-clock"></i><p>Aucune session</p></div>'; return; }
         el.innerHTML = sessions.map(function(s) {
           var ua = s.user_agent || '';
           var appareil = ua.includes('Mobile') ? '📱 Mobile' : ua.includes('Tablet') ? '📟 Tablette' : '🖥️ Desktop';
           var nav = ua.includes('Chrome') ? 'Chrome' : ua.includes('Firefox') ? 'Firefox' : ua.includes('Safari') ? 'Safari' : ua.includes('Edge') ? 'Edge' : 'Autre';
-          return '<div class="an-session-ligne">' +
-            '<span class="an-session-id">#' + s.session_id.slice(0, 8) + '</span>' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div class="an-session-meta">' +
-                '<span>' + appareil + ' · ' + nav + '</span>' +
-                '<span>Entrée : <strong>' + (s.page_entree || '/') + '</strong></span>' +
-                '<span>Dernière : <strong>' + (s.derniere_page || '—') + '</strong></span>' +
-                '<span><strong>' + s.nb_pages + '</strong> page(s)</span>' +
-                '<span><strong>' + s.nb_actions + '</strong> action(s)</span>' +
-                '<span style="color:#4B5563;">' + anFormatDate(s.premiere_vue) + '</span>' +
-              '</div>' +
-            '</div>' +
-            '</div>';
+          return '<div class="an-session-ligne"><span class="an-session-id">#' + s.session_id.slice(0, 8) + '</span><div style="flex:1;min-width:0;"><div class="an-session-meta"><span>' + appareil + ' · ' + nav + '</span><span>Entrée : <strong>' + (s.page_entree || '/') + '</strong></span><span>Dernière : <strong>' + (s.derniere_page || '—') + '</strong></span><span><strong>' + s.nb_pages + '</strong> page(s)</span><span><strong>' + s.nb_actions + '</strong> action(s)</span><span style="color:#4B5563;">' + anFormatDate(s.premiere_vue) + '</span></div></div></div>';
         }).join('');
       }).catch(function() {});
     };
 
-    // ── Polling automatique toutes les 30s ───────────────────────────────
-    function anDemarrerPolling() {
-      if (liveTimer) clearInterval(liveTimer);
-      liveTimer = setInterval(window.analyticsChargerLive, LIVE_DELAY);
-    }
-    function anArreterPolling() {
-      if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
-    }
+    function anDemarrerPolling() { if (liveTimer) clearInterval(liveTimer); liveTimer = setInterval(window.analyticsChargerLive, LIVE_DELAY); }
+    function anArreterPolling() { if (liveTimer) { clearInterval(liveTimer); liveTimer = null; } }
 
-    // ── Intercepter les clics de navigation pour charger analytics ───────
     document.addEventListener('click', function(e) {
-      var nav = e.target.closest('[data-page]');
-      if (!nav) return;
+      var nav = e.target.closest('[data-page]'); if (!nav) return;
       var page = nav.getAttribute('data-page');
-      if (page === 'analytics') {
-        // Petit délai pour laisser admin.js afficher la page
-        setTimeout(function() {
-          window.analyticsCharger();
-          anDemarrerPolling();
-        }, 100);
-      } else {
-        anArreterPolling();
-      }
+      if (page === 'analytics') { setTimeout(function() { window.analyticsCharger(); anDemarrerPolling(); }, 100); }
+      else { anArreterPolling(); }
     });
 
   })();
