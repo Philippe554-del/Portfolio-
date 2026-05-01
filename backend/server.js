@@ -794,7 +794,7 @@ app.delete('/api/admin/projets/:id', auth, adminLimiter, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// ── ROUTES ADMIN : EXPÉRIENCES ────────────────────────────────────────────
+// ROUTES ADMIN : EXPÉRIENCES 
 app.get('/api/admin/experiences', auth, adminLimiter, async (req, res) => {
   try { const r = await pool.query('SELECT * FROM experiences ORDER BY ordre ASC, created_at DESC'); res.json({ success: true, experiences: r.rows }); }
   catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
