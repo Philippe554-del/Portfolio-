@@ -15,9 +15,9 @@
       : 'https://portfolio-backend-uaf9.onrender.com';
   })();
 
-/*
+  /* ═══════════════════════════════════════
      CURSEUR PERSONNALISÉ
-*/
+  ═══════════════════════════════════════ */
   (function () {
     if (window.matchMedia('(pointer: coarse)').matches) return;
     var dot  = document.getElementById('curseur-perso');
@@ -55,9 +55,9 @@
     });
   })();
 
-/*
+  /* ═══════════════════════════════════════
      CANVAS PARTICULES
-*/
+  ═══════════════════════════════════════ */
   (function () {
     var canvas = document.getElementById('particules-bg');
     if (!canvas) return;
@@ -146,9 +146,9 @@
     window.addEventListener('mouseleave', function () { souris.x = null; souris.y = null; });
   })();
 
-/*
+  /* ═══════════════════════════════════════
      TYPEWRITER
-*/
+  ═══════════════════════════════════════ */
   (function () {
     var el = document.getElementById('tw-texte');
     if (!el) return;
@@ -180,9 +180,9 @@
     setTimeout(tick, 1400);
   })();
 
-/*
+  /* ═══════════════════════════════════════
      DOM READY
-*/
+  ═══════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function () {
 
     var siteNav    = document.getElementById('site-nav');
@@ -192,7 +192,7 @@
     var tousLiens  = document.querySelectorAll('.liste-nav a');
     var formContact = document.getElementById('form-contact');
 
-    /* Burger */
+    /* ── Burger ── */
     if (burgerBtn) {
       burgerBtn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -222,7 +222,7 @@
       }
     });
 
-    /* Smooth scroll */
+    /* ── Smooth scroll ── */
     document.addEventListener('click', function (e) {
       var lien = e.target.closest('a[href^="#"]');
       if (!lien) return;
@@ -234,7 +234,7 @@
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    /* Scroll events */
+    /* ── Scroll events ── */
     window.addEventListener('scroll', function () {
       var pos = window.pageYOffset;
       if (siteNav)  siteNav.classList.toggle('scrolled', pos > 80);
@@ -247,7 +247,7 @@
       });
     }
 
-    /* Scroll indicateur */
+    /* ── Scroll indicateur ── */
     var scrollInd = document.getElementById('scroll-indicateur');
     if (scrollInd) {
       scrollInd.addEventListener('click', function () {
@@ -256,7 +256,7 @@
       });
     }
 
-    /* Lien actif navigation */
+    /* ── Lien actif navigation ── */
     var sections = document.querySelectorAll('section[id]');
     function majNavActive() {
       var pos = window.pageYOffset;
@@ -273,7 +273,7 @@
     window.addEventListener('scroll', majNavActive, { passive: true });
     majNavActive();
 
-    /* Reveal au scroll */
+    /* ── Reveal au scroll ── */
     if (window.IntersectionObserver) {
       var obsReveal = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -317,17 +317,17 @@
       document.querySelectorAll('.stat-item, .chiffre-bloc').forEach(function (s) { obsStats.observe(s); });
     }
 
-    /* Micro-interaction CV */
+    /* ── Micro-interaction CV ── */
     var btnCV = document.querySelector('.cv-dl-btn');
     if (btnCV) btnCV.addEventListener('click', function () { afficherNotif('Téléchargement du CV en cours…', 'info'); });
 
-    /* Glitch h1 */
+    /* ── Glitch h1 ── */
     var nomH1 = document.querySelector('.nom-gradient');
     if (nomH1) nomH1.setAttribute('data-glitch', nomH1.textContent);
 
-/*
+    /* ═══════════════════════════════════════
        NOTIFICATIONS
-*/
+    ═══════════════════════════════════════ */
     function afficherNotif(msg, type) {
       if (['succes','erreur','info'].indexOf(type) < 0) type = 'info';
       var div = document.createElement('div');
@@ -347,9 +347,9 @@
       }, 5000);
     }
 
-/*
+    /* ═══════════════════════════════════════
        FORMULAIRE CONTACT PRINCIPAL
-*/
+    ═══════════════════════════════════════ */
     function nettoyer(v, max) { return String(v || '').trim().slice(0, max || 2000); }
     function emailValide(e) { return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(e) && e.length <= 254; }
     function setErr(id, msg) { var el = document.getElementById(id); if (el) el.textContent = msg; }
@@ -392,13 +392,13 @@
         var email   = nettoyer(document.getElementById('email').value, 254);
         var codeEmail = document.getElementById('email-pays') ? document.getElementById('email-pays').value : '';
         var numBrut = nettoyer(document.getElementById('telephone').value, 20);
-        var tel     = numBrut ? (codeEmail + numBrut.replace(/^0+/, '')).replace(/\s/g,'') : '';
+        var tel     = numBrut ? (codeEmail + numBrut).replace(/\s/g,'') : '';
         var message = nettoyer(document.getElementById('message').value, 2000);
 
         var err = false;
         if (nom.length < 2)      { setErr('erreur-nom',     'Nom trop court.'); err = true; }
         if (!emailValide(email)) { setErr('erreur-email',   'Email invalide.'); err = true; }
-        if (tel && !/^\+?[0-9]{8,20}$/.test(tel)) { setErr('erreur-telephone', 'Numéro invalide.'); err = true; }
+        if (tel && !/^[+]?[0-9 \-]{6,25}$/.test(tel)) { setErr('erreur-telephone', 'Numéro invalide.'); err = true; }
         if (message.length < 10) { setErr('erreur-message', 'Message trop court (min 10 caractères).'); err = true; }
         if (err) return;
 
@@ -445,9 +445,9 @@
       }
     }
 
-/*
+    /* ═══════════════════════════════════════
        CHARGEMENT DYNAMIQUE API
-*/
+    ═══════════════════════════════════════ */
     function esc(str) {
       return String(str || '')
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -695,121 +695,121 @@
     chargerExperiences();
     chargerCompetences();
 
-/*
+    /* ═══════════════════════════════════════
        ONGLETS FORMULAIRE DE CONTACT — INIT
-*/
+    ═══════════════════════════════════════ */
     contactOngletInit();
 
   }); /* fin DOMContentLoaded */
 
 
-/*
+  /* ═══════════════════════════════════════════════════════════════
      ONGLETS DU FORMULAIRE DE CONTACT
-*/
+  ═══════════════════════════════════════════════════════════════ */
 
   /* Liste complète des pays avec indicatif téléphonique */
   var LISTE_PAYS = [
-    ['Benin','+229'],
-    ['Cote d\'Ivoire','+225'],
-    ['Senegal','+221'],
-    ['Mali','+223'],
-    ['Burkina Faso','+226'],
-    ['Togo','+228'],
-    ['Niger','+227'],
-    ['Guinee','+224'],
-    ['Guinee-Bissau','+245'],
-    ['Ghana','+233'],
-    ['Nigeria','+234'],
-    ['Cameroun','+237'],
-    ['Congo (RDC)','+243'],
-    ['Congo (Brazzaville)','+242'],
-    ['Gabon','+241'],
-    ['Mauritanie','+222'],
-    ['Gambie','+220'],
-    ['Sierra Leone','+232'],
-    ['Liberia','+231'],
-    ['Maroc','+212'],
-    ['Algerie','+213'],
-    ['Tunisie','+216'],
-    ['Libye','+218'],
-    ['Egypte','+20'],
-    ['Soudan','+249'],
-    ['Ethiopie','+251'],
-    ['Kenya','+254'],
-    ['Ouganda','+256'],
-    ['Tanzanie','+255'],
-    ['Rwanda','+250'],
-    ['Burundi','+257'],
-    ['Somalie','+252'],
-    ['Djibouti','+253'],
-    ['Erythree','+291'],
-    ['Seychelles','+248'],
-    ['Maurice','+230'],
-    ['Madagascar','+261'],
-    ['Mozambique','+258'],
-    ['Afrique du Sud','+27'],
-    ['Zambie','+260'],
-    ['Zimbabwe','+263'],
-    ['Botswana','+267'],
-    ['Namibie','+264'],
-    ['Eswatini','+268'],
-    ['Lesotho','+266'],
-    ['Angola','+244'],
-    ['Cap-Vert','+238'],
-    ['Sao Tome-et-Principe','+239'],
-    ['Guinee equatoriale','+240'],
-    ['Centrafrique','+236'],
-    ['Tchad','+235'],
-    ['Soudan du Sud','+211'],
-    ['France','+33'],
-    ['Belgique','+32'],
-    ['Suisse','+41'],
-    ['Luxembourg','+352'],
-    ['Allemagne','+49'],
-    ['Italie','+39'],
-    ['Espagne','+34'],
-    ['Portugal','+351'],
-    ['Royaume-Uni','+44'],
-    ['Irlande','+353'],
-    ['Pays-Bas','+31'],
-    ['Suede','+46'],
-    ['Norvege','+47'],
-    ['Danemark','+45'],
-    ['Finlande','+358'],
-    ['Pologne','+48'],
-    ['Roumanie','+40'],
-    ['Grece','+30'],
-    ['Russie','+7'],
-    ['Ukraine','+380'],
-    ['Etats-Unis','+1'],
-    ['Canada','+1'],
-    ['Mexique','+52'],
-    ['Bresil','+55'],
-    ['Argentine','+54'],
-    ['Colombie','+57'],
-    ['Perou','+51'],
-    ['Venezuela','+58'],
-    ['Chili','+56'],
-    ['Chine','+86'],
-    ['Japon','+81'],
-    ['Coree du Sud','+82'],
-    ['Inde','+91'],
-    ['Pakistan','+92'],
-    ['Bangladesh','+880'],
-    ['Indonesie','+62'],
-    ['Malaisie','+60'],
-    ['Thailande','+66'],
-    ['Vietnam','+84'],
-    ['Philippines','+63'],
-    ['Singapour','+65'],
-    ['Arabie Saoudite','+966'],
-    ['Emirats arabes unis','+971'],
-    ['Qatar','+974'],
-    ['Turquie','+90'],
-    ['Israel','+972'],
-    ['Iran','+98'],
-    ['Australie','+61'],
-    ['Nouvelle-Zelande','+64']
+    ["🇧🇯", "Benin", "+229"],
+    ["🇨🇮", "Cote d'Ivoire", "+225"],
+    ["🇸🇳", "Senegal", "+221"],
+    ["🇲🇱", "Mali", "+223"],
+    ["🇧🇫", "Burkina Faso", "+226"],
+    ["🇹🇬", "Togo", "+228"],
+    ["🇳🇪", "Niger", "+227"],
+    ["🇬🇳", "Guinee", "+224"],
+    ["🇬🇼", "Guinee-Bissau", "+245"],
+    ["🇬🇭", "Ghana", "+233"],
+    ["🇳🇬", "Nigeria", "+234"],
+    ["🇨🇲", "Cameroun", "+237"],
+    ["🇨🇩", "Congo RDC", "+243"],
+    ["🇨🇬", "Congo Brazzaville", "+242"],
+    ["🇬🇦", "Gabon", "+241"],
+    ["🇲🇷", "Mauritanie", "+222"],
+    ["🇬🇲", "Gambie", "+220"],
+    ["🇸🇱", "Sierra Leone", "+232"],
+    ["🇱🇷", "Liberia", "+231"],
+    ["🇲🇦", "Maroc", "+212"],
+    ["🇩🇿", "Algerie", "+213"],
+    ["🇹🇳", "Tunisie", "+216"],
+    ["🇱🇾", "Libye", "+218"],
+    ["🇪🇬", "Egypte", "+20"],
+    ["🇸🇩", "Soudan", "+249"],
+    ["🇪🇹", "Ethiopie", "+251"],
+    ["🇰🇪", "Kenya", "+254"],
+    ["🇺🇬", "Ouganda", "+256"],
+    ["🇹🇿", "Tanzanie", "+255"],
+    ["🇷🇼", "Rwanda", "+250"],
+    ["🇧🇮", "Burundi", "+257"],
+    ["🇸🇴", "Somalie", "+252"],
+    ["🇩🇯", "Djibouti", "+253"],
+    ["🇪🇷", "Erythree", "+291"],
+    ["🇸🇨", "Seychelles", "+248"],
+    ["🇲🇺", "Maurice", "+230"],
+    ["🇲🇬", "Madagascar", "+261"],
+    ["🇲🇿", "Mozambique", "+258"],
+    ["🇿🇦", "Afrique du Sud", "+27"],
+    ["🇿🇲", "Zambie", "+260"],
+    ["🇿🇼", "Zimbabwe", "+263"],
+    ["🇧🇼", "Botswana", "+267"],
+    ["🇳🇦", "Namibie", "+264"],
+    ["🇸🇿", "Eswatini", "+268"],
+    ["🇱🇸", "Lesotho", "+266"],
+    ["🇦🇴", "Angola", "+244"],
+    ["🇨🇻", "Cap-Vert", "+238"],
+    ["🇸🇹", "Sao Tome", "+239"],
+    ["🇬🇶", "Guinee Equatoriale", "+240"],
+    ["🇨🇫", "Centrafrique", "+236"],
+    ["🇹🇩", "Tchad", "+235"],
+    ["🇸🇸", "Soudan du Sud", "+211"],
+    ["🇫🇷", "France", "+33"],
+    ["🇧🇪", "Belgique", "+32"],
+    ["🇨🇭", "Suisse", "+41"],
+    ["🇱🇺", "Luxembourg", "+352"],
+    ["🇩🇪", "Allemagne", "+49"],
+    ["🇮🇹", "Italie", "+39"],
+    ["🇪🇸", "Espagne", "+34"],
+    ["🇵🇹", "Portugal", "+351"],
+    ["🇬🇧", "Royaume-Uni", "+44"],
+    ["🇮🇪", "Irlande", "+353"],
+    ["🇳🇱", "Pays-Bas", "+31"],
+    ["🇸🇪", "Suede", "+46"],
+    ["🇳🇴", "Norvege", "+47"],
+    ["🇩🇰", "Danemark", "+45"],
+    ["🇫🇮", "Finlande", "+358"],
+    ["🇵🇱", "Pologne", "+48"],
+    ["🇷🇴", "Roumanie", "+40"],
+    ["🇬🇷", "Grece", "+30"],
+    ["🇷🇺", "Russie", "+7"],
+    ["🇺🇦", "Ukraine", "+380"],
+    ["🇺🇸", "Etats-Unis", "+1"],
+    ["🇨🇦", "Canada", "+1"],
+    ["🇲🇽", "Mexique", "+52"],
+    ["🇧🇷", "Bresil", "+55"],
+    ["🇦🇷", "Argentine", "+54"],
+    ["🇨🇴", "Colombie", "+57"],
+    ["🇵🇪", "Perou", "+51"],
+    ["🇻🇪", "Venezuela", "+58"],
+    ["🇨🇱", "Chili", "+56"],
+    ["🇨🇳", "Chine", "+86"],
+    ["🇯🇵", "Japon", "+81"],
+    ["🇰🇷", "Coree du Sud", "+82"],
+    ["🇮🇳", "Inde", "+91"],
+    ["🇵🇰", "Pakistan", "+92"],
+    ["🇧🇩", "Bangladesh", "+880"],
+    ["🇮🇩", "Indonesie", "+62"],
+    ["🇲🇾", "Malaisie", "+60"],
+    ["🇹🇭", "Thailande", "+66"],
+    ["🇻🇳", "Vietnam", "+84"],
+    ["🇵🇭", "Philippines", "+63"],
+    ["🇸🇬", "Singapour", "+65"],
+    ["🇸🇦", "Arabie Saoudite", "+966"],
+    ["🇦🇪", "Emirats Arabes Unis", "+971"],
+    ["🇶🇦", "Qatar", "+974"],
+    ["🇹🇷", "Turquie", "+90"],
+    ["🇮🇱", "Israel", "+972"],
+    ["🇮🇷", "Iran", "+98"],
+    ["🇦🇺", "Australie", "+61"],
+    ["🇳🇿", "Nouvelle-Zelande", "+64"]
   ];
 
   function contactOngletInit() {
@@ -819,8 +819,8 @@
       if (!sel) return;
       LISTE_PAYS.forEach(function (p) {
         var opt = document.createElement('option');
-        opt.value = p[1];
-        opt.textContent = p[0] + ' ' + p[1];
+        opt.value = p[2];
+        opt.textContent = p[0] + ' ' + p[1] + '  ' + p[2];
         opt.title = p[1];
         sel.appendChild(opt);
       });
@@ -868,7 +868,7 @@
     if (message.length < 5){ setErrWA('erreur-wa-message', 'Message trop court.');           err = true; }
     if (err) return;
 
-    var telComplet = (code + numero.replace(/^0+/, '')).replace(/\D/g, '');
+    var telComplet = (code + numero).replace(/\D/g, '');
     var texte = 'Bonjour Philippe,%0aJe suis ' + encodeURIComponent(nom) + '.';
     if (email) texte += '%0aEmail : ' + encodeURIComponent(email);
     texte += '%0a%0a' + encodeURIComponent(message);
