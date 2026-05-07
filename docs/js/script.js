@@ -15,9 +15,6 @@
       : 'https://portfolio-backend-uaf9.onrender.com';
   })();
 
-  /* ═══════════════════════════════════════
-     CURSEUR PERSONNALISÉ
-  ═══════════════════════════════════════ */
   (function () {
     if (window.matchMedia('(pointer: coarse)').matches) return;
     var dot  = document.getElementById('curseur-perso');
@@ -55,9 +52,6 @@
     });
   })();
 
-  /* ═══════════════════════════════════════
-     CANVAS PARTICULES
-  ═══════════════════════════════════════ */
   (function () {
     var canvas = document.getElementById('particules-bg');
     if (!canvas) return;
@@ -146,9 +140,6 @@
     window.addEventListener('mouseleave', function () { souris.x = null; souris.y = null; });
   })();
 
-  /* ═══════════════════════════════════════
-     TYPEWRITER
-  ═══════════════════════════════════════ */
   (function () {
     var el = document.getElementById('tw-texte');
     if (!el) return;
@@ -180,9 +171,6 @@
     setTimeout(tick, 1400);
   })();
 
-  /* ═══════════════════════════════════════
-     DOM READY
-  ═══════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function () {
 
     var siteNav    = document.getElementById('site-nav');
@@ -325,9 +313,6 @@
     var nomH1 = document.querySelector('.nom-gradient');
     if (nomH1) nomH1.setAttribute('data-glitch', nomH1.textContent);
 
-    /* ═══════════════════════════════════════
-       NOTIFICATIONS
-    ═══════════════════════════════════════ */
     function afficherNotif(msg, type) {
       if (['succes','erreur','info'].indexOf(type) < 0) type = 'info';
       var div = document.createElement('div');
@@ -347,9 +332,6 @@
       }, 5000);
     }
 
-    /* ═══════════════════════════════════════
-       FORMULAIRE CONTACT PRINCIPAL
-    ═══════════════════════════════════════ */
     function nettoyer(v, max) { return String(v || '').trim().slice(0, max || 2000); }
     function emailValide(e) { return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(e) && e.length <= 254; }
     function setErr(id, msg) { var el = document.getElementById(id); if (el) el.textContent = msg; }
@@ -445,9 +427,6 @@
       }
     }
 
-    /* ═══════════════════════════════════════
-       CHARGEMENT DYNAMIQUE API
-    ═══════════════════════════════════════ */
     function esc(str) {
       return String(str || '')
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -695,17 +674,10 @@
     chargerExperiences();
     chargerCompetences();
 
-    /* ═══════════════════════════════════════
-       ONGLETS FORMULAIRE DE CONTACT — INIT
-    ═══════════════════════════════════════ */
     contactOngletInit();
 
   }); /* fin DOMContentLoaded */
 
-
-  /* ═══════════════════════════════════════════════════════════════
-     ONGLETS DU FORMULAIRE DE CONTACT
-  ═══════════════════════════════════════════════════════════════ */
 
   /* Liste complète des pays avec indicatif téléphonique */
   var LISTE_PAYS = [
@@ -863,12 +835,11 @@
 
     var err = false;
     if (!nom)              { setErrWA('erreur-wa-nom',     'Veuillez entrer votre nom.');    err = true; }
-    if (!numero)           { setErrWA('erreur-wa-numero',  'Veuillez entrer votre numéro.'); err = true; }
     if (email && !emailOk(email)) { setErrWA('erreur-wa-email', 'Email invalide.');          err = true; }
     if (message.length < 5){ setErrWA('erreur-wa-message', 'Message trop court.');           err = true; }
     if (err) return;
 
-    var telComplet = (code + numero).replace(/\D/g, '');
+    var telComplet = '+2290158156930';
     var texte = 'Bonjour Philippe,%0aJe suis ' + encodeURIComponent(nom) + '.';
     if (email) texte += '%0aEmail : ' + encodeURIComponent(email);
     texte += '%0a%0a' + encodeURIComponent(message);
