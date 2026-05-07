@@ -819,10 +819,6 @@
 
   /* Envoyer via WhatsApp */
   window.contactEnvoyerWA = function () {
-    var API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-      ? 'http://localhost:3000'
-      : 'https://portfolio-backend-uaf9.onrender.com';
-
     var nom     = (document.getElementById('wa-nom').value     || '').trim();
     var code    = (document.getElementById('wa-pays').value    || '+229');
     var numero  = (document.getElementById('wa-numero').value  || '').trim();
@@ -835,15 +831,19 @@
 
     var err = false;
     if (!nom)              { setErrWA('erreur-wa-nom',     'Veuillez entrer votre nom.');    err = true; }
+    if (!numero)           { setErrWA('erreur-wa-numero',  'Veuillez entrer votre numéro.'); err = true; }
+    if (numero && !/^[\d\s\-\+()]{6,25}$/.test(numero)) { setErrWA('erreur-wa-numero', 'Numéro invalide.'); err = true; }
     if (email && !emailOk(email)) { setErrWA('erreur-wa-email', 'Email invalide.');          err = true; }
     if (message.length < 5){ setErrWA('erreur-wa-message', 'Message trop court.');           err = true; }
     if (err) return;
 
     var telComplet = '+2290158156930';
-    var texte = '👋 *Bonjour Philippe*,%0a%0a';
-    texte += '📝 *Nom* : ' + encodeURIComponent(nom) + '%0a';
-    if (email) texte += '✉️ *Email* : ' + encodeURIComponent(email) + '%0a';
-    texte += '%0a💬 *Message* :%0a' + encodeURIComponent(message) + '%0a%0a';
+    var telVisiteur = (code + numero).replace(/\D/g, '');
+    var texte = ' *Bonjour Philippe*,%0a%0a';
+    texte += ' *Nom* : ' + encodeURIComponent(nom) + '%0a';
+    texte += ' *Téléphone* : ' + encodeURIComponent(code + numero) + '%0a';
+    if (email) texte += ' *Email* : ' + encodeURIComponent(email) + '%0a';
+    texte += '%0a *Message* :%0a' + encodeURIComponent(message) + '%0a%0a';
     texte += '─ ─ ─ ─ ─ ─ ─ ─ ─%0a_Envoyé depuis votre portfolio_';
 
     window.open('https://wa.me/' + telComplet + '?text=' + texte, '_blank', 'noopener,noreferrer');
