@@ -574,7 +574,7 @@ body::before {
   animation: glissement 0.3s ease; margin: auto;
 }
 
-/* ── Modale générique #mg — plus large pour le formulaire modifier ── */
+/* Modale générique #mg — plus large pour le formulaire modifier */
 #mg .contenu-modale,
 #mg > .contenu-modale {
   max-width: min(760px, 95vw);
@@ -616,7 +616,7 @@ body::before {
   flex-wrap: wrap; flex-shrink: 0;
 }
 
-/* ── Grille des champs dans la modale Modifier ── */
+/* Grille des champs dans la modale Modifier */
 .grille-champs-modif {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -684,7 +684,7 @@ body::before {
   }
 }
 
-/* ── Bouton Modifier dans les listes ── */
+/* Bouton Modifier dans les listes */
 .bouton-modifier-element {
   padding: 0.45rem 0.75rem;
   background: rgba(59,130,246,0.1);
@@ -702,7 +702,7 @@ body::before {
 }
 .bouton-modifier-element:hover { background: rgba(59,130,246,0.2); }
 
-/* ── Éléments des listes (projets, expériences, compétences) ── */
+/* Éléments des listes (projets, expériences, compétences) */
 .element-liste {
   display: flex;
   align-items: flex-start;
@@ -774,7 +774,7 @@ body::before {
 }
 .etat-vide-liste i { font-size: 2rem; color: var(--texte-gris); }
 
-/* ── Barre de niveau compétences ── */
+/* Barre de niveau compétences */
 .barre-niveau-mini {
   display: flex; align-items: center; gap: 8px; margin-top: 4px;
 }
@@ -788,7 +788,7 @@ body::before {
 }
 .barre-niveau-mini span { font-size: 0.75rem; color: var(--texte-leger); white-space: nowrap; }
 
-/* ── Bouton supprimer dans les listes ── */
+/* Bouton supprimer dans les listes */
 .bouton-supprimer-element {
   padding: 0.45rem 0.75rem;
   background: rgba(239,68,68,0.08);
@@ -909,11 +909,11 @@ body::before {
 }
 
 
-/* ═══════════════════════════════════════════════════════════
+/*
    CORRECTIF MOBILE — Cartes stats vides sur téléphone
    Cause : * { max-width: 100% } écrase les éléments flex
            sur Samsung Internet / Chrome Android
-═══════════════════════════════════════════════════════════ */
+*/
 
 .icone-stat,
 .texte-stat,

@@ -195,16 +195,16 @@
     b.id = 'barre-serveur';
     b.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#F59E0B;color:#000;padding:10px 20px;text-align:center;font-weight:600;font-size:.9rem;align-items:center;justify-content:center;gap:10px';
     b.innerHTML = '<i class="fas fa-moon"></i> Serveur Render en veille — patientez 30 à 60 secondes puis réessayez.' +
-      '<button onclick="verifierServeurBtn()" style="margin-left:12px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">🔄 Réessayer</button>' +
-      '<button onclick="this.parentElement.style.display=\'none\'" style="margin-left:6px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">✕</button>';
+      '<button onclick="verifierServeurBtn()" style="margin-left:12px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">Réessayer</button>' +
+      '<button onclick="this.parentElement.style.display=\'none\'" style="margin-left:6px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">Fermer</button>';
     document.body.prepend(b);
   }
 
   window.verifierServeurBtn = function () {
     toast('Vérification du serveur…', 'info');
     fetch(API + '/api/health')
-      .then(function () { masquerBanniere(); toast('✅ Serveur en ligne !', 'succes'); })
-      .catch(function () { toast('⚠️ Serveur toujours hors ligne, patientez encore…', 'avert'); });
+      .then(function () { masquerBanniere(); toast('Serveur en ligne !', 'succes'); })
+      .catch(function () { toast('Serveur toujours hors ligne, patientez encore…', 'avert'); });
   };
 
   /* ── CONNEXION ── */
@@ -438,7 +438,7 @@
         messageId:       id
       });
       if (d.success) {
-        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
+        toast('Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
         document.getElementById('fenetre-message').classList.remove('active');
         chargerMessages();
         chargerStatsRapides();
@@ -523,7 +523,7 @@
         const body = { titre:document.getElementById('projet-titre').value, description:document.getElementById('projet-description').value, technologies:document.getElementById('projet-technologies').value, lien_site:document.getElementById('projet-lien-site').value, lien_github:document.getElementById('projet-lien-github').value, image_url, etiquette:document.getElementById('projet-etiquette').value||'Projet', statut:document.getElementById('projet-statut').value, ordre:parseInt(document.getElementById('projet-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/projets', body);
-          if (d.success) { toast('✅ Projet ajouté !','succes'); form.reset(); window.clearApercu('upload-projet-img','apercu-projet-img'); chargerProjets(); }
+          if (d.success) { toast('Projet ajouté !','succes'); form.reset(); window.clearApercu('upload-projet-img','apercu-projet-img'); chargerProjets(); }
           else toast(d.error||'Erreur','erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter le projet'; }
@@ -579,7 +579,7 @@
         const body = { titre:document.getElementById('exp-titre').value, type_exp:document.getElementById('exp-type').value, entreprise:document.getElementById('exp-entreprise').value, lieu:document.getElementById('exp-lieu').value, date_debut:document.getElementById('exp-date-debut').value, date_fin:document.getElementById('exp-date-fin').value, description:document.getElementById('exp-description').value, tags:document.getElementById('exp-tags').value, statut:document.getElementById('exp-statut').value, ordre:parseInt(document.getElementById('exp-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/experiences', body);
-          if (d.success) { toast('✅ Expérience ajoutée !','succes'); form.reset(); chargerExperiences(); }
+          if (d.success) { toast('Expérience ajoutée !','succes'); form.reset(); chargerExperiences(); }
           else toast(d.error,'erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter l\'expérience'; }
@@ -632,7 +632,7 @@
         const body = { categorie:document.getElementById('comp-categorie').value, icone:document.getElementById('comp-icone').value, couleur:document.getElementById('comp-couleur').value, niveau:parseInt(document.getElementById('comp-niveau').value)||70, label_niveau:document.getElementById('comp-label-niveau').value, items:document.getElementById('comp-items').value, ordre:parseInt(document.getElementById('comp-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/competences', body);
-          if (d.success) { toast('✅ Catégorie ajoutée !','succes'); form.reset(); chargerCompetences(); }
+          if (d.success) { toast('Catégorie ajoutée !','succes'); form.reset(); chargerCompetences(); }
           else toast(d.error,'erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter la catégorie'; }
@@ -674,7 +674,7 @@
         if (!confirm('Supprimer cet élément définitivement ?')) return;
         try {
           await req('DELETE', ROUTES[type] + btn.dataset.id);
-          toast('✅ Supprimé', 'succes');
+          toast('Supprimé', 'succes');
           chargerDonnees(PAGES[type]);
         } catch (err) { toast(err.message, 'erreur'); }
       });
@@ -779,14 +779,14 @@
       if (estStatique) {
         d = await req('POST', ROUTES[type].replace(/\/$/, ''), body);
         if (d.success) {
-          toast('✅ Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
+          toast('Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
           document.getElementById('mg').classList.remove('active');
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
       } else {
         d = await req('PATCH', ROUTES[type] + id, body);
         if (d.success) {
-          toast('✅ Modifications enregistrées !','succes');
+          toast('Modifications enregistrées !','succes');
           document.getElementById('mg').classList.remove('active');
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
@@ -833,13 +833,13 @@
       const nxt = document.getElementById('nouveau-mdp').value;
       const cnf = document.getElementById('confirmer-mdp').value;
       const msg = document.getElementById('message-mdp');
-      if (nxt !== cnf) { msg.textContent='❌ Mots de passe différents'; msg.style.color='#EF4444'; return; }
-      if (nxt.length < 12) { msg.textContent='❌ Minimum 12 caractères'; msg.style.color='#EF4444'; return; }
+      if (nxt !== cnf) { msg.textContent='Mots de passe différents'; msg.style.color='#EF4444'; return; }
+      if (nxt.length < 12) { msg.textContent='Minimum 12 caractères'; msg.style.color='#EF4444'; return; }
       try {
         const d = await req('POST','/api/admin/change-password',{current:cur,next:nxt});
-        if (d.success) { msg.textContent='✅ Mot de passe modifié. Reconnexion…'; msg.style.color='#10B981'; setTimeout(function(){TOKEN=null;localStorage.removeItem('admin_token');sessionStorage.removeItem('admin_token');location.reload();},2000); }
-        else { msg.textContent='❌ '+(d.error||'Erreur'); msg.style.color='#EF4444'; }
-      } catch (err) { msg.textContent='❌ '+err.message; msg.style.color='#EF4444'; }
+        if (d.success) { msg.textContent='Mot de passe modifié. Reconnexion…'; msg.style.color='#10B981'; setTimeout(function(){TOKEN=null;localStorage.removeItem('admin_token');sessionStorage.removeItem('admin_token');location.reload();},2000); }
+        else { msg.textContent=d.error||'Erreur'; msg.style.color='#EF4444'; }
+      } catch (err) { msg.textContent=err.message; msg.style.color='#EF4444'; }
     });
   }
 
@@ -884,7 +884,7 @@
     return '<div class="etat-vide-liste"><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i>' +
       '<p style="color:#F59E0B">Erreur de chargement</p>' +
       '<p style="font-size:.82rem;margin-top:6px">'+escHtml(msg)+'</p>' +
-      '<p style="font-size:.8rem;margin-top:8px;color:#F59E0B">⚠️ Le serveur Render est peut-être en veille.<br>Attendez 30-60 secondes puis cliquez sur <strong>Actualiser</strong>.</p>' +
+      '<p style="font-size:.8rem;margin-top:8px;color:#F59E0B">Le serveur Render est peut-être en veille.<br>Attendez 30-60 secondes puis cliquez sur <strong>Actualiser</strong>.</p>' +
       '<button onclick="document.getElementById(\'btn-actualiser\').click()" style="margin-top:12px;padding:8px 16px;background:#FF6B35;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer"><i class="fas fa-sync-alt"></i> Actualiser maintenant</button>' +
     '</div>';
   }

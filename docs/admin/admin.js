@@ -12,7 +12,7 @@
   let graphiqueMessages = null;
   let graphiqueStatuts  = null;
 
-  /* ── REQUÊTE avec timeout 70s (Render free tier dort ~50s) ── */
+  /* REQUÊTE avec timeout 70s (Render free tier dort ~50s) */
   function req(method, url, body) {
     const opts = {
       method,
@@ -45,7 +45,7 @@
     if (b) b.style.display = 'none';
   }
 
-  /* ── TOAST ── */
+  /* TOAST */
   function toast(msg, type) {
     type = type || 'info';
     const box = document.createElement('div');
@@ -69,7 +69,7 @@
   function formaterDateCourte(d) { return d ? new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'; }
   function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
 
-  /* ── UPLOAD IMAGE ── */
+  /* UPLOAD IMAGE */
   function imageVersBase64(fichier) {
     return new Promise(function (resolve, reject) {
       if (!fichier.type.startsWith('image/')) return reject(new Error('Fichier non-image'));
@@ -121,7 +121,7 @@
     });
   }
 
-  /* ── HELPERS FORM ── */
+  /* HELPERS FORM */
   function htmlChamp(label, type, id, valeur, max) {
     return '<div class="champ-form">' +
       '<label>' + escHtml(label) + '</label>' +
@@ -140,7 +140,7 @@
     '</select></div>';
   }
 
-  /* ── MODALE GÉNÉRIQUE ── */
+  /* MODALE GÉNÉRIQUE */
   function ouvrirModale(titre, corps, boutons) {
     let m = document.getElementById('mg');
     if (!m) {
@@ -172,9 +172,9 @@
     m.classList.add('active');
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      INIT
-  ══════════════════════════════════════════════════════════════ */
+*/
   function init() {
     injecterStyles();
     injecterBanniereServeur();
@@ -195,19 +195,19 @@
     b.id = 'barre-serveur';
     b.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#F59E0B;color:#000;padding:10px 20px;text-align:center;font-weight:600;font-size:.9rem;align-items:center;justify-content:center;gap:10px';
     b.innerHTML = '<i class="fas fa-moon"></i> Serveur Render en veille — patientez 30 à 60 secondes puis réessayez.' +
-      '<button onclick="verifierServeurBtn()" style="margin-left:12px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">🔄 Réessayer</button>' +
-      '<button onclick="this.parentElement.style.display=\'none\'" style="margin-left:6px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">✕</button>';
+      '<button onclick="verifierServeurBtn()" style="margin-left:12px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">Réessayer</button>' +
+      '<button onclick="this.parentElement.style.display=\'none\'" style="margin-left:6px;background:rgba(0,0,0,.2);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">Fermer</button>';
     document.body.prepend(b);
   }
 
   window.verifierServeurBtn = function () {
     toast('Vérification du serveur…', 'info');
     fetch(API + '/api/health')
-      .then(function () { masquerBanniere(); toast('✅ Serveur en ligne !', 'succes'); })
-      .catch(function () { toast('⚠️ Serveur toujours hors ligne, patientez encore…', 'avert'); });
+      .then(function () { masquerBanniere(); toast('Serveur en ligne !', 'succes'); })
+      .catch(function () { toast('Serveur toujours hors ligne, patientez encore…', 'avert'); });
   };
 
-  /* ── CONNEXION ── */
+  /* CONNEXION */
   function bindConnexion() {
     const form = document.getElementById('formulaire-connexion');
     const btnVoir = document.querySelector('.bouton-voir-mdp');
@@ -270,7 +270,7 @@
     });
   }
 
-  /* ── NAVIGATION ── */
+  /* NAVIGATION */
   function bindNavigation() {
     document.querySelectorAll('.element-nav').forEach(function (el) {
       el.addEventListener('click', function (e) {
@@ -317,7 +317,7 @@
     }
   }
 
-  /* ── STATS RAPIDES ── */
+  /* STATS RAPIDES */
   async function chargerStatsRapides() {
     try {
       const d = await req('GET', '/api/admin/stats');
@@ -328,7 +328,7 @@
     } catch {}
   }
 
-  /* ── VUE D'ENSEMBLE ── */
+  /* VUE D'ENSEMBLE */
   async function chargerVueEnsemble() {
     try {
       const d = await req('GET', '/api/admin/stats');
@@ -350,7 +350,7 @@
     } catch {}
   }
 
-  /* ── MESSAGES ── */
+  /* MESSAGES */
   let pageMsgs = 1, filtreMsgs = 'all';
 
   async function chargerMessages() {
@@ -414,11 +414,11 @@
     catch (err) { toast(err.message, 'erreur'); }
   };
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      ENVOYER RÉPONSE — VERSION CORRIGÉE
      Envoie le nom, le message original et la date à server.js
      pour générer l'email HTML professionnel complet
-  ══════════════════════════════════════════════════════════════ */
+*/
   window.envoyerReponse = async function (id, email) {
     const t = document.getElementById('texte-reponse');
     if (!t || !t.value.trim()) return toast('Écrivez une réponse avant d\'envoyer', 'avert');
@@ -438,7 +438,7 @@
         messageId:       id
       });
       if (d.success) {
-        toast('✅ Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
+        toast('Réponse envoyée dans le Gmail de ' + (msg ? unescHtml(msg.name) : 'la personne') + ' !', 'succes');
         document.getElementById('fenetre-message').classList.remove('active');
         chargerMessages();
         chargerStatsRapides();
@@ -466,9 +466,9 @@
   const rechEl = document.getElementById('recherche-messages');
   if (rechEl) rechEl.addEventListener('input', function () { clearTimeout(rtimer); rtimer = setTimeout(chargerMessages, 300); });
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      DONNÉES STATIQUES (portfolio HTML)
-  ══════════════════════════════════════════════════════════════ */
+*/
   const PS = [
     { id:'ps1', titre:'Plateforme VBG', description:'Plateforme 100% anonyme et sécurisée permettant aux femmes de partager des témoignages sur les violences basées sur le genre.', technologies:'HTML/CSS, Node.js', lien_site:'https://vbg-production.up.railway.app', lien_github:'https://github.com/Philippe554-del', etiquette:'Social', statut:'termine', isS:true },
     { id:'ps2', titre:'Mon Portfolio', description:'Portfolio professionnel interactif avec animations, formulaire de contact sécurisé, design responsive et SEO optimisé.', technologies:'HTML/CSS, JavaScript', lien_site:'https://philippe554-del.github.io/Portfolio-/', lien_github:'https://github.com/Philippe554-del/Portfolio-', etiquette:'Portfolio', statut:'termine', isS:true },
@@ -488,9 +488,9 @@
     { id:'cs3', categorie:'Maintenance & Support', icone:'fas fa-laptop-medical', couleur:'linear-gradient(135deg,#4facfe,#00f2fe)', niveau:80, label_niveau:'Avancé — 80%', items:'fas fa-search | Diagnostic hardware/software\nfas fa-cogs | Installation systèmes\nfas fa-tools | Maintenance préventive\nfas fa-headset | Support utilisateurs\nfas fa-bolt | Optimisation performance', isS:true }
   ];
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      PROJETS
-  ══════════════════════════════════════════════════════════════ */
+*/
   async function chargerProjets() {
     if (!document.getElementById('upload-projet-img')) {
       const el = document.getElementById('projet-image');
@@ -523,7 +523,7 @@
         const body = { titre:document.getElementById('projet-titre').value, description:document.getElementById('projet-description').value, technologies:document.getElementById('projet-technologies').value, lien_site:document.getElementById('projet-lien-site').value, lien_github:document.getElementById('projet-lien-github').value, image_url, etiquette:document.getElementById('projet-etiquette').value||'Projet', statut:document.getElementById('projet-statut').value, ordre:parseInt(document.getElementById('projet-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/projets', body);
-          if (d.success) { toast('✅ Projet ajouté !','succes'); form.reset(); window.clearApercu('upload-projet-img','apercu-projet-img'); chargerProjets(); }
+          if (d.success) { toast('Projet ajouté !','succes'); form.reset(); window.clearApercu('upload-projet-img','apercu-projet-img'); chargerProjets(); }
           else toast(d.error||'Erreur','erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter le projet'; }
@@ -554,9 +554,9 @@
     '</div>';
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      EXPÉRIENCES
-  ══════════════════════════════════════════════════════════════ */
+*/
   async function chargerExperiences() {
     const liste = document.getElementById('liste-experiences');
     if (!liste) return;
@@ -579,7 +579,7 @@
         const body = { titre:document.getElementById('exp-titre').value, type_exp:document.getElementById('exp-type').value, entreprise:document.getElementById('exp-entreprise').value, lieu:document.getElementById('exp-lieu').value, date_debut:document.getElementById('exp-date-debut').value, date_fin:document.getElementById('exp-date-fin').value, description:document.getElementById('exp-description').value, tags:document.getElementById('exp-tags').value, statut:document.getElementById('exp-statut').value, ordre:parseInt(document.getElementById('exp-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/experiences', body);
-          if (d.success) { toast('✅ Expérience ajoutée !','succes'); form.reset(); chargerExperiences(); }
+          if (d.success) { toast('Expérience ajoutée !','succes'); form.reset(); chargerExperiences(); }
           else toast(d.error,'erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter l\'expérience'; }
@@ -607,9 +607,9 @@
     '</div>';
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      COMPÉTENCES
-  ══════════════════════════════════════════════════════════════ */
+*/
   async function chargerCompetences() {
     const liste = document.getElementById('liste-competences');
     if (!liste) return;
@@ -632,7 +632,7 @@
         const body = { categorie:document.getElementById('comp-categorie').value, icone:document.getElementById('comp-icone').value, couleur:document.getElementById('comp-couleur').value, niveau:parseInt(document.getElementById('comp-niveau').value)||70, label_niveau:document.getElementById('comp-label-niveau').value, items:document.getElementById('comp-items').value, ordre:parseInt(document.getElementById('comp-ordre').value)||0 };
         try {
           const d = await req('POST', '/api/admin/competences', body);
-          if (d.success) { toast('✅ Catégorie ajoutée !','succes'); form.reset(); chargerCompetences(); }
+          if (d.success) { toast('Catégorie ajoutée !','succes'); form.reset(); chargerCompetences(); }
           else toast(d.error,'erreur');
         } catch (err2) { toast(err2.message,'erreur'); afficherBanniere(); }
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-plus"></i> Ajouter la catégorie'; }
@@ -659,9 +659,9 @@
     '</div>';
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      BIND BOUTONS
-  ══════════════════════════════════════════════════════════════ */
+*/
   const ROUTES = { projet:'/api/admin/projets/', experience:'/api/admin/experiences/', competence:'/api/admin/competences/' };
   const PAGES  = { projet:'projets', experience:'experiences', competence:'competences' };
 
@@ -674,7 +674,7 @@
         if (!confirm('Supprimer cet élément définitivement ?')) return;
         try {
           await req('DELETE', ROUTES[type] + btn.dataset.id);
-          toast('✅ Supprimé', 'succes');
+          toast('Supprimé', 'succes');
           chargerDonnees(PAGES[type]);
         } catch (err) { toast(err.message, 'erreur'); }
       });
@@ -687,7 +687,7 @@
     });
   }
 
-  /* ── MODALE MODIFIER ── */
+  /* MODALE MODIFIER */
   async function ouvrirModifier(id, type, estStatique) {
     let item = null;
 
@@ -779,14 +779,14 @@
       if (estStatique) {
         d = await req('POST', ROUTES[type].replace(/\/$/, ''), body);
         if (d.success) {
-          toast('✅ Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
+          toast('Sauvegardé en base de données ! (Le Portfolio HTML reste inchangé)', 'succes');
           document.getElementById('mg').classList.remove('active');
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
       } else {
         d = await req('PATCH', ROUTES[type] + id, body);
         if (d.success) {
-          toast('✅ Modifications enregistrées !','succes');
+          toast('Modifications enregistrées !','succes');
           document.getElementById('mg').classList.remove('active');
           chargerDonnees(PAGES[type]);
         } else toast(d.error||'Erreur','erreur');
@@ -795,9 +795,9 @@
     finally { if (btnS) { btnS.disabled=false; btnS.innerHTML='<i class="fas fa-save"></i> Enregistrer'; } }
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      STATISTIQUES
-  ══════════════════════════════════════════════════════════════ */
+*/
   async function chargerStatistiques() {
     try {
       const d = await req('GET', '/api/admin/stats');
@@ -820,9 +820,9 @@
     } catch {}
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      PARAMÈTRES
-  ══════════════════════════════════════════════════════════════ */
+*/
   function bindParametres() {
     const form = document.getElementById('formulaire-mdp');
     if (!form || form.dataset.bound) return;
@@ -833,19 +833,19 @@
       const nxt = document.getElementById('nouveau-mdp').value;
       const cnf = document.getElementById('confirmer-mdp').value;
       const msg = document.getElementById('message-mdp');
-      if (nxt !== cnf) { msg.textContent='❌ Mots de passe différents'; msg.style.color='#EF4444'; return; }
-      if (nxt.length < 12) { msg.textContent='❌ Minimum 12 caractères'; msg.style.color='#EF4444'; return; }
+      if (nxt !== cnf) { msg.textContent='Mots de passe différents'; msg.style.color='#EF4444'; return; }
+      if (nxt.length < 12) { msg.textContent='Minimum 12 caractères'; msg.style.color='#EF4444'; return; }
       try {
         const d = await req('POST','/api/admin/change-password',{current:cur,next:nxt});
-        if (d.success) { msg.textContent='✅ Mot de passe modifié. Reconnexion…'; msg.style.color='#10B981'; setTimeout(function(){TOKEN=null;localStorage.removeItem('admin_token');sessionStorage.removeItem('admin_token');location.reload();},2000); }
-        else { msg.textContent='❌ '+(d.error||'Erreur'); msg.style.color='#EF4444'; }
-      } catch (err) { msg.textContent='❌ '+err.message; msg.style.color='#EF4444'; }
+        if (d.success) { msg.textContent='Mot de passe modifié. Reconnexion…'; msg.style.color='#10B981'; setTimeout(function(){TOKEN=null;localStorage.removeItem('admin_token');sessionStorage.removeItem('admin_token');location.reload();},2000); }
+        else { msg.textContent=d.error||'Erreur'; msg.style.color='#EF4444'; }
+      } catch (err) { msg.textContent=err.message; msg.style.color='#EF4444'; }
     });
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      ACTIONS RAPIDES
-  ══════════════════════════════════════════════════════════════ */
+*/
   function bindActions() {
     document.querySelectorAll('.carte-action').forEach(function (btn) {
       btn.addEventListener('click', async function () {
@@ -876,7 +876,7 @@
     } catch(err){toast(err.message,'erreur');}
   }
 
-  /* ── HELPERS HTML ── */
+  /* HELPERS HTML */
   function htmlVide(icone, titre, desc) {
     return '<div class="etat-vide-liste"><i class="fas '+icone+'"></i><p>'+escHtml(titre)+'</p>'+(desc?'<p style="font-size:.8rem">'+escHtml(desc)+'</p>':'')+'</div>';
   }
@@ -884,14 +884,14 @@
     return '<div class="etat-vide-liste"><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i>' +
       '<p style="color:#F59E0B">Erreur de chargement</p>' +
       '<p style="font-size:.82rem;margin-top:6px">'+escHtml(msg)+'</p>' +
-      '<p style="font-size:.8rem;margin-top:8px;color:#F59E0B">⚠️ Le serveur Render est peut-être en veille.<br>Attendez 30-60 secondes puis cliquez sur <strong>Actualiser</strong>.</p>' +
+      '<p style="font-size:.8rem;margin-top:8px;color:#F59E0B">Le serveur Render est peut-être en veille.<br>Attendez 30-60 secondes puis cliquez sur <strong>Actualiser</strong>.</p>' +
       '<button onclick="document.getElementById(\'btn-actualiser\').click()" style="margin-top:12px;padding:8px 16px;background:#FF6B35;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer"><i class="fas fa-sync-alt"></i> Actualiser maintenant</button>' +
     '</div>';
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      STYLES INJECTÉS
-  ══════════════════════════════════════════════════════════════ */
+*/
   function injecterStyles() {
     if (document.getElementById('ajs')) return;
     const s = document.createElement('style'); s.id = 'ajs';
@@ -932,9 +932,9 @@
     document.head.appendChild(s);
   }
 
-  /* ══════════════════════════════════════════════════════════════
+/*
      DÉMARRAGE
-  ══════════════════════════════════════════════════════════════ */
+*/
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 

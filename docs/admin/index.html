@@ -518,30 +518,30 @@
       }
       var max = parseInt(parPays[0].nb) || 1;
       var drapeaux = {
-        'Bénin': '🇧🇯', 'Benin': '🇧🇯',
-        'France': '🇫🇷',
-        "Côte d'Ivoire": '🇨🇮', "Cote d'Ivoire": '🇨🇮',
-        'Sénégal': '🇸🇳', 'Senegal': '🇸🇳',
-        'Togo': '🇹🇬',
-        'Mali': '🇲🇱',
-        'Cameroun': '🇨🇲', 'Cameroon': '🇨🇲',
-        'Nigeria': '🇳🇬',
-        'Ghana': '🇬🇭',
-        'Maroc': '🇲🇦', 'Morocco': '🇲🇦',
-        'Algérie': '🇩🇿', 'Algeria': '🇩🇿',
-        'Tunisie': '🇹🇳', 'Tunisia': '🇹🇳',
-        'Congo': '🇨🇬',
-        'Gabon': '🇬🇦',
-        'États-Unis': '🇺🇸', 'United States': '🇺🇸',
-        'Canada': '🇨🇦',
-        'Belgique': '🇧🇪', 'Belgium': '🇧🇪',
-        'Allemagne': '🇩🇪', 'Germany': '🇩🇪',
-        'Royaume-Uni': '🇬🇧', 'United Kingdom': '🇬🇧',
-        'Local': '🏠'
+        'Bénin': 'BJ', 'Benin': 'BJ',
+        'France': 'FR',
+        "Côte d'Ivoire": 'CI', "Cote d'Ivoire": 'CI',
+        'Sénégal': 'SN', 'Senegal': 'SN', 
+        'Togo': 'TG',
+        'Mali': 'ML',
+        'Cameroun': 'CM', 'Cameroon': 'CM',
+        'Nigeria': 'NG',
+        'Ghana': 'GH',
+        'Maroc': 'MA', 'Morocco': 'MA',
+        'Algérie': 'DZ', 'Algeria': 'DZ',
+        'Tunisie': 'TN', 'Tunisia': 'TN',
+        'Congo': 'CG',
+        'Gabon': 'GA',
+        'États-Unis': 'US', 'United States': 'US',
+        'Canada': 'CA',
+        'Belgique': 'BE', 'Belgium': 'BE',
+        'Allemagne': 'DE', 'Germany': 'DE',
+        'Royaume-Uni': 'GB', 'United Kingdom': 'GB',
+        'Local': 'LOCAL'
       };
       el.innerHTML = '<div class="bloc-pays">' + parPays.map(function(p) {
         var pct = Math.round(parseInt(p.nb) / max * 100);
-        var drapeau = drapeaux[p.pays] || '🌍';
+        var drapeau = drapeaux[p.pays] || p.pays;
         return '<div class="ligne-pays">'
           + '<span style="font-size:1.2rem;flex-shrink:0;">' + drapeau + '</span>'
           + '<span class="pays-nom">' + p.pays + '</span>'

@@ -14,16 +14,19 @@ const crypto     = require('crypto');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-['JWT_SECRET', 'DATABASE_URL'].forEach(function (key) {
+['JWT_SECRET', 'DATABASE_URL', 'ADMIN_PASSWORD'].forEach(function (key) {
   if (!process.env[key]) { console.error('ERREUR FATALE : variable manquante → ' + key); process.exit(1); }
 });
 if (process.env.JWT_SECRET.length < 32) {
   console.error('ERREUR FATALE : JWT_SECRET trop court (32 caractères minimum).'); process.exit(1);
 }
+if (process.env.ADMIN_PASSWORD.length < 12) {
+  console.error('ERREUR FATALE : ADMIN_PASSWORD trop court (12 caractères minimum).'); process.exit(1);
+}
 
 app.set('trust proxy', 1);
 
-// ── SÉCURITÉ : suppression des headers qui révèlent la techno ─────────────
+// Hide Express version in headers
 app.disable('x-powered-by');
 
 app.use(helmet({
@@ -82,8 +85,33 @@ const contactLimiter = rateLimit({ windowMs: 600000, max: isDev ? 100 : 5,   sta
 const loginLimiter   = rateLimit({ windowMs: 900000, max: isDev ? 100 : 10,  skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false, message: { error: 'Trop de tentatives.' } });
 const adminLimiter   = rateLimit({ windowMs: 900000, max: isDev ? 2000 : 200, standardHeaders: true, legacyHeaders: false });
 
-// ── SÉCURITÉ : rate limit strict sur le tracker public ────────────────────
+// Strict rate limiting for public tracker endpoints
 const trackerLimiter = rateLimit({ windowMs: 60000, max: isDev ? 1000 : 60, standardHeaders: true, legacyHeaders: false, message: { error: 'Trop de requêtes.' } });
+
+// CSRF token storage with expiration
+const csrfTokens = new Map();
+function genererCsrfToken() {
+  const token = crypto.randomBytes(32).toString('hex');
+  csrfTokens.set(token, Date.now() + 3600000); // Expires in 1 hour
+  return token;
+}
+function validerCsrfToken(token) {
+  if (!token || typeof token !== 'string') return false;
+  const expiration = csrfTokens.get(token);
+  if (!expiration || Date.now() > expiration) {
+    csrfTokens.delete(token);
+    return false;
+  }
+  csrfTokens.delete(token); // Token one-time use
+  return true;
+}
+// Nettoyer les tokens expirés toutes les heures
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, expiration] of csrfTokens.entries()) {
+    if (now > expiration) csrfTokens.delete(token);
+  }
+}, 3600000);
 
 let pool;
 
@@ -231,6 +259,15 @@ async function auth(req, res, next) {
   next();
 }
 
+// CSRF validation middleware
+function verifierCsrf(req, res, next) {
+  const token = req.headers['x-csrf-token'];
+  if (!token || !validerCsrfToken(token)) {
+    return res.status(403).json({ error: 'Token CSRF invalide ou expiré.' });
+  }
+  next();
+}
+
 function genererEmailHTML(opts) {
   const nom     = opts.nomDestinataire  || 'visiteur(se)';
   const reponse = opts.reponse          || '';
@@ -267,19 +304,19 @@ function genererEmailHTML(opts) {
       </table>
       <h1 style="margin:0 0 6px;color:#f8fafc;font-size:22px;font-weight:700;">Philippe Hountondji</h1>
       <p style="margin:0 0 4px;color:#94a3b8;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Développeur Web &amp; Administrateur Réseau</p>
-      <p style="margin:0;color:#64748b;font-size:12px;">Porto-Novo, Bénin 🇧🇯</p>
+      <p style="margin:0;color:#64748b;font-size:12px;">Porto-Novo, Bénin</p>
     </td>
   </tr>
   <tr>
     <td style="background:#1e293b;padding:12px 40px;text-align:center;">
-      <p style="margin:0;color:#e85d04;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">✉ &nbsp;Réponse à votre message</p>
+      <p style="margin:0;color:#e85d04;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Réponse à votre message</p>
     </td>
   </tr>
   <tr>
     <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
       <p style="margin:0 0 6px;color:#0f172a;font-size:18px;font-weight:700;">Bonjour ${escEmail(nom)},</p>
       <p style="margin:0 0 28px;color:#64748b;font-size:14px;line-height:1.7;">Merci pour votre message. Voici ma réponse personnelle.</p>
-      <p style="margin:0 0 10px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">📩 Votre message du ${escEmail(date)}</p>
+      <p style="margin:0 0 10px;color:#94a3b8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Votre message du ${escEmail(date)}</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
         <tr>
           <td style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:0 8px 8px 0;padding:18px 20px;">
@@ -287,7 +324,7 @@ function genererEmailHTML(opts) {
           </td>
         </tr>
       </table>
-      <p style="margin:0 0 10px;color:#e85d04;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">💬 Ma réponse</p>
+      <p style="margin:0 0 10px;color:#e85d04;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Ma réponse</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
         <tr>
           <td style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #e85d04;border-radius:0 8px 8px 0;padding:18px 20px;">
@@ -324,19 +361,22 @@ function genererEmailHTML(opts) {
 </html>`;
 }
 
-// ── HEALTH ────────────────────────────────────────────────────────────────
+// Health check endpoint
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 
-// ══════════════════════════════════════════════════════════════════════════
-// TRACKER — Routes publiques
-// ══════════════════════════════════════════════════════════════════════════
+// Generate CSRF token
+app.get('/api/csrf-token', (req, res) => {
+  const token = genererCsrfToken();
+  res.json({ csrfToken: token });
+});
 
+// Tracker endpoints
 // POST /api/tracker/visite
 app.post('/api/tracker/visite', trackerLimiter, async (req, res) => {
   try {
     const { page = '/', referrer = '' } = req.body;
 
-    // SÉCURITÉ : validation des champs entrants
+    // Input validation
     const pageSafe     = String(page).slice(0, 255).replace(/[<>"']/g, '');
     const referrerSafe = String(referrer).slice(0, 500).replace(/[<>"']/g, '');
 
@@ -396,7 +436,7 @@ app.post('/api/tracker/action', trackerLimiter, async (req, res) => {
     const { type_action, cible = '', page = '/' } = req.body;
     if (!type_action) return res.json({ ok: false });
 
-    // SÉCURITÉ : whitelist des type_action autorisés
+    // Only allow specific action types
     const actionsAutorisees = ['scroll_bas', 'clic_contact', 'clic_projet', 'clic_cv', 'clic_github', 'clic_linkedin', 'clic_whatsapp'];
     const typeValide = actionsAutorisees.includes(String(type_action)) ? String(type_action) : 'autre';
 
@@ -536,7 +576,7 @@ app.get('/api/analytics/sessions', auth, adminLimiter, async (req, res) => {
 });
 
 // ── CONTACT ───────────────────────────────────────────────────────────────
-app.post('/api/contact', contactLimiter, async (req, res) => {
+app.post('/api/contact', contactLimiter, verifierCsrf, async (req, res) => {
   try {
     const name    = sanitize(req.body.name,    100);
     const email   = sanitize(req.body.email,   254);
@@ -882,18 +922,10 @@ app.delete('/api/admin/competences/:id', auth, adminLimiter, async (req, res) =>
   } catch (err) { res.status(500).json({ error: 'Erreur serveur.' }); }
 });
 
-// ── INIT ADMIN — SÉCURITÉ : désactivé en production ──────────────────────
-app.post('/api/admin/init', async (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'Route désactivée en production.' });
-  }
-  try {
-    const hash = await bcrypt.hash('portfolio@jesuusede', 14);
-    await pool.query('DELETE FROM admin_users WHERE email = $1', ['hountondjiphilippe58@gmail.com']);
-    await pool.query('INSERT INTO admin_users (email, password) VALUES ($1, $2)', ['hountondjiphilippe58@gmail.com', hash]);
-    res.json({ success: true });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
+// ── INIT ADMIN — Route SUPPRIMÉE pour sécurité ────────────────────────────
+// Utiliser setup-admin.js à la place :
+// node backend/setup-admin.js
+// Cette route n'existe plus, exécuter le script setup directement.
 
 // ── STATIC & FALLBACK ─────────────────────────────────────────────────────
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin'), { etag: true, lastModified: true, dotfiles: 'deny' }));
