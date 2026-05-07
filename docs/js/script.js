@@ -840,9 +840,11 @@
     if (err) return;
 
     var telComplet = '+2290158156930';
-    var texte = 'Bonjour Philippe,%0aJe suis ' + encodeURIComponent(nom) + '.';
-    if (email) texte += '%0aEmail : ' + encodeURIComponent(email);
-    texte += '%0a%0a' + encodeURIComponent(message);
+    var texte = '👋 *Bonjour Philippe*,%0a%0a';
+    texte += '📝 *Nom* : ' + encodeURIComponent(nom) + '%0a';
+    if (email) texte += '✉️ *Email* : ' + encodeURIComponent(email) + '%0a';
+    texte += '%0a💬 *Message* :%0a' + encodeURIComponent(message) + '%0a%0a';
+    texte += '─ ─ ─ ─ ─ ─ ─ ─ ─%0a_Envoyé depuis votre portfolio_';
 
     window.open('https://wa.me/' + telComplet + '?text=' + texte, '_blank', 'noopener,noreferrer');
 
