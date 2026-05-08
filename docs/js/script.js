@@ -1,13 +1,11 @@
 (function () {
   'use strict';
 
-  /* Empêcher clic-droit sur images */
   document.addEventListener('dragstart', function (e) { e.preventDefault(); });
   document.addEventListener('contextmenu', function (e) {
     if (e.target.tagName === 'IMG') e.preventDefault();
   });
 
-  /* URL API selon environnement */
   var API = (function () {
     var h = window.location.hostname;
     return (h === 'localhost' || h === '127.0.0.1')
@@ -180,7 +178,6 @@
     var tousLiens  = document.querySelectorAll('.liste-nav a');
     var formContact = document.getElementById('form-contact');
 
-    /* ── Burger ── */
     if (burgerBtn) {
       burgerBtn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -210,7 +207,6 @@
       }
     });
 
-    /* ── Smooth scroll ── */
     document.addEventListener('click', function (e) {
       var lien = e.target.closest('a[href^="#"]');
       if (!lien) return;
@@ -222,7 +218,6 @@
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    /* ── Scroll events ── */
     window.addEventListener('scroll', function () {
       var pos = window.pageYOffset;
       if (siteNav)  siteNav.classList.toggle('scrolled', pos > 80);
@@ -235,7 +230,6 @@
       });
     }
 
-    /* ── Scroll indicateur ── */
     var scrollInd = document.getElementById('scroll-indicateur');
     if (scrollInd) {
       scrollInd.addEventListener('click', function () {
@@ -244,7 +238,6 @@
       });
     }
 
-    /* ── Lien actif navigation ── */
     var sections = document.querySelectorAll('section[id]');
     function majNavActive() {
       var pos = window.pageYOffset;
@@ -261,7 +254,6 @@
     window.addEventListener('scroll', majNavActive, { passive: true });
     majNavActive();
 
-    /* ── Reveal au scroll ── */
     if (window.IntersectionObserver) {
       var obsReveal = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -305,16 +297,14 @@
       document.querySelectorAll('.stat-item, .chiffre-bloc').forEach(function (s) { obsStats.observe(s); });
     }
 
-    /* ── Micro-interaction CV ── */
     var btnCV = document.querySelector('.cv-dl-btn');
     if (btnCV) btnCV.addEventListener('click', function () { afficherNotif('Téléchargement du CV en cours…', 'info'); });
 
-    /* ── Glitch h1 ── */
     var nomH1 = document.querySelector('.nom-gradient');
     if (nomH1) nomH1.setAttribute('data-glitch', nomH1.textContent);
 
-    function afficherNotif(msg, type) {
-      if (['succes','erreur','info'].indexOf(type) < 0) type = 'info';
+    var afficherNotif = function(msg, type) {
+      type = ['succes','erreur','info'].indexOf(type) < 0 ? 'info' : type;
       var div = document.createElement('div');
       div.className = 'notif notif-' + type;
       var ic = { succes: 'fa-check-circle', erreur: 'fa-exclamation-circle', info: 'fa-info-circle' }[type];
@@ -330,7 +320,7 @@
         div.classList.remove('visible');
         setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 400);
       }, 5000);
-    }
+    };
 
     function nettoyer(v, max) { return String(v || '').trim().slice(0, max || 2000); }
     function emailValide(e) { return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(e) && e.length <= 254; }
@@ -844,7 +834,7 @@
     texte += ' *Téléphone* : ' + encodeURIComponent(code + numero) + '%0a';
     if (email) texte += ' *Email* : ' + encodeURIComponent(email) + '%0a';
     texte += '%0a *Message* :%0a' + encodeURIComponent(message) + '%0a%0a';
-    texte += '─ ─ ─ ─ ─ ─ ─ ─ ─%0a_Envoyé depuis votre portfolio_';
+    texte += '─ ─ ─ ─ ─ ─ ─ ─ ─%0a_Envoyé depuis votre portfolio_ https://philippe554-del.github.io/Portfolio-/';
 
     window.open('https://wa.me/' + telComplet + '?text=' + texte, '_blank', 'noopener,noreferrer');
 
@@ -852,6 +842,6 @@
     ['wa-nom','wa-numero','wa-email','wa-message'].forEach(function (id) {
       var el = document.getElementById(id); if (el) el.value = '';
     });
-  };
+  };w
 
 })();
